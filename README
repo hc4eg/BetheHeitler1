@@ -1,0 +1,329 @@
+BetheHeitler-1.3
+================
+June 2015
+
+
+Changes from BetheHeitler-1.2
+-----------------------------
+1. Added a sensitive volume right after the target, which
+   I have called the "Monitor". This will record the energy
+   and trajectory of any electron or positron that passes through
+   it.
+2. I have added user controllable options to the OutputFile class.
+   These include: How the output file name is determined, and
+   whether or not the information from the "Monitor" is recorded
+   and included in the output file.
+
+
+BetheHeitler-1.2
+================
+May 2015
+
+Changes from BetheHeitler-1.1
+-----------------------------
+1. Added the hodoscope paddles
+2. Changed output format to include paddle data
+3. Cleaned up a few annoyances.
+
+Presently the option is to not output data unless
+there is a hit in the hodoscope.
+Still to do: Add light output calculation to hodoscope
+paddle output. (At present light_output = energy_deposited)
+
+BetheHeitler-1.1
+==============
+November 2014
+
+This is the second release of the geant4 simulation
+of the pair spectrometer magnet and the VDC wire
+chambers for the Bethe-Heitler experiment.
+This version is configured to work with recent releases
+of GEANT4 using the CMake build system.
+
+Changes from BetheHeitler-1.0
+-----------------------------
+1. Fixed error with target location geometry.
+2. Added second set of VDCs - VDC 0 beam left, VDC 1 beam right
+   Output identifies which VDC got hit.
+3. Added option to simulate a photon beam originating upstream
+   of target.
+
+Compilation instructions:
+-------------------------
+Get the package betheheitler-1.0.tgz
+from http://nucleus.usask.ca/ftp/pub/rob/
+Unpack the tar file into a suitable directory in your geant4 tree.
+
+e.g. suppose you have installed geant4 in a directory structure
+$HOME/geant4
+	/geant4-source
+	/geant4-install
+	/geant4-build
+then
+	cd $HOME/geant4
+and type
+> tar  zxvf betheheitler-1.0.tgz
+this will create the directory "BetheHeitler-1.0"
+Then you would have..
+$HOME/geant4
+	/geant4-source
+	/geant4-install
+	/geant4-build
+	/BetheHeitler-1.0
+	/...
+
+Using the CMake GUI is easiest so this will be described
+but you can also use the command line.
+
+In the CMake GUI
+	Browse Source and set it to $HOME/geant4/BetheHeitler-1.0
+	Browse Build and set it to $HOME/geant4/BetheHeitler-1.0
+	Click Configure
+Choose the default "Unix Makefiles" and "Use Native Compilers"
+in the popup and click OK.
+
+It will complain that it cannot find the package configuration file for Geant4.
+Set "Geant4_DIR" by
+	clicking on Geant4_DIR-NOTFOUND then clicking on the [...] button.
+	Choose the geant4 directory containing the "Geant4Config.cmake" file
+	e.g. $HOME/geant4/geant4-install/lib/Geant4-9.6.1
+	click "Open"
+click Configure again
+
+It should simply report "Configuring done".
+	(You do not need to change CMAKE_BUILD_TYPE or CMAKE_INSTALL_PREFIX.
+	The BetheHeitler application can stay in this directory.)
+click Generate
+It should simply report "Generating done".
+a "Makefile" will have been created in the BetheHeitler-1.0 directory.
+then in the BetheHeitler-1.0 directory
+type
+> make
+This will create the BethHeitler application.
+
+Before running the application you will need to set up
+the environment variables needed by GEANT4.
+Geant provides a setup script to accomplish this
+in ../geant4-install/bin
+For convenience we have found it useful
+to create a setup script to be put in your geant4 directory.
+e.g. create the file $HOME/geant4/setup-geant4
+which contains the lines (for the csh or tcsh)
+  #!/bin/csh
+  set g4script_dir=$GEANT_DIR/geant4-install/bin
+  cd $g4script_dir
+  source geant4.csh
+  cd $GEANT_DIR
+
+You should make this file executable.
+> chmod +x setup-geant4
+
+To run this first set the environment variable GEANT_DIR
+e.g. for the csh
+> setenv GEANT_DIR $HOME/geant4
+(It would be convenient to place this in your login script
+so it is always set when you start a new terminal window.
+e.g. for the csh add the above line to the .cshrc file.)
+
+Then the script must be "sourced" e.g.
+> cd $GEANT_DIR
+> source setup-geant4
+
+Geant4 applications may now be run.
+
+The BetheHeitler application should now be avalable to be run.
+Normally it would be run from within the directory in which it is installed.
+i.e. in the directory $HOME/geant4/BetheHeitler-1.0
+type
+> BetheHeitler
+or type
+> BetheHeitler <macrofilename>
+
+The first option starts the application with the Qt GUI.
+Modifying the file "gui.mac" allows you to define which buttons
+are available in the menus of the GUI.
+The macro file "vis.mac" is also read to set up the default view
+for the detector visualization.
+
+The second option simply executes the macros in the file <macrofilename>
+with no GUI and no visualization.
+Example macro files are included in the distributions.
+e.g. run_input.mac run_input_all.mac run_input_fit.mac
+
+After a /run/beamOn command and the simulation completes a file named
+"BH.0000.dat" will have been written which contains the event-by-event data.
+If more /run/beamOn commands are executed in the same session, the subsequent files
+will be named "BH.0001.dat", "BH.0002.dat", etc.
+Existing BH.####.dat files are overwritten so if you want to save
+the data is is suggested you copy or rename the file.
+#### is the Geant4 run number.
+
+With version 1.3 there are now options to control the output file.
+You can change the prefix from "BH" so something else.
+You can change #### from the G4 run number to a unique run number 
+kept in a file named "<prefix>.runno" and which is incremented
+after each run starts. This is useful when running multiple copies
+of the simulation on the one machine so that the output files from
+each are kept seperate.
+
+The parameters of the run are included in a header to the event-by-event
+data file along with a line indicating the column headings in the file.
+These lines in the file start with "#", so programs that read the
+event-by-event data from this file should ignore all lines beginning
+with a "#".
+
+:----
+:Deprecated in version 1.2:
+:A perl script is included in the distribution which can be used to
+:get aggregate information from the data.
+:Run by (for e.g.)
+:> getstats.pl <BH.0000.dat
+:(The outout is, in general, not particuly useful except for debuging.)
+:----
+
+The BetheHeitler program contains many parameters that can be changed
+without modifying and recompiling the code.
+
+Parameters of the geometetry/detector.
+======================================
+
+/BH/detector/set_B0 <field> [unit]
+	Sets the central magnetic field.
+	Default unit: tesla (candidates: tesla gauss kilogauss)
+
+/BH/detector/set_target_material <material>
+	Select the Target Material.
+	MUST execute /BH/detector/update for change to take effect.
+	Candidate materials: Scintillator Mylar Polyethylene Air Ethane/Argon
+		G4_He G4_Al G4_Cu G4_C G4_U G4_Fe G4_Galactic
+
+/BH/detector/set_target_thickness <target_thickness> [unit]
+	Set the thickness of the target.
+	MUST execute /BH/detector/update for changes to take effect.
+	Default unit: mm (candidates: mm cm micron)
+
+/BH/detector/update
+	Update geometry.
+	This command MUST be applied before "beamOn" 
+		if you changed geometrical value(s)
+
+/BH/detector/print
+	Print the current values of the changeable geometry parameters.
+
+Parameters controlling the emitted electrons (positrons) from the target.
+=========================================================================
+Note: in the following, the primary particle coordinate system
+used in the following is not the same as the geant4
+coordinate system displayed in the geant4 viewer.
+The primary particle coordinate system is the same as in the
+RAYTRACE program.
+Primary particle coordinate system:
+	z = beam direction, x = beam left, y = up
+	center of target is x = y = z = 0
+Geant4 coordinate system:
+	x = beam direction, y = beam left, z = up
+	(The output coordinate system is relative to the first VDC
+	in each VDC package.)
+----
+
+/BH/gun/set_central_energy <energy> [unit]
+	Set the central energy.
+	Default unit: MeV (candidates: MeV keV)
+
+/BH/gun/set_delta_min <delta_min>
+	Set minimum % from central energy.
+
+/BH/gun/set_delta_max <delta_max>
+	Set maximum % from central energy.
+
+    [The particle energy will be chosen randomly so that
+	central_energy*(1-delta_min/100) < energy < central_energy*(1+delta_max/100) ]
+
+/BH/gun/set_x_min <x_min> [unit]
+	Set minimum x position.
+	Default unit: cm (candidates: mm cm m)
+
+/BH/gun/set_x_max <x_max> [unit]
+	Set maximum x position.
+	Default unit: cm (candidates: mm cm m)
+
+/BH/gun/set_y_min <y_min> [unit]
+	Set minimum y position.
+	Default unit: cm (candidates: mm cm m)
+
+/BH/gun/set_y_max <y_max> [unit]
+	Set maximum y position.
+	Default unit: cm (candidates: mm cm m)
+
+/BH/gun/set_radius_max <radius>_max [unit]
+	Set maximum position radius.
+	Default unit: cm (candidates: mm cm m)
+
+    [The particle starting position will be chosen randomly with
+	x_min < x < x_max and
+	y_min < y < y_max and
+	sqrt(x^2 +y^2) < radius and
+	with gamma_mode = false:
+	   -target_thickness/2 < z < +target_thickness/2 ]
+	with gamma_mode = true:
+	   z = -(target_to_helium_window air thickness)
+
+/BH/gun/set_theta_min <theta_min> [unit]
+	Set minimum theta angle.
+	Default unit: mrad (candidates: mrad rad deg)
+
+/BH/gun/set_theta_max <theta_max> [unit]
+	Set maximum theta angle.
+	Default unit: mrad (candidates: mrad rad deg)
+
+/BH/gun/set_phi_min <phi_min> [unit]
+	Set minimum phi angle.
+	Default unit: mrad (candidates: mrad rad deg)
+
+/BH/gun/set_phi_max <phi_max> [unit]
+	Set maximum phi angle.
+	Default unit: mrad (candidates: mrad rad deg)
+
+/BH/gun/set_angle_max <angle_max> [unit]
+	Set maximum angle.
+	Default unit: mrad (candidates: mrad rad deg)
+
+    [The particle starting angles will be chosen randomly with
+	theta_min < theta < theta_max and
+	phi_min < phi < phi_max and
+	sqrt(theta^2 +phi^2) < angle_max ]
+
+/BH/gun/set_gamma_mode <true/false>
+	Set where the primary particle is generated.
+	false - generated within target.
+	true - generated in air just upstream of target.
+	Note: Use /gun/particle <particle name> to change 
+	primary particle type to gamma.
+
+/BH/gun/print
+	Print the current values of the particle gun parameters.
+
+Parameters controlling the output file.
+=======================================
+
+/BH/outputfile/set_use_monitor <true/false>
+	If true: Record and included monitor information in output file.
+	If false: Do not record monitor information.
+
+/BH/outputfile/set_use_unique_filename <true/false>
+	Output filename is <prefix>.<runno>.dat
+	If false: runno = G4 run number.
+	If true: runno = run number read from file <prefix>.runno.
+	The number in <prefix>.runno is incremented and written 
+	back into the file at the start of a run.
+
+/BH/outputfile/set_prefix <prefix>
+	Set the prefix for the output file filename.
+
+/BH/outputfile/set_header_frequency <number>
+	Set the number of output file events between when a header is printed.
+	The header lines start with "#" and summarize the output file format.
+	<number> = -1 means no headers after the first (the default behavour)
+
+/BH/outputfile/print
+	Print current output file parameters.
