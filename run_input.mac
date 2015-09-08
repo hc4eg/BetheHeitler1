@@ -1,0 +1,26 @@
+#
+/control/verbose 2
+/control/saveHistory
+#
+#/run/verbose 2
+#/event/verbose 0
+#/tracking/verbose 1
+# 
+#
+/gun/particle e-
+/BH/gun/set_gamma_mode false
+/BH/gun/set_central_energy 30 MeV
+/BH/gun/set_delta_min -20.
+/BH/gun/set_delta_max +40.
+/BH/gun/set_radius_max 0.65 cm
+/BH/gun/set_x_min -0.65 cm
+/BH/gun/set_x_max 0.65 cm
+/BH/gun/set_y_min -0.65 cm
+/BH/gun/set_y_max 0.65 cm
+/BH/gun/set_angle_max 175 mrad
+/BH/gun/set_theta_min -170 mrad
+/BH/gun/set_theta_max 170 mrad
+/BH/gun/set_phi_min -40 mrad
+/BH/gun/set_phi_max 40 mrad
+/BH/gun/print
+/run/beamOn 100

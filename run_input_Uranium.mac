@@ -1,0 +1,31 @@
+#
+/control/verbose 1
+/control/saveHistory
+#
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+/process/verbose 0
+# 
+#
+/BH/gun/set_central_energy 30 MeV
+/BH/gun/set_delta_min -20.
+/BH/gun/set_delta_max +40.
+/BH/gun/set_radius_max 0.65 cm
+/BH/gun/set_x_min -0.65 cm
+/BH/gun/set_x_max 0.65 cm
+/BH/gun/set_y_min -0.65 cm
+/BH/gun/set_y_max 0.65 cm
+/BH/gun/set_angle_max 175 mrad
+/BH/gun/set_theta_min -160 mrad
+/BH/gun/set_theta_max 160 mrad
+/BH/gun/set_phi_min -30 mrad
+/BH/gun/set_phi_max 30 mrad
+/BH/detector/set_target_thickness 0.025 mm
+/BH/detector/set_target_material G4_U # Uranium
+/BH/detector/update
+/BH/detector/print
+/BH/outputfile/set_use_monitor true
+/BH/gun/print
+/gun/particle e+
+/run/beamOn 4000
