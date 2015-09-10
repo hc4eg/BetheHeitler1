@@ -21,7 +21,7 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
-include_directories("/usr/include/root")
+#find_package(ROOT REQUIRED)
 
 # Setup Geant4 include directories and compile definitions
 include(${Geant4_USE_FILE})
@@ -35,6 +35,7 @@ include(${Geant4_USE_FILE})
 
 # Include directories need for this compile
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(/usr/include/root)
 #include_directories("${PROJECT_SOURCE_DIR}/Fakelucid/include")
 #include_directories("${LightOutput_dir}/include")
 
@@ -54,7 +55,10 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 # Add the executable, and link it to the Geant4 libraries
 #add_executable(fluxnolucid fluxnolucid.cc ${sources} ${headers}) 
 add_executable(BetheHeitler BetheHeitler.cc ${sources}) 
-target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} )
+
+# ROOT libraries are in /usr/lib/i386-linux-gnu/root5.34/lib
+target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} -L/usr/lib/i386-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGpad -lTree -lRint -lMatrix -lMathCore -lThread -pthread -lm -ldl -rdynamic)
+#target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #target_link_libraries(fluxnolucid ${Geant4_LIBRARIES} ${G4FakeLucid_lib}
 #${LightOutput_lib})
  
