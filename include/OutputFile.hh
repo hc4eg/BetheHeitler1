@@ -6,6 +6,63 @@
 class OutputFileMessenger;
 
 #include <stdio.h>
+#include <iostream>
+#include <fstream>
+#include <sstream>
+#include <string>
+#include <vector>
+#include "TFile.h"
+#include "TTree.h"
+
+
+using namespace std;
+
+  struct Monitor{
+    Int_t charge;
+    Float_t energy_m;
+    Float_t x_m;
+    Float_t y_m;
+    Float_t theta_m;
+    Float_t phi_m;
+  };
+
+struct Input{
+  Float_t energy;
+  Float_t delta;
+  Float_t x;
+  Float_t y;
+  Float_t theta;
+  Float_t phi;
+};
+
+struct VDC{
+    Float_t x_f;
+    Float_t y_f;
+    Float_t theta_f;
+    Float_t phi_f;
+};
+
+struct Paddle{
+  Int_t paddle_num;
+  Float_t Edep;
+  Float_t Light_out;
+  Float_t Hit_time;
+};
+
+struct Detector{
+  //Int_t detector_num;
+  vector<VDC> vdc;
+  vector<Paddle> paddles;
+};
+
+struct BH_Event{
+public:
+  UInt_t event_num;
+  vector<Monitor> monitors;
+  Input input;
+  Detector detector0;
+  Detector detector1;
+};
 
 class OutputFile {
 	public:
@@ -64,6 +121,10 @@ class OutputFile {
 	G4int foutput_lines;
 	G4int flines_for_heading;
 
+        TFile* bh_tree_file;
+        TTree* tree;
+        BH_Event* event;
+
 	// data to be written per event
 	G4int fevent_number;
 	// input data
@@ -89,7 +150,7 @@ class OutputFile {
 
 
 	// file handling stuff
-	FILE * fd;
+	//FILE * fd;
 	G4bool fFile_open;
 	G4String fFilename_prefix;
 	char filename[100];

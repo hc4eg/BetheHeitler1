@@ -80,8 +80,10 @@ OutputFile::OpenFile(G4int runno)
 			G4cout << "Cannot open " << infile << " for output." << G4endl;
 			}
 		}
-	sprintf(filename, "%s.%.4d.dat", fFilename_prefix.c_str(), frunno);
-	fd = fopen(filename, "w");
+	//sprintf(filename, "%s.%.4d.dat", fFilename_prefix.c_str(), frunno);
+	sprintf(filename, "%s.%.4d.root", fFilename_prefix.c_str(), frunno);
+	//fd = fopen(filename, "w");
+	/*
 	if(fd == NULL)
 		{
 		G4cout << "ERROR: OutputFile::Openfile(): Cannot open file " << G4String(filename)
@@ -89,18 +91,29 @@ OutputFile::OpenFile(G4int runno)
 		return false;
 		}
 
+	*/
+	bh_tree_file = new TFile(filename);
+	
+	tree = (TTree*)bh_tree_file->Get("T");
+	tree->Branch("Event_Branch");
 	foutput_lines = 0;
 	fFile_open = true;
 	G4cout << "File " << G4String(filename) << " opened for output." << G4endl;
 	return true;
+	
 	}
 // Close a file
 void
 OutputFile::CloseFile()
-	{
+	{	  
+	 
 	if(fFile_open)
 		{
-		fclose(fd);
+		  //fclose(fd);
+	
+        	bh_tree_file->Write();
+		delete tree;
+		
 		fFile_open = false;
 		G4cout << "Output File " << G4String(filename) << " closed." <<G4endl;
 		}
@@ -108,12 +121,22 @@ OutputFile::CloseFile()
 		{
 		G4cout << "WARNING: OutputFile::CloseFile(): File not open." << G4endl;
 		}
+	 
 	}
 	
 // Write an event
 void 
 OutputFile::WriteEvent()
 	{
+	  event = new BH_Event;
+	  event->event_num = fevent_number;
+	  
+          TBranch *branch = T.GetBranch("Event_Branch");
+	  branch->SetAddress(&event);
+
+	  tree->Fill();
+	  
+	  /*
 	//G4cout << "OutputFile::WriteEvent(): Called." << G4endl;
 	if(!fFile_open)
 		{
@@ -213,16 +236,22 @@ OutputFile::WriteEvent()
 		}
 	//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
 	foutput_lines++;
-	}
+	  */
+
+     	}
+
 void
 OutputFile::WriteComment(G4String line)
 	{
-	fprintf(fd,"# %s\n",line.c_str());
+	  //fprintf(fd,"# %s\n",line.c_str());
 	}
+
+
 	
 void
 OutputFile::PrintParameters()
 	{
+	  /*
 	G4cout << "   ----- Output File Parameters -----" << G4endl;
 	G4cout << "Filename prefix: " << fFilename_prefix << G4endl;
 	G4cout << "Filename will be " << fFilename_prefix << ".<runno>.dat" << G4endl;
@@ -234,4 +263,6 @@ OutputFile::PrintParameters()
 		G4cout << "Monitor information will be recorded and included in output file." << G4endl;
 	else
 		G4cout << "Monitor information will not be recorded." << G4endl;
+	  */
 	}
+
