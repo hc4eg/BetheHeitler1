@@ -480,6 +480,11 @@ CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4Omega
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OmegaMinusInelasticProcess.hh
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OmegabMinus.hh
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OmegacZero.hh
+CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OpenGLImmediateQt.hh
+CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OpenGLImmediateX.hh
+CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OpenGLQt.hh
+CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OpenGLStoredQt.hh
+CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OpenGLStoredX.hh
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OpticalPhoton.hh
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4OrderedTable.hh
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: /usr/local/include/Geant4/G4PDefSplitter.hh

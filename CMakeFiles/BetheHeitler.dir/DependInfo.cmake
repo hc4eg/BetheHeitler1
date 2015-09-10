@@ -44,6 +44,7 @@ SET(CMAKE_TARGET_LINKED_INFO_FILES
 
 # The include file search paths:
 SET(CMAKE_C_TARGET_INCLUDE_PATH
+  "/usr/include/root"
   "/usr/local/include/Geant4"
   "/usr/include/qt4"
   "/usr/include/qt4/QtCore"
