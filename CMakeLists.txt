@@ -21,6 +21,8 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+include_directories("/usr/include/root")
+
 # Setup Geant4 include directories and compile definitions
 include(${Geant4_USE_FILE})
 
