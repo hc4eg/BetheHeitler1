@@ -25,7 +25,7 @@ OutputFile::~OutputFile()
 	{
 	if(fFile_open)
 		{
-		fclose(fd);
+		  //fclose(fd);
 		fFile_open = false;
 		}
 	pOutputFilePointer = 0;
@@ -131,7 +131,7 @@ OutputFile::WriteEvent()
 	  event = new BH_Event;
 	  event->event_num = fevent_number;
 	  
-          TBranch *branch = T.GetBranch("Event_Branch");
+          TBranch *branch = tree->GetBranch("Event_Branch");
 	  branch->SetAddress(&event);
 
 	  tree->Fill();
