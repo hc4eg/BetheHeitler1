@@ -4,6 +4,7 @@
 #include <fstream>
 using namespace std;
 class OutputFile;
+#include "TBranch.h"
 
 // initialize pointer
 OutputFile * OutputFile::pOutputFilePointer = 0;
@@ -81,7 +82,7 @@ OutputFile::OpenFile(G4int runno)
 			}
 		}
 	//sprintf(filename, "%s.%.4d.dat", fFilename_prefix.c_str(), frunno);
-	sprintf(filename, "%s.%.4d.root", fFilename_prefix.c_str(), frunno);
+	//sprintf(filename, "%s.%.4d.root", fFilename_prefix.c_str(), frunno);
 	//fd = fopen(filename, "w");
 	/*
 	if(fd == NULL)
@@ -92,13 +93,34 @@ OutputFile::OpenFile(G4int runno)
 		}
 
 	*/
-	bh_tree_file = new TFile(filename);
+cerr << "got here 1" << endl;
+	TString fname = Form("%s.%.4d.root", fFilename_prefix.c_str(), frunno);
 	
-	tree = (TTree*)bh_tree_file->Get("T");
-	tree->Branch("Event_Branch");
+	bh_tree_file = new TFile(fname,"recreate");
+	if(bh_tree_file == NULL) {
+	  G4cerr << "ERROR: OutputFile::Openfile(): Cannot open file " << fname
+			<< " for output." << G4endl;
+		return false;
+	} 
+cerr << "The root file: " << fname << " is opened." << endl;
+cerr << "got here 2" << endl;
+//     TTree* T = new TTree("T","root tree");	
+      //        tree = (TTree*)bh_tree_file->Get("T");
+      tree = new TTree("tree","root_tree");
+
+
+cerr << "got here 3" << endl; 
+        event = new BH_Event;
+	//        event = 0;
+	branch = (TBranch*)tree->Branch("Event_Branch",&event);
+cerr << "got here 3.1" << endl;
+//branch = (TBranch*)tree->FindBranch("Event_Branch");
+
+//branch = tree->GetBranch("Event_Branch");	
+cerr << "got here 4" << endl;
 	foutput_lines = 0;
 	fFile_open = true;
-	G4cout << "File " << G4String(filename) << " opened for output." << G4endl;
+	G4cout << "File " << fname << " opened for output." << G4endl;
 	return true;
 	
 	}
@@ -113,6 +135,7 @@ OutputFile::CloseFile()
 	
         	bh_tree_file->Write();
 		delete tree;
+		cerr << "The root file has been written" << endl;
 		
 		fFile_open = false;
 		G4cout << "Output File " << G4String(filename) << " closed." <<G4endl;
@@ -128,11 +151,11 @@ OutputFile::CloseFile()
 void 
 OutputFile::WriteEvent()
 	{
-	  event = new BH_Event;
-	  event->event_num = fevent_number;
-	  
-          TBranch *branch = tree->GetBranch("Event_Branch");
-	  branch->SetAddress(&event);
+	  //event = new BH_Event;
+	  event->event_num = (Int_t)fevent_number;
+	  cerr << "Event number " << event->event_num << "has been read" << endl;
+          
+	  //branch->SetAddress(&event);
 
 	  tree->Fill();
 	  
