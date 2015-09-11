@@ -18,7 +18,7 @@ class OutputFileMessenger;
 using namespace std;
 
   struct Monitor{
-    Int_t charge;
+    Float_t charge;
     Float_t energy_m;
     Float_t x_m;
     Float_t y_m;
@@ -55,13 +55,15 @@ struct Detector{
   vector<Paddle> paddles;
 };
 
-struct BH_Event{
+//class BH_Event : public TObject{
+class BH_Event{
 public:
-  UInt_t event_num;
+  Int_t event_num;
   vector<Monitor> monitors;
   Input input;
   Detector detector0;
   Detector detector1;
+  //  ClassDef(BH_Event,1)
 };
 
 class OutputFile {
@@ -124,6 +126,7 @@ class OutputFile {
         TFile* bh_tree_file;
         TTree* tree;
         BH_Event* event;
+        TBranch* branch;
 
 	// data to be written per event
 	G4int fevent_number;
