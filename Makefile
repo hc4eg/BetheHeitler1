@@ -138,6 +138,30 @@ BetheHeitler.cc.s:
 	$(MAKE) -f CMakeFiles/BetheHeitler.dir/build.make CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.s
 .PHONY : BetheHeitler.cc.s
 
+dict.o: dict.cxx.o
+.PHONY : dict.o
+
+# target to build an object file
+dict.cxx.o:
+	$(MAKE) -f CMakeFiles/BetheHeitler.dir/build.make CMakeFiles/BetheHeitler.dir/dict.cxx.o
+.PHONY : dict.cxx.o
+
+dict.i: dict.cxx.i
+.PHONY : dict.i
+
+# target to preprocess a source file
+dict.cxx.i:
+	$(MAKE) -f CMakeFiles/BetheHeitler.dir/build.make CMakeFiles/BetheHeitler.dir/dict.cxx.i
+.PHONY : dict.cxx.i
+
+dict.s: dict.cxx.s
+.PHONY : dict.s
+
+# target to generate assembly for a file
+dict.cxx.s:
+	$(MAKE) -f CMakeFiles/BetheHeitler.dir/build.make CMakeFiles/BetheHeitler.dir/dict.cxx.s
+.PHONY : dict.cxx.s
+
 src/DetectorConstruction.o: src/DetectorConstruction.cc.o
 .PHONY : src/DetectorConstruction.o
 
@@ -510,6 +534,9 @@ help:
 	@echo "... BetheHeitler.o"
 	@echo "... BetheHeitler.i"
 	@echo "... BetheHeitler.s"
+	@echo "... dict.o"
+	@echo "... dict.i"
+	@echo "... dict.s"
 	@echo "... src/DetectorConstruction.o"
 	@echo "... src/DetectorConstruction.i"
 	@echo "... src/DetectorConstruction.s"

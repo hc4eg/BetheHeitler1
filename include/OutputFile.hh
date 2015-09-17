@@ -13,7 +13,7 @@ class OutputFileMessenger;
 #include <vector>
 #include "TFile.h"
 #include "TTree.h"
-
+#include "TObject.h"
 
 using namespace std;
 
@@ -51,19 +51,28 @@ struct Paddle{
 
 struct Detector{
   //Int_t detector_num;
-  vector<VDC> vdc;
-  vector<Paddle> paddles;
+  vector<VDC>* vdc; 
+  vector<Paddle>* paddles;
 };
 
 //class BH_Event : public TObject{
 class BH_Event{
 public:
   Int_t event_num;
-  vector<Monitor> monitors;
-  Input input;
-  Detector detector0;
-  Detector detector1;
-  //  ClassDef(BH_Event,1)
+  vector<Monitor>* monitors;
+  Input* input;
+  Detector* detector0;
+  Detector* detector1;
+  BH_Event(){
+    event_num = 0;
+    monitors = 0;
+    input = 0;
+    detector0 = 0;
+    detector1 = 0;
+  }  
+
+  private:
+    ClassDef(BH_Event,1)
 };
 
 class OutputFile {
