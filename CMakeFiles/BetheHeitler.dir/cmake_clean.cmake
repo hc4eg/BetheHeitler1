@@ -15,6 +15,7 @@ FILE(REMOVE_RECURSE
   "CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o"
   "CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o"
   "CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o"
+  "CMakeFiles/BetheHeitler.dir/dict.cxx.o"
   "BetheHeitler.pdb"
   "BetheHeitler"
 )

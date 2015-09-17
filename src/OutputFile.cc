@@ -101,7 +101,7 @@ cerr << "got here 1" << endl;
 	  G4cerr << "ERROR: OutputFile::Openfile(): Cannot open file " << fname
 			<< " for output." << G4endl;
 		return false;
-	} 
+	}
 cerr << "The root file: " << fname << " is opened." << endl;
 cerr << "got here 2" << endl;
 //     TTree* T = new TTree("T","root tree");	
@@ -112,8 +112,10 @@ cerr << "got here 2" << endl;
 cerr << "got here 3" << endl; 
         event = new BH_Event;
 	//        event = 0;
-	branch = (TBranch*)tree->Branch("Event_Branch",&event);
 cerr << "got here 3.1" << endl;
+
+	branch = (TBranch*)tree->Branch("Event_Branch","BH_Event",&event);
+
 //branch = (TBranch*)tree->FindBranch("Event_Branch");
 
 //branch = tree->GetBranch("Event_Branch");	
@@ -236,8 +238,8 @@ OutputFile::WriteEvent()
 			{
 			fprintf(fd,"Detector: %d\n",i);
 			fprintf(fd,"VDC:");
-			fprintf(fd," %13.4g",fx_f[i]/cm);      
-			fprintf(fd," %13.4g",fy_f[i]/cm);      
+			fprintf(fd," %13.4g",fx_f[i]/cm);
+			fprintf(fd," %13.4g",fy_f[i]/cm);
 			fprintf(fd," %13.4g",ftheta_f[i]/mrad);      
 			fprintf(fd," %13.4g",fphi_f[i]/mrad);      
 			fprintf(fd,"\n");
@@ -289,3 +291,4 @@ OutputFile::PrintParameters()
 	  */
 	}
 
+ClassImp(BH_Event);

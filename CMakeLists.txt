@@ -27,6 +27,7 @@ endif()
 # Setup Geant4 include directories and compile definitions
 include(${Geant4_USE_FILE})
 
+
 # LightOutput is needed by this simulation
 #if( DEFINED ${LightOutput_dir} )
 #	message( "LightOutput_dir is defined" )
@@ -42,7 +43,7 @@ include_directories(/usr/include/root)
 
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/dict.cxx)
 #file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #message("LightOuptut_dir = ${LightOutput_dir}" )
