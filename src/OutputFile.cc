@@ -1,10 +1,12 @@
 #include "OutputFile.hh"
 #include "OutputFileMessenger.hh"
-//#include "G4ios.hh"
+#include "G4ios.hh"
 #include <fstream>
+
 using namespace std;
 class OutputFile;
 #include "TBranch.h"
+ClassImp(BH_Event)
 
 // initialize pointer
 OutputFile * OutputFile::pOutputFilePointer = 0;
@@ -110,7 +112,7 @@ cerr << "got here 2" << endl;
 
 
 cerr << "got here 3" << endl; 
-        event = new BH_Event;
+ event = new BH_Event();
 	//        event = 0;
 cerr << "got here 3.1" << endl;
 
@@ -154,12 +156,12 @@ void
 OutputFile::WriteEvent()
 	{
 	  //event = new BH_Event;
-	  event->event_num = (Int_t)fevent_number;
-	  cerr << "Event number " << event->event_num << "has been read" << endl;
+	  //event->event_num = (Int_t)fevent_number;
+	  //cerr << "Event number " << event->event_num << "has been read" << endl;
           
 	  //branch->SetAddress(&event);
 
-	  tree->Fill();
+	  //tree->Fill();
 	  
 	  /*
 	//G4cout << "OutputFile::WriteEvent(): Called." << G4endl;
@@ -207,28 +209,56 @@ OutputFile::WriteEvent()
 		fprintf(fd,"# --------\n");
 		}
 
-	fprintf(fd,"Event: %8d\n",fevent_number);
-	fprintf(fd,"Input:");
-	fprintf(fd," %13.4g",fenergy_i/MeV);      
-	fprintf(fd," %13.4g",fdelta_i);      
-	fprintf(fd," %13.4g",fx_i/cm);      
-	fprintf(fd," %13.4g",fy_i/cm);      
-	fprintf(fd," %13.4g",ftheta_i/mrad);      
-	fprintf(fd," %13.4g\n",fphi_i/mrad);      
+	  */
+
+	  //fprintf(fd,"Event: %8d\n",fevent_number); 
+	  event->event_num = (Int_t)fevent_number;
+	  cerr << "fevent_number is: " << fevent_number << endl;
+	  //cerr << "get event number: " << event->event_num << endl;
+	  //fprintf(fd,"Input:");
+	  //fprintf(fd," %13.4g",fenergy_i/MeV);
+	  event->input->energy = 30.0;
+	  //event->input->energy = (Float_t)30.0;
+	    //(Float_t)(fenergy_i);
+	  cerr << "fenergy_i is: " << fenergy_i << endl;
+	  
+	//fprintf(fd," %13.4g",fdelta_i);   
+	//  event->input->delta = (Float_t)fdelta_i;
+	  cerr << "fdelta_i is: " << fdelta_i << endl;
+	//  cerr << "get input delta: " << event->input.delta << endl;
+	  /*
+	//fprintf(fd," %13.4g",fx_i/cm);      
+	  event->input->x = (Float_t)(fx_i/cm);
+	//fprintf(fd," %13.4g",fy_i/cm);
+	  event->input->y = (Float_t)(fy_i/cm);
+	//fprintf(fd," %13.4g",ftheta_i/mrad);
+	  event->input->theta = (Float_t)(ftheta_i/mrad);
+	//fprintf(fd," %13.4g\n",fphi_i/mrad);    
+	  event->input->phi = (Float_t)(fphi_i/mrad);
+	
 	if(fUseMonitor)
 		{
 		for(G4int i = 0; i < 2; i++)
 			{
 			if(fMonitorHit[i])
 				{
-				fprintf(fd,"Monitor:");
-				if(i == 1) fprintf(fd," e-");
-				else fprintf(fd," e+");
-				fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);      
-				fprintf(fd," %13.4g",fMonitorX[i]/cm);      
-				fprintf(fd," %13.4g",fMonitorY[i]/cm);      
-				fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
-				fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);      
+				  Monitor moni;
+				  //fprintf(fd,"Monitor:");
+				  //if(i == 1) fprintf(fd," e-");
+				  if(i==1) moni.charge = -1;
+				  //else fprintf(fd," e+");
+				  else moni.charge = 1;
+				  //fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);      
+				  moni.energy_m = (Float_t)(fMonitorKineticEnergy[i]/MeV);
+				  //fprintf(fd," %13.4g",fMonitorX[i]/cm);   
+				  moni.x_m = (Float_t)(fMonitorX[i]/cm);
+				  //fprintf(fd," %13.4g",fMonitorY[i]/cm); 
+				  moni.y_m = (Float_t)(fMonitorY[i]/cm);
+				  //fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
+				  moni.theta_m = (Float_t)(fMonitorTheta[i]/mrad);
+				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
+				  moni.phi_m = (Float_t)(fMonitorPhi[i]/mrad);
+				  event->monitors->push_back(moni);
 				}
 			}
 		}
@@ -236,32 +266,50 @@ OutputFile::WriteEvent()
 		{
 		if(fdetector_package[i])
 			{
-			fprintf(fd,"Detector: %d\n",i);
-			fprintf(fd,"VDC:");
-			fprintf(fd," %13.4g",fx_f[i]/cm);
-			fprintf(fd," %13.4g",fy_f[i]/cm);
-			fprintf(fd," %13.4g",ftheta_f[i]/mrad);      
-			fprintf(fd," %13.4g",fphi_f[i]/mrad);      
-			fprintf(fd,"\n");
+			  Detector detector;
+			  //fprintf(fd,"Detector: %d\n",i);//if (i==0) to detector0
+			  VDC dc;
+			  //fprintf(fd,"VDC:");
+			  //fprintf(fd," %13.4g",fx_f[i]/cm);
+			  dc.x_f = (Float_t)(fx_f[i]/cm);
+			  //fprintf(fd," %13.4g",fy_f[i]/cm);
+			  dc.y_f = (Float_t)(fy_f[i]/cm);
+			  //fprintf(fd," %13.4g",ftheta_f[i]/mrad);
+			  dc.theta_f = (Float_t)(ftheta_f[i]/mrad);
+			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
+			  dc.phi_f = (Float_t)(fphi_f[i]/mrad);
+			  //fprintf(fd,"\n");
+			  if(i==0) event->detector0->vdc->push_back(dc);
+			  else event->detector1->vdc->push_back(dc);
 			if(fHod_hit[i])
 			   {
 			   for(G4int j = 0; j < 29; j++)
 				{
 				if(fPad_hit[i][j])
 					{
-					fprintf(fd,"Paddle: %d ", j);
-					fprintf(fd," %13.4g",fPadEnergy[i][j]/MeV);      
-					fprintf(fd," %13.4g",fPadLight[i][j]/MeV);      
-					fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
-					fprintf(fd,"\n");
+					  Paddle paddle;
+					  //fprintf(fd,"Paddle: %d ", j);
+					  paddle.paddle_num = (Int_t)j;
+					  //fprintf(fd," %13.4g",fPadEnergy[i][j]/MeV);  
+					  paddle.Edep = (Float_t)(fPadEnergy[i][j]/MeV);
+					  //fprintf(fd," %13.4g",fPadLight[i][j]/MeV);
+					  paddle.Light_out = (Float_t)(fPadLight[i][j]/MeV);
+					  //fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
+					  paddle.Hit_time = (Float_t)(fPadTime[i][j]/ns);
+					  //fprintf(fd,"\n");
+					  if(i==0) event->detector0->paddles->push_back(paddle);
+					  else event->detector1->paddles->push_back(paddle);
+					  //else detector1->paddles->push_back(paddle);
 					}
 				}
 			   }
 			}
 		}
 	//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
-	foutput_lines++;
-	  */
+	//foutput_lines++;
+	*/
+	
+	tree->Fill();
 
      	}
 
@@ -291,4 +339,4 @@ OutputFile::PrintParameters()
 	  */
 	}
 
-ClassImp(BH_Event);
+

@@ -17,7 +17,7 @@ class OutputFileMessenger;
 
 using namespace std;
 
-  struct Monitor{
+struct Monitor{
     Float_t charge;
     Float_t energy_m;
     Float_t x_m;
@@ -63,6 +63,7 @@ public:
   Input* input;
   Detector* detector0;
   Detector* detector1;
+  
   BH_Event(){
     event_num = 0;
     monitors = 0;
@@ -70,7 +71,7 @@ public:
     detector0 = 0;
     detector1 = 0;
   }  
-
+  
   private:
     ClassDef(BH_Event,1)
 };
