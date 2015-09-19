@@ -38,10 +38,10 @@ EQUALS = =
 CMAKE_EDIT_COMMAND = /usr/bin/ccmake
 
 # The top-level source directory on which CMake was run.
-CMAKE_SOURCE_DIR = //home/haoyu/BHsim/BetheHeitler-1.3
+CMAKE_SOURCE_DIR = /home/haoyu/BHsim/BetheHeitler-1.3
 
 # The top-level build directory on which CMake was run.
-CMAKE_BINARY_DIR = //home/haoyu/BHsim/BetheHeitler-1.3
+CMAKE_BINARY_DIR = /home/haoyu/BHsim/BetheHeitler-1.3
 
 # Include any dependencies generated for this target.
 include CMakeFiles/BetheHeitler.dir/depend.make
@@ -54,17 +54,17 @@ include CMakeFiles/BetheHeitler.dir/flags.make
 
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o: BetheHeitler.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_1)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_1)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/BetheHeitler.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/BetheHeitler.cc
 
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/BetheHeitler.cc > CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/BetheHeitler.cc > CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.i
 
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/BetheHeitler.cc -o CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/BetheHeitler.cc -o CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.s
 
 CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o.requires
@@ -77,17 +77,17 @@ CMakeFiles/BetheHeitler.dir/BetheHeitler.cc.o.provides.build: CMakeFiles/BetheHe
 
 CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o: src/DetectorConstruction.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_2)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_2)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorConstruction.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorConstruction.cc
 
 CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorConstruction.cc > CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorConstruction.cc > CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorConstruction.cc -o CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorConstruction.cc -o CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o.requires
@@ -100,17 +100,17 @@ CMakeFiles/BetheHeitler.dir/src/DetectorConstruction.cc.o.provides.build: CMakeF
 
 CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o: src/GeneratorMessenger.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_3)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_3)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/GeneratorMessenger.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/GeneratorMessenger.cc
 
 CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/GeneratorMessenger.cc > CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/GeneratorMessenger.cc > CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/GeneratorMessenger.cc -o CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/GeneratorMessenger.cc -o CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o.requires
@@ -123,17 +123,17 @@ CMakeFiles/BetheHeitler.dir/src/GeneratorMessenger.cc.o.provides.build: CMakeFil
 
 CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o: src/PaddleHit.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_4)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_4)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleHit.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleHit.cc
 
 CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleHit.cc > CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleHit.cc > CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleHit.cc -o CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleHit.cc -o CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o.requires
@@ -146,17 +146,17 @@ CMakeFiles/BetheHeitler.dir/src/PaddleHit.cc.o.provides.build: CMakeFiles/BetheH
 
 CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o: src/RunAction.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_5)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_5)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/RunAction.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/RunAction.cc
 
 CMakeFiles/BetheHeitler.dir/src/RunAction.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/RunAction.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/RunAction.cc > CMakeFiles/BetheHeitler.dir/src/RunAction.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/RunAction.cc > CMakeFiles/BetheHeitler.dir/src/RunAction.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/RunAction.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/RunAction.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/RunAction.cc -o CMakeFiles/BetheHeitler.dir/src/RunAction.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/RunAction.cc -o CMakeFiles/BetheHeitler.dir/src/RunAction.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o.requires
@@ -169,17 +169,17 @@ CMakeFiles/BetheHeitler.dir/src/RunAction.cc.o.provides.build: CMakeFiles/BetheH
 
 CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o: src/OutputFile.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_6)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_6)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFile.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFile.cc
 
 CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFile.cc > CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFile.cc > CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFile.cc -o CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFile.cc -o CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o.requires
@@ -192,17 +192,17 @@ CMakeFiles/BetheHeitler.dir/src/OutputFile.cc.o.provides.build: CMakeFiles/Bethe
 
 CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o: src/OutputFileMessenger.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_7)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_7)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFileMessenger.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFileMessenger.cc
 
 CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFileMessenger.cc > CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFileMessenger.cc > CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFileMessenger.cc -o CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/OutputFileMessenger.cc -o CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o.requires
@@ -215,17 +215,17 @@ CMakeFiles/BetheHeitler.dir/src/OutputFileMessenger.cc.o.provides.build: CMakeFi
 
 CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o: src/PrimaryGeneratorAction.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_8)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_8)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/PrimaryGeneratorAction.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/PrimaryGeneratorAction.cc
 
 CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/PrimaryGeneratorAction.cc > CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/PrimaryGeneratorAction.cc > CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/PrimaryGeneratorAction.cc -o CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/PrimaryGeneratorAction.cc -o CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o.requires
@@ -238,17 +238,17 @@ CMakeFiles/BetheHeitler.dir/src/PrimaryGeneratorAction.cc.o.provides.build: CMak
 
 CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o: src/EventAction.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_9)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_9)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/EventAction.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/EventAction.cc
 
 CMakeFiles/BetheHeitler.dir/src/EventAction.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/EventAction.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/EventAction.cc > CMakeFiles/BetheHeitler.dir/src/EventAction.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/EventAction.cc > CMakeFiles/BetheHeitler.dir/src/EventAction.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/EventAction.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/EventAction.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/EventAction.cc -o CMakeFiles/BetheHeitler.dir/src/EventAction.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/EventAction.cc -o CMakeFiles/BetheHeitler.dir/src/EventAction.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o.requires
@@ -261,17 +261,17 @@ CMakeFiles/BetheHeitler.dir/src/EventAction.cc.o.provides.build: CMakeFiles/Beth
 
 CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o: src/DetectorMessenger.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_10)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_10)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorMessenger.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorMessenger.cc
 
 CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorMessenger.cc > CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorMessenger.cc > CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorMessenger.cc -o CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/DetectorMessenger.cc -o CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o.requires
@@ -284,17 +284,17 @@ CMakeFiles/BetheHeitler.dir/src/DetectorMessenger.cc.o.provides.build: CMakeFile
 
 CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o: src/MonitorHit.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_11)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_11)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorHit.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorHit.cc
 
 CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorHit.cc > CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorHit.cc > CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorHit.cc -o CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorHit.cc -o CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o.requires
@@ -307,17 +307,17 @@ CMakeFiles/BetheHeitler.dir/src/MonitorHit.cc.o.provides.build: CMakeFiles/Bethe
 
 CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o: src/PaddleSD.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_12)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_12)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleSD.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleSD.cc
 
 CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleSD.cc > CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleSD.cc > CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleSD.cc -o CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/PaddleSD.cc -o CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o.requires
@@ -330,17 +330,17 @@ CMakeFiles/BetheHeitler.dir/src/PaddleSD.cc.o.provides.build: CMakeFiles/BetheHe
 
 CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o: src/MagneticField.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_13)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_13)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/MagneticField.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/MagneticField.cc
 
 CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/MagneticField.cc > CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/MagneticField.cc > CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/MagneticField.cc -o CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/MagneticField.cc -o CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o.requires
@@ -353,17 +353,17 @@ CMakeFiles/BetheHeitler.dir/src/MagneticField.cc.o.provides.build: CMakeFiles/Be
 
 CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o: src/MonitorSD.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_14)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_14)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorSD.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorSD.cc
 
 CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorSD.cc > CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorSD.cc > CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorSD.cc -o CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/MonitorSD.cc -o CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o.requires
@@ -376,17 +376,17 @@ CMakeFiles/BetheHeitler.dir/src/MonitorSD.cc.o.provides.build: CMakeFiles/BetheH
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o: src/WireChamberSD.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_15)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_15)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberSD.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberSD.cc
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberSD.cc > CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberSD.cc > CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberSD.cc -o CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberSD.cc -o CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o.requires
@@ -399,17 +399,17 @@ CMakeFiles/BetheHeitler.dir/src/WireChamberSD.cc.o.provides.build: CMakeFiles/Be
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o: src/WireChamberHit.cc
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_16)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_16)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o -c //home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberHit.cc
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o -c /home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberHit.cc
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberHit.cc > CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberHit.cc > CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.i
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberHit.cc -o CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/src/WireChamberHit.cc -o CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.s
 
 CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o.requires
@@ -422,17 +422,17 @@ CMakeFiles/BetheHeitler.dir/src/WireChamberHit.cc.o.provides.build: CMakeFiles/B
 
 CMakeFiles/BetheHeitler.dir/dict.cxx.o: CMakeFiles/BetheHeitler.dir/flags.make
 CMakeFiles/BetheHeitler.dir/dict.cxx.o: dict.cxx
-	$(CMAKE_COMMAND) -E cmake_progress_report //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_17)
+	$(CMAKE_COMMAND) -E cmake_progress_report /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles $(CMAKE_PROGRESS_17)
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Building CXX object CMakeFiles/BetheHeitler.dir/dict.cxx.o"
-	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/dict.cxx.o -c //home/haoyu/BHsim/BetheHeitler-1.3/dict.cxx
+	/usr/bin/c++   $(CXX_DEFINES) $(CXX_FLAGS) -o CMakeFiles/BetheHeitler.dir/dict.cxx.o -c /home/haoyu/BHsim/BetheHeitler-1.3/dict.cxx
 
 CMakeFiles/BetheHeitler.dir/dict.cxx.i: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/BetheHeitler.dir/dict.cxx.i"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E //home/haoyu/BHsim/BetheHeitler-1.3/dict.cxx > CMakeFiles/BetheHeitler.dir/dict.cxx.i
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -E /home/haoyu/BHsim/BetheHeitler-1.3/dict.cxx > CMakeFiles/BetheHeitler.dir/dict.cxx.i
 
 CMakeFiles/BetheHeitler.dir/dict.cxx.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/BetheHeitler.dir/dict.cxx.s"
-	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S //home/haoyu/BHsim/BetheHeitler-1.3/dict.cxx -o CMakeFiles/BetheHeitler.dir/dict.cxx.s
+	/usr/bin/c++  $(CXX_DEFINES) $(CXX_FLAGS) -S /home/haoyu/BHsim/BetheHeitler-1.3/dict.cxx -o CMakeFiles/BetheHeitler.dir/dict.cxx.s
 
 CMakeFiles/BetheHeitler.dir/dict.cxx.o.requires:
 .PHONY : CMakeFiles/BetheHeitler.dir/dict.cxx.o.requires
@@ -575,6 +575,6 @@ CMakeFiles/BetheHeitler.dir/clean:
 .PHONY : CMakeFiles/BetheHeitler.dir/clean
 
 CMakeFiles/BetheHeitler.dir/depend:
-	cd //home/haoyu/BHsim/BetheHeitler-1.3 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" //home/haoyu/BHsim/BetheHeitler-1.3 //home/haoyu/BHsim/BetheHeitler-1.3 //home/haoyu/BHsim/BetheHeitler-1.3 //home/haoyu/BHsim/BetheHeitler-1.3 //home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles/BetheHeitler.dir/DependInfo.cmake --color=$(COLOR)
+	cd /home/haoyu/BHsim/BetheHeitler-1.3 && $(CMAKE_COMMAND) -E cmake_depends "Unix Makefiles" /home/haoyu/BHsim/BetheHeitler-1.3 /home/haoyu/BHsim/BetheHeitler-1.3 /home/haoyu/BHsim/BetheHeitler-1.3 /home/haoyu/BHsim/BetheHeitler-1.3 /home/haoyu/BHsim/BetheHeitler-1.3/CMakeFiles/BetheHeitler.dir/DependInfo.cmake --color=$(COLOR)
 .PHONY : CMakeFiles/BetheHeitler.dir/depend
 
