@@ -1,50 +1,18 @@
-/run/verbose 2
-/vis/open OGL 600x600-0+0
-/vis/sceneHandler/create OGL
-/vis/viewer/create ! ! 600x600-0+0
-/vis/viewer/refresh
-/vis/viewer/set/autoRefresh false
-/vis/verbose errors
-/vis/drawVolume
-/vis/scene/create
-/vis/scene/add/volume world
-/vis/sceneHandler/attach
-/vis/viewer/set/upVector 0 0 1
-/vis/viewer/set/viewpointVector -1 -0.2 0.3
-/vis/viewer/zoom 2.
-/vis/viewer/set/style wireframe
-/vis/scene/add/axes 0 0 0 1 m
-/vis/scene/notifyHandlers
-/vis/scene/add/trajectories smooth
-/tracking/storeTrajectory 2
-/vis/scene/notifyHandlers
-/vis/modeling/trajectories/create/drawByCharge
-/vis/modeling/trajectories/drawByCharge-0/default/setDrawStepPts true
-/vis/scene/notifyHandlers scene-0
-/vis/modeling/trajectories/drawByCharge-0/default/setStepPtsSize 1
-/vis/scene/notifyHandlers scene-0
-/vis/scene/endOfEventAction accumulate
-/vis/viewer/set/autoRefresh true
-/vis/viewer/refresh
-/vis/verbose warnings
-/control/execute gui.mac
-/gui/addMenu g4file G4File
-/gui/addButton g4file Continue continue
-/gui/addButton g4file Exit "exit"
-/gui/addMenu run Run
-/gui/addButton run "beamOn 1" "/run/beamOn 1"
-/gui/addButton run "beamOn 100" "/run/beamOn 100"
-/gui/addButton run run_input.mac "/control/execute run_input.mac"
-/gui/addButton run run_gamma.mac "/control/execute run_gamma.mac"
-/gui/addMenu gun Gun
-/gui/addButton gun "e-" "/gun/particle e-"
-/gui/addButton gun "e+" "/gun/particle e+"
-/gui/addButton gun "gamma" "/gun/particle gamma"
-/gui/addMenu viewer Viewer
-/gui/addButton run "Reset" "/control/execute vis.mac"
-/gui/addButton viewer "Refresh viewer" "/vis/viewer/refresh"
-/gui/addButton viewer "Update viewer (interaction or end-of-file)" "/vis/viewer/update"
-/gui/addButton viewer "Flush viewer (= refresh + update)" "/vis/viewer/flush"
-/gui/addButton viewer "Update scene" "/vis/scene/notifyHandlers"
+/gun/particle e-
+/BH/gun/set_gamma_mode false
+/BH/gun/set_central_energy 30 MeV
+/BH/gun/set_delta_min -20.
+/BH/gun/set_delta_max +40.
+/BH/gun/set_radius_max 0.65 cm
+/BH/gun/set_x_min -0.65 cm
+/BH/gun/set_x_max 0.65 cm
+/BH/gun/set_y_min -0.65 cm
+/BH/gun/set_y_max 0.65 cm
+/BH/gun/set_angle_max 175 mrad
+/BH/gun/set_theta_min -170 mrad
+/BH/gun/set_theta_max 170 mrad
+/BH/gun/set_phi_min -40 mrad
+/BH/gun/set_phi_max 40 mrad
+/BH/gun/print
 /run/beamOn 100
 /vis/scene/notifyHandlers scene-0
