@@ -217,25 +217,34 @@ OutputFile::WriteEvent()
 	  //cerr << "get event number: " << event->event_num << endl;
 	  //fprintf(fd,"Input:");
 	  //fprintf(fd," %13.4g",fenergy_i/MeV);
-	  event->input->energy = 30.0;
+	  //event->input->energy = 30.0;
 	  //event->input->energy = (Float_t)30.0;
 	    //(Float_t)(fenergy_i);
-	  cerr << "fenergy_i is: " << fenergy_i << endl;
+	  event->input.energy = (Float_t)fenergy_i;
+	  //cerr << "fenergy_i is: " << fenergy_i << endl;
 	  
 	//fprintf(fd," %13.4g",fdelta_i);   
-	//  event->input->delta = (Float_t)fdelta_i;
-	  cerr << "fdelta_i is: " << fdelta_i << endl;
+	  event->input.delta = (Float_t)fdelta_i;
+	  //cerr << "fdelta_i is: " << fdelta_i << endl;
 	//  cerr << "get input delta: " << event->input.delta << endl;
-	  /*
+	 
 	//fprintf(fd," %13.4g",fx_i/cm);      
-	  event->input->x = (Float_t)(fx_i/cm);
+	  event->input.x = (Float_t)fx_i;
+	  //cerr << "fx_i is: " << fx_i << endl;
 	//fprintf(fd," %13.4g",fy_i/cm);
-	  event->input->y = (Float_t)(fy_i/cm);
+	  event->input.y = (Float_t)fy_i;
+	  //cerr << "fy_i is: " << fy_i << endl;
 	//fprintf(fd," %13.4g",ftheta_i/mrad);
-	  event->input->theta = (Float_t)(ftheta_i/mrad);
-	//fprintf(fd," %13.4g\n",fphi_i/mrad);    
-	  event->input->phi = (Float_t)(fphi_i/mrad);
-	
+	  event->input.theta = (Float_t)ftheta_i;
+	  //cerr << "ftheta_i is: "<< ftheta_i << endl;
+	//fprintf(fd," %13.4g\n",fphi_i/mrad);
+	  event->input.phi = (Float_t)fphi_i;
+	  // cerr << "fphi_i is: "<< fphi_i << endl;
+
+	  
+	  //	  fUseMonitor = 1;
+	  //cerr << "fUseMonitor is: " << fUseMonitor << endl;
+	  event->monitors.clear();
 	if(fUseMonitor)
 		{
 		for(G4int i = 0; i < 2; i++)
@@ -248,20 +257,26 @@ OutputFile::WriteEvent()
 				  if(i==1) moni.charge = -1;
 				  //else fprintf(fd," e+");
 				  else moni.charge = 1;
-				  //fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);      
-				  moni.energy_m = (Float_t)(fMonitorKineticEnergy[i]/MeV);
+				  //fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);
+				  moni.energy_m = (Float_t)fMonitorKineticEnergy[i];
+				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[i];
 				  //fprintf(fd," %13.4g",fMonitorX[i]/cm);   
-				  moni.x_m = (Float_t)(fMonitorX[i]/cm);
+				  moni.x_m = (Float_t)fMonitorX[i];
 				  //fprintf(fd," %13.4g",fMonitorY[i]/cm); 
-				  moni.y_m = (Float_t)(fMonitorY[i]/cm);
+				  moni.y_m = (Float_t)fMonitorY[i];
 				  //fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
-				  moni.theta_m = (Float_t)(fMonitorTheta[i]/mrad);
+				  moni.theta_m = (Float_t)fMonitorTheta[i];
 				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
-				  moni.phi_m = (Float_t)(fMonitorPhi[i]/mrad);
-				  event->monitors->push_back(moni);
+				  moni.phi_m = (Float_t)fMonitorPhi[i];
+				  event->monitors.push_back(moni);
 				}
 			}
 		}
+	  
+	event->detector0.vdc.clear();
+	event->detector1.vdc.clear();
+	event->detector0.paddles.clear();
+	event->detector1.paddles.clear();
 	for(G4int i = 0; i < 2; i++)
 		{
 		if(fdetector_package[i])
@@ -271,16 +286,23 @@ OutputFile::WriteEvent()
 			  VDC dc;
 			  //fprintf(fd,"VDC:");
 			  //fprintf(fd," %13.4g",fx_f[i]/cm);
-			  dc.x_f = (Float_t)(fx_f[i]/cm);
+			  dc.x_f = (Float_t)fx_f[i];
 			  //fprintf(fd," %13.4g",fy_f[i]/cm);
-			  dc.y_f = (Float_t)(fy_f[i]/cm);
+			  dc.y_f = (Float_t)fy_f[i];
 			  //fprintf(fd," %13.4g",ftheta_f[i]/mrad);
-			  dc.theta_f = (Float_t)(ftheta_f[i]/mrad);
+			  dc.theta_f = (Float_t)ftheta_f[i];
 			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
-			  dc.phi_f = (Float_t)(fphi_f[i]/mrad);
+			  dc.phi_f = (Float_t)fphi_f[i];
 			  //fprintf(fd,"\n");
-			  if(i==0) event->detector0->vdc->push_back(dc);
-			  else event->detector1->vdc->push_back(dc);
+			  cerr << "i: " << i << endl
+			       << "vdc.x_f: " << dc.x_f <<endl;
+			  //<< "y_f: " << dc.y_f <<endl
+			  //<< "thta_f:" << dc.theta_f <<endl
+			  //<< "phi_f: " << dc.phi_f <<endl;
+			  if(i==0) {event->detector0.vdc.push_back(dc);
+			    cerr << "detector0 vdc x_f: " << event->detector0.vdc.at(0).x_f << endl;}
+			  else {event->detector1.vdc.push_back(dc);
+			    cerr << "detector1 vdc x_f: " << event->detector1.vdc.at(0).x_f << endl;}
 			if(fHod_hit[i])
 			   {
 			   for(G4int j = 0; j < 29; j++)
@@ -291,14 +313,14 @@ OutputFile::WriteEvent()
 					  //fprintf(fd,"Paddle: %d ", j);
 					  paddle.paddle_num = (Int_t)j;
 					  //fprintf(fd," %13.4g",fPadEnergy[i][j]/MeV);  
-					  paddle.Edep = (Float_t)(fPadEnergy[i][j]/MeV);
+					  paddle.Edep = (Float_t)fPadEnergy[i][j];
 					  //fprintf(fd," %13.4g",fPadLight[i][j]/MeV);
-					  paddle.Light_out = (Float_t)(fPadLight[i][j]/MeV);
+					  paddle.Light_out = (Float_t)fPadLight[i][j];
 					  //fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
-					  paddle.Hit_time = (Float_t)(fPadTime[i][j]/ns);
+					  paddle.Hit_time = (Float_t)fPadTime[i][j];
 					  //fprintf(fd,"\n");
-					  if(i==0) event->detector0->paddles->push_back(paddle);
-					  else event->detector1->paddles->push_back(paddle);
+					  if(i==0) event->detector0.paddles.push_back(paddle);
+					  else event->detector1.paddles.push_back(paddle);
 					  //else detector1->paddles->push_back(paddle);
 					}
 				}
@@ -307,7 +329,7 @@ OutputFile::WriteEvent()
 		}
 	//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
 	//foutput_lines++;
-	*/
+	
 	
 	tree->Fill();
 
