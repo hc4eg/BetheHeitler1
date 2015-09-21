@@ -40,6 +40,8 @@ include_directories(${PROJECT_SOURCE_DIR}/include)
 include_directories(/usr/include/root)
 #include_directories("${PROJECT_SOURCE_DIR}/Fakelucid/include")
 #include_directories("${LightOutput_dir}/include")
+EXECUTE_PROCESS(COMMAND rootcint -f dict.cxx -c -I/usr/local/include/Geant4/ -I/usr/incldue/root/ -p include/OutputFile.hh include/BH_LinkDef.h)
+
 
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
