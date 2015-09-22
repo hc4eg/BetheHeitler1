@@ -61,6 +61,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   // --------------- Monitor -----------------
   // Skip this part if we are not going to output Monitor info
   G4bool use_monitor = pOutputFile->GetUseMonitor();
+  cerr << "use_monitor is: " << use_monitor << endl;
 if(use_monitor)
   {
   G4int MONID = G4SDManager::GetSDMpointer()->GetCollectionID("Monitor/MonitorHitCollection");
@@ -70,7 +71,7 @@ if(use_monitor)
   // We just need to find earliest time for each of e- and e+ hits
   G4double min_time[2]; G4int min_time_hit[2]; G4int ipart;
   G4bool mon_hit[2];
-  for(G4int i; i < 2; i++)
+  for(G4int i=0 ; i < 2; i++)
 	{
   	min_time[i] = 0;
 	min_time_hit[i] = -1;

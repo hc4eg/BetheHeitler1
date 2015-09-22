@@ -221,12 +221,13 @@ OutputFile::WriteEvent()
 	  //event->input->energy = (Float_t)30.0;
 	    //(Float_t)(fenergy_i);
 	  event->input.energy = (Float_t)(fenergy_i/MeV);
-	  //cerr << "fenergy_i is: " << fenergy_i << endl;
+	  //cerr << "fenergy_i is: " << (fenergy_i/MeV) << " [MeV]." << endl;
+	  //cerr << "fenergy_i is: " << (fenergy_i/keV) << " [keV]." << endl;
 	  
 	//fprintf(fd," %13.4g",fdelta_i);   
 	  event->input.delta = (Float_t)(fdelta_i);
 	  //cerr << "fdelta_i is: " << fdelta_i << endl;
-	//  cerr << "get input delta: " << event->input.delta << endl;
+   	  //cerr << "get input delta: " << event->input.delta << endl;
 	 
 	//fprintf(fd," %13.4g",fx_i/cm);      
 	  event->input.x = (Float_t)(fx_i/cm);
@@ -294,15 +295,17 @@ OutputFile::WriteEvent()
 			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
 			  dc.phi_f = (Float_t)(fphi_f[i]/mrad);
 			  //fprintf(fd,"\n");
-			  cerr << "i: " << i << endl
-			       << "vdc.x_f: " << dc.x_f <<endl;
+			  //cerr << "i: " << i << endl
+			  //     << "vdc.x_f: " << dc.x_f <<endl;
 			  //<< "y_f: " << dc.y_f <<endl
 			  //<< "thta_f:" << dc.theta_f <<endl
 			  //<< "phi_f: " << dc.phi_f <<endl;
 			  if(i==0) {event->detector0.vdc.push_back(dc);
-			    cerr << "detector0 vdc x_f: " << event->detector0.vdc.at(0).x_f << endl;}
+			    // cerr << "detector0 vdc x_f: " << event->detector0.vdc.at(0).x_f << endl;}
+			  }
 			  else {event->detector1.vdc.push_back(dc);
-			    cerr << "detector1 vdc x_f: " << event->detector1.vdc.at(0).x_f << endl;}
+			    // cerr << "detector1 vdc x_f: " << event->detector1.vdc.at(0).x_f << endl;}
+			  }
 			if(fHod_hit[i])
 			   {
 			   for(G4int j = 0; j < 29; j++)
