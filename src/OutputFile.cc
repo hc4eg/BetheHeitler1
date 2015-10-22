@@ -346,7 +346,7 @@ OutputFile::WriteComment(G4String line)
 void
 OutputFile::PrintParameters()
 	{
-	  /*
+	
 	G4cout << "   ----- Output File Parameters -----" << G4endl;
 	G4cout << "Filename prefix: " << fFilename_prefix << G4endl;
 	G4cout << "Filename will be " << fFilename_prefix << ".<runno>.dat" << G4endl;
@@ -358,7 +358,7 @@ OutputFile::PrintParameters()
 		G4cout << "Monitor information will be recorded and included in output file." << G4endl;
 	else
 		G4cout << "Monitor information will not be recorded." << G4endl;
-	  */
+	
 	}
 
 

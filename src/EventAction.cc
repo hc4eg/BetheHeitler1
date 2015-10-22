@@ -299,11 +299,22 @@ if(use_monitor)
 	  	//G4cout << "theta_out = " << theta_out/mrad << " mrad" << G4endl;
 	  	//G4cout << "phi_out = " << phi_out/mrad << " mrad" << G4endl;
 		
-	  	pOutputFile->Set_x_f(det, x_out);
-	  	pOutputFile->Set_y_f(det, y_out);
-	  	pOutputFile->Set_theta_f(det, theta_out);
-	  	pOutputFile->Set_phi_f(det, phi_out);
-	
+		G4double x_f = x_out;
+		G4double y_f = y_out/sqrt(2);
+		G4double theta_f = atan2((y_out-y2_out)/sqrt(2),sqrt((x_out-x2_out)*(x_out-x2_out)+2*(fVDCSpacing+(y_out-y2_out)/2)*(fVDCSpacing+(y_out-y2_out)/2)))*rad;
+		G4double phi_f = (atan2((x_out-x2_out),sqrt(2)*(fVDCSpacing+(y_out-y2_out)/2)))*rad;
+					 
+					 x_out = x_f;
+					 y_out = y_f;
+					 theta_out = theta_f;
+					 phi_out = phi_f;
+
+
+					 pOutputFile->Set_x_f(det, x_out);
+					 pOutputFile->Set_y_f(det, y_out);
+					 pOutputFile->Set_theta_f(det, theta_out);
+					 pOutputFile->Set_phi_f(det, phi_out);
+					 
 		}
 	}
   // If we are using the monitor - always write event

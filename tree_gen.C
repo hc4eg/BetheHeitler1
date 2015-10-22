@@ -182,7 +182,7 @@ void MakeTree(void){
   cout<<"BH data file " << filename << " is successfully opened." << endl;
 
   // open ROOT file to save TTree
-  TFile* bh_ftree= new TFile("BHdata.root", "recreate");
+  TFile* bh_ftree= new TFile(Form("%sdata.root",filename), "recreate");
 
   // create TTree
   TTree* tree= new TTree("tree", "BH data tree");
