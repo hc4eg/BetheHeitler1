@@ -68,11 +68,13 @@ DefineMaterials();
 //sizes are based on the RayTrace diagram (z is conservative guess) *5!
 fWorldSize = new G4ThreeVector(150.*cm*5, 200.*cm*5, 100.*cm*5);
 fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
-fBackgroundMaterial = Helium; //
-//fBackgroundMaterial = Vacuum; //
+//fBackgroundMaterial = Helium; //
+fBackgroundMaterial = Vacuum; //
+//fBackgroundMaterial = Helium;
 //
 // Magnetic field
 fBcenter = -0.4536*tesla;
+//fBcenter = -0.*tesla;
 
 //pole
 fPoleOuterDiameter = 15.75*inch;
@@ -105,14 +107,17 @@ fYokeMaterial = Iron;
 
 // Bag
 fBagThick = 0.1*mm;
-fBagMaterial = Poly;
+//fBagMaterial = Poly;
+ fBagMaterial = Vacuum;
 fMagnetToBagDistance = 1.0*mm;
 
 //target
 fTargetDistance = 42.26*cm;
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
-fTargetToBagMaterial = Air;
+//fTargetToBagMaterial = Air;
+fTargetToBagMaterial = Vacuum;
+//fTargetToBagMaterial = Helium;
 
 // Target material and thickness can be changed through messenger
 fTargetThick = 0.025*mm; // Thickness of Uranium target
@@ -129,8 +134,12 @@ fVDCTopWidth = 7.5*inch;
 fVDCSheetThick = 0.0005*inch;
 fVDCLayerThick = 0.5*inch;
 fVDCAlLayerThick = 0.75*inch;
-fChamberSheetMaterial = Mylar;
-fChamberGasMaterial = Ethane_Argon;
+
+//fChamberSheetMaterial = Mylar;
+//fChamberGasMaterial = Ethane_Argon;
+ fChamberSheetMaterial = Vacuum;
+ fChamberGasMaterial = Vacuum;
+
 
 fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
 

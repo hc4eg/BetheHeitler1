@@ -139,10 +139,10 @@ OutputFile::CloseFile()
 	
         	bh_tree_file->Write();
 		delete tree;
-		cerr << "The root file has been written" << endl;
+		//cerr << "The root file "<< fname <<" has been written" << endl;
 		
 		fFile_open = false;
-		G4cout << "Output File " << G4String(filename) << " closed." <<G4endl;
+		//G4cout << "Output File " << fname << " closed." <<G4endl;
 		}
 	else
 		{
@@ -245,7 +245,8 @@ OutputFile::WriteEvent()
 	  
 	  //	  fUseMonitor = 1;
 	  //cerr << "fUseMonitor is: " << fUseMonitor << endl;
-	  event->monitors.clear();
+	  event->monitor0.clear();
+	  event->monitor1.clear();
 	if(fUseMonitor)
 		{
 		for(G4int i = 0; i < 2; i++)
@@ -255,6 +256,7 @@ OutputFile::WriteEvent()
 				  Monitor moni;
 				  //fprintf(fd,"Monitor:");
 				  //if(i == 1) fprintf(fd," e-");
+				  moni.enumber = (Int_t)fevent_number;
 				  if(i==1) moni.charge = -1;
 				  //else fprintf(fd," e+");
 				  else moni.charge = 1;
@@ -269,7 +271,10 @@ OutputFile::WriteEvent()
 				  moni.theta_m = (Float_t)(fMonitorTheta[i]/mrad);
 				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
 				  moni.phi_m = (Float_t)(fMonitorPhi[i]/mrad);
-				  event->monitors.push_back(moni);
+				  if (i == 0 )
+				    event->monitor0.push_back(moni);
+				  else
+				    event->monitor1.push_back(moni);
 				}
 			}
 		}
