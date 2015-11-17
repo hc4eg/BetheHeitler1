@@ -1,0 +1,40 @@
+#
+/control/verbose 0
+/control/saveHistory
+#
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+/process/verbose 0
+/process/setVerbose 0 all
+# 
+#
+# parameters for creating a file to fit to.
+/BH/gun/set_central_energy 30 MeV
+/BH/gun/set_delta_min 0.
+/BH/gun/set_delta_max 0.
+/BH/gun/set_radius_max 0.65 cm
+/BH/gun/set_x_min 0. cm
+/BH/gun/set_x_max 0. cm
+/BH/gun/set_y_min 0. cm
+/BH/gun/set_y_max 0. cm
+/BH/gun/set_angle_max 175 mrad
+/BH/gun/set_theta_min 0 mrad
+/BH/gun/set_theta_max 0 mrad
+/BH/gun/set_phi_min 0 mrad
+/BH/gun/set_phi_max 0 mrad
+/BH/gun/print
+/BH/detector/set_target_thickness 0.025 mm
+/BH/detector/set_target_material G4_Galactic # vacuum
+#/BH/detector/set_target_material G4_U # Uranium
+
+# where is target to bag material?
+
+/BH/detector/set_background_material G4_Galactic
+/BH/detector/set_bag_material G4_Galactic
+/BH/detector/update
+/BH/outputfile/set_use_monitor true
+#/BH/outputfile/set_use_fixed_filename true
+#/BH/outputfile/set_fixed_filename BH_all_vacuum.dat
+/BH/outputfile/print
+/run/beamOn 5000

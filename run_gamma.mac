@@ -29,7 +29,7 @@
 /BH/detector/print
 /BH/gun/print
 /BH/outputfile/set_use_monitor true
-/BH/outputfile/set_prefix GammaRun
+/BH/outputfile/set_prefix Gamma
 /BH/outputfile/set_use_unique_filename true
 /run/beamOn 2000000
 #/run/beamOn 2000000

@@ -245,36 +245,37 @@ OutputFile::WriteEvent()
 	  
 	  //	  fUseMonitor = 1;
 	  //cerr << "fUseMonitor is: " << fUseMonitor << endl;
-	  event->monitor0.clear();
-	  event->monitor1.clear();
+	  //	  event->monitor0.clear();
+	  //      event->monitor1.clear();
 	if(fUseMonitor)
 		{
 		for(G4int i = 0; i < 2; i++)
 			{
 			if(fMonitorHit[i])
 				{
-				  Monitor moni;
+				  Monitor* moni = new Monitor;
 				  //fprintf(fd,"Monitor:");
 				  //if(i == 1) fprintf(fd," e-");
-				  moni.enumber = (Int_t)fevent_number;
-				  if(i==1) moni.charge = -1;
+				  moni->enumber = (Int_t)fevent_number;
+				  if(i==1) moni->charge = -1.0;
 				  //else fprintf(fd," e+");
-				  else moni.charge = 1;
+				  else moni->charge = 1.0;
 				  //fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);
-				  moni.energy_m = (Float_t)(fMonitorKineticEnergy[i]/MeV);
+				  moni->energy_m = (Float_t)(fMonitorKineticEnergy[i]/MeV);
 				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[i];
 				  //fprintf(fd," %13.4g",fMonitorX[i]/cm);   
-				  moni.x_m = (Float_t)(fMonitorX[i]/cm);
+				  moni->x_m = (Float_t)(fMonitorX[i]/cm);
 				  //fprintf(fd," %13.4g",fMonitorY[i]/cm); 
-				  moni.y_m = (Float_t)(fMonitorY[i]/cm);
+				  moni->y_m = (Float_t)(fMonitorY[i]/cm);
 				  //fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
-				  moni.theta_m = (Float_t)(fMonitorTheta[i]/mrad);
+				  moni->theta_m = (Float_t)(fMonitorTheta[i]/mrad);
 				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
-				  moni.phi_m = (Float_t)(fMonitorPhi[i]/mrad);
+				  moni->phi_m = (Float_t)(fMonitorPhi[i]/mrad);
 				  if (i == 0 )
-				    event->monitor0.push_back(moni);
+				    event->monitor0.SetMonitor(moni);
 				  else
-				    event->monitor1.push_back(moni);
+				    event->monitor1.SetMonitor(moni);
+				  delete moni;
 				}
 			}
 		}
