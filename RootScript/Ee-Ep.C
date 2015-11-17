@@ -30,7 +30,10 @@ public:
     Float_t theta_m;
     Float_t phi_m;
 
-    
+  inline Float_t GetEnergy(){return energy_m;}
+  inline void ClearMonitor(){
+    enumber = 0; charge = 0; energy_m = 0.; x_m = 0.; y_m = 0.; theta_m = 0.; phi_m = 0.;
+  }
 protected:
   ClassDef(Monitor,2);
   };
@@ -98,11 +101,15 @@ public:
   BH_Event() {};
   ~BH_Event() {};
   UInt_t event_num;
-  vector<Monitor> monitors;
+  Monitor monitor0;
+  Monitor monitor1;
   Input input;
   Detector detector0;
   Detector detector1;
 
+  Monitor* GetMonitor(Int_t i){
+		if(i == 1) return &monitor1;
+		else return &monitor0; }
 protected:
   ClassDef(BH_Event,2);
 };
@@ -146,31 +153,31 @@ void Histo(void){
   
   
   //SetBranchAddress to branch Event and Monitor
-  //BH_Event* event = new BH_Event();
+  BH_Event* event = new BH_Event();
   //vector<Monitor>* moni0 = new vector<Monitor>;
   //vector<Monitor>* moni1 = new vector<Monitor>;
   
-  BH_Event* event = 0;
-  vector<Monitor>* moni0 = 0;
-  vector<Monitor>* moni1 = 0;
+  //  BH_Event* event = 0;
+  Monitor* moni0 = new Monitor();
+  Monitor* moni1 = new Monitor();
+  moni0->ClearMonitor();
+  moni1->ClearMonitor();
 
-  TBranch* bmoni0 = 0;
-  TBranch* bmoni1 = 0;
+  //TBranch* bmoni0 = 0;
+  //TBranch* bmoni1 = 0;
 
-  tree -> SetBranchAddress("Event_Branch",&event);
-  //cerr << "Event_Branch is set." << endl;
-  bmoni0 = tree -> GetBranch("monitor0");
-  bmoni1 = tree -> GetBranch("monitor1");
+    tree -> SetBranchAddress("Event_Branch",&event);
+    cerr << "Event_Branch is set." << endl;
+  //  bmoni0 = tree -> GetBranch("monitor0");
+  //  bmoni1 = tree -> GetBranch("monitor1");
   //cerr << "monitors branch is set, with address: " << &moni0 << endl;
 
-  bmoni0 -> SetAddress(&moni0);
-  bmoni1 -> SetAddress(&moni1);
+    //    bmoni0 -> SetAddress(&moni0);
+    //    bmoni1 -> SetAddress(&moni1);
   
   //Int_t NumEntry = tree -> GetEntries();
   Int_t NumEntry = tree -> GetEntries();
   cerr << "Data entries " << NumEntry << endl;
-
-  
   Float_t energy_max = 30.;
 
   //Temporary storage of charge, energy data of monitor in a single event
@@ -191,35 +198,50 @@ void Histo(void){
   //Read data from TTree and fill in the histograms
   Int_t j = 0;
   Int_t i = 0;
+
+      cerr << "mE0 = " << mE[0] << endl;
+      cerr << "mE1 = " << mE[1] << endl;
+      cerr << "moni0E = " << moni0->energy_m << endl;
+      cerr << "moni1E = " << moni1->energy_m << endl;
+
   //  for (Int_t i = 0; i < NumEntry; i++)
   
-   do {
-      delete moni0; moni0 = 0;
-      delete moni1; moni1 = 0;
+  for (; i < NumEntry ; ) {
+    //      delete moni0; moni0 = new Monitor;
+    //      delete moni1; moni1 = new Monitor;
 
-      bmoni0 -> GetEvent(i);
-      bmoni1 -> GetEvent(j);
+    //    moni0->ClearMonitor();
+    //    moni1->ClearMonitor();
+        tree -> GetEntry(i);
+    //          bmoni0 -> GetEvent(i);
+    //          bmoni1 -> GetEvent(j);
       //cerr << "Reading the " << i << "th entry." << endl;
       //cerr << "Size of monitor at this event is " << event->monitors.size() << endl;
       //      mcharge[0] = 0; mcharge[1] = 0;
       mE[0] = 0.0; mE[1] = 0.0;
-      
-	  if(moni0->at(0).enumber == moni1->at(0).enumber) 
+      /*
+	  if(moni0->enumber == moni1->enumber) 
 	    {
-	      mE[0] = moni0->at(0).energy_m;
-	      mE[1] = moni1->at(0).energy_m;
+	      mE[0] = moni0->energy_m;
+	      mE[1] = moni1->energy_m;
 	    }
-	  else if(moni0->at(0).enumber > moni1->at(0).enumber) 
+	  else if(moni0->enumber > moni1->enumber) 
 	    do{
 	        j++;
 		bmoni1 -> GetEntry(j);
-	    }while(moni0->at(0).enumber != moni1->at(0).enumber);
+	    }while(moni0->enumber != moni1->enumber);
 	  else 
 	    do{
 	        i++;
 		bmoni0 -> GetEntry(i);
-	    }while(moni0->at(0).enumber != moni1->at(0).enumber);
-	  
+	    }while(moni0->enumber != moni1->enumber);
+      */
+      mE[0] = event->GetMonitor(0)->GetEnergy();
+      mE[1] = event->GetMonitor(1)->GetEnergy();
+      
+      //      cerr << "Processing " << i+1 << "th event." << endl;
+      //     cerr << "Ep = " << mE[0] << endl;
+      //     cerr << "Ee = " << mE[1] << endl;
 	  i++;
 	  j++;
       //cerr << << "Charge in monitor is " << monit0->at(0).charge << endl;
@@ -248,7 +270,7 @@ void Histo(void){
       
       //if((mcharge[0] != 0) && (mcharge[1] != 0))
 	h_energy->Fill((mE[1]-mE[0]));
-   }while((!moni0->empty())||(!moni1->empty()));
+   }
 
   c_energy -> cd(); h_energy -> Draw();
   

@@ -17,7 +17,8 @@ class OutputFileMessenger;
 
 using namespace std;
 
-struct Monitor{
+class Monitor{
+public:
     Int_t enumber;
     Float_t charge;
     Float_t energy_m;
@@ -25,6 +26,10 @@ struct Monitor{
     Float_t y_m;
     Float_t theta_m;
     Float_t phi_m;
+    
+  inline void SetMonitor(Monitor* mo){
+    enumber = mo->enumber; charge = mo->charge; energy_m = mo->energy_m; x_m = mo->x_m;
+    y_m = mo->y_m; theta_m = mo->theta_m; phi_m = mo->phi_m;}
   };
 
 struct Input{
@@ -60,8 +65,8 @@ class BH_Event : public TObject{
 //class BH_Event{
 public:
   Int_t event_num;
-  vector<Monitor> monitor1;
-  vector<Monitor> monitor0;
+  Monitor monitor1;
+  Monitor monitor0;
   Input input;
   Detector detector0;
   Detector detector1;
