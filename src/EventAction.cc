@@ -299,6 +299,14 @@ if(use_monitor)
 	  	//G4cout << "theta_out = " << theta_out/mrad << " mrad" << G4endl;
 	  	//G4cout << "phi_out = " << phi_out/mrad << " mrad" << G4endl;
 		
+
+
+/*
+
+                // new choose for data coordinate for output.
+                // theta and phi are angle between trajectory of electrons (positrons) and global coordinate system 
+                // where theta and phi here are pi/2 minus ordinary spherical coordinate theta or phi in global coordinate system (+x downstream direction, +z up direction)
+                // x,y are also measured same direction as global coordinate system, but relative to center of 1st VDC for each detector package.
 		G4double x_f = x_out;
 		G4double y_f = y_out/sqrt(2);
 		G4double theta_f = atan2((y_out-y2_out)/sqrt(2),sqrt((x_out-x2_out)*(x_out-x2_out)+2*(fVDCSpacing+(y_out-y2_out)/2)*(fVDCSpacing+(y_out-y2_out)/2)))*rad;
@@ -308,7 +316,7 @@ if(use_monitor)
 					 y_out = y_f;
 					 theta_out = theta_f;
 					 phi_out = phi_f;
-
+*/
 
 					 pOutputFile->Set_x_f(det, x_out);
 					 pOutputFile->Set_y_f(det, y_out);
