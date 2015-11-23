@@ -69,8 +69,8 @@ DefineMaterials();
 fWorldSize = new G4ThreeVector(150.*cm*5, 200.*cm*5, 100.*cm*5);
 fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
 //fBackgroundMaterial = Helium; //
-fBackgroundMaterial = Vacuum; //
-//fBackgroundMaterial = Helium;
+//fBackgroundMaterial = Vacuum; //
+fBackgroundMaterial = Air;
 //
 // Magnetic field
 fBcenter = -0.4536*tesla;
@@ -107,16 +107,16 @@ fYokeMaterial = Iron;
 
 // Bag
 fBagThick = 0.1*mm;
-//fBagMaterial = Poly;
- fBagMaterial = Vacuum;
+fBagMaterial = Poly;
+// fBagMaterial = Vacuum;
 fMagnetToBagDistance = 1.0*mm;
 
 //target
 fTargetDistance = 42.26*cm;
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
-//fTargetToBagMaterial = Air;
-fTargetToBagMaterial = Vacuum;
+fTargetToBagMaterial = Air;
+//fTargetToBagMaterial = Vacuum;
 //fTargetToBagMaterial = Helium;
 
 // Target material and thickness can be changed through messenger
@@ -135,10 +135,10 @@ fVDCSheetThick = 0.0005*inch;
 fVDCLayerThick = 0.5*inch;
 fVDCAlLayerThick = 0.75*inch;
 
-//fChamberSheetMaterial = Mylar;
-//fChamberGasMaterial = Ethane_Argon;
- fChamberSheetMaterial = Vacuum;
- fChamberGasMaterial = Vacuum;
+fChamberSheetMaterial = Mylar;
+fChamberGasMaterial = Ethane_Argon;
+// fChamberSheetMaterial = Vacuum;
+// fChamberGasMaterial = Vacuum;
 
 
 fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
@@ -848,9 +848,12 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   G4Box* VDCBox = 
     new G4Box("VDC Box", fVDCSizeX/2., fVDCSizeY/2. + fBagThick, fVDCSizeZ/2.);
   fLogicVDCHolder = 0;
+
+  // Carefulle if you want to make all Vaccum
   fLogicVDCHolder = new G4LogicalVolume(VDCBox,
- 			Air, 
-			"VDC Holder");
+					 			Air, 
+					//fVDCMaterial,
+					"VDC Holder");
   // =================================================================================
   //aluminum frame for a single VDC:
 
