@@ -61,7 +61,7 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   // --------------- Monitor -----------------
   // Skip this part if we are not going to output Monitor info
   G4bool use_monitor = pOutputFile->GetUseMonitor();
-  cerr << "use_monitor is: " << use_monitor << endl;
+  //  cerr << "use_monitor is: " << use_monitor << endl;
 if(use_monitor)
   {
   G4int MONID = G4SDManager::GetSDMpointer()->GetCollectionID("Monitor/MonitorHitCollection");
@@ -330,7 +330,11 @@ if(use_monitor)
   // but not if we are requiring a hit in the hodoscope and there is no
   // hit in the corresponding hodoscope
   if(use_monitor)
+    {
+      //If the following line is added, monitors will write data when all detectors are hit
+      if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
   	pOutputFile->WriteEvent();
+    }
   else
 	{
 	if( fRequireHodoscopeHit )
