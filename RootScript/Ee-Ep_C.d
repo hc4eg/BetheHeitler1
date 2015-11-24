@@ -31,11 +31,13 @@
 ./Ee-Ep_C.so: /usr/include/root/TVirtualX.h /usr/include/root/TAttText.h
 ./Ee-Ep_C.so: /usr/include/root/GuiTypes.h /usr/include/root/Buttons.h
 ./Ee-Ep_C.so: /usr/include/root/TQObject.h /usr/include/root/TAttCanvas.h
-./Ee-Ep_C.so: /usr/include/root/TCanvasImp.h /usr/include/root/TH1.h
+./Ee-Ep_C.so: /usr/include/root/TCanvasImp.h /usr/include/root/TGraph.h
+./Ee-Ep_C.so: /usr/include/root/TVectorFfwd.h /usr/include/root/TVectorDfwd.h
+./Ee-Ep_C.so: /usr/include/root/TFitResultPtr.h /usr/include/root/TH1.h
 ./Ee-Ep_C.so: /usr/include/root/TAxis.h /usr/include/root/TAttAxis.h
 ./Ee-Ep_C.so: /usr/include/root/TArrayC.h /usr/include/root/TArrayS.h
 ./Ee-Ep_C.so: /usr/include/root/TArrayF.h /usr/include/root/Foption.h
-./Ee-Ep_C.so: /usr/include/root/TVectorFfwd.h /usr/include/root/TVectorDfwd.h
-./Ee-Ep_C.so: /usr/include/root/TFitResultPtr.h
+./Ee-Ep_C.so: /usr/include/root/TH2.h /usr/include/root/TMatrixFBasefwd.h
+./Ee-Ep_C.so: /usr/include/root/TMatrixDBasefwd.h
 ./Ee-Ep_C.so: /usr/include/root/cintdictversion.h /usr/include/root/RVersion.h
 Ee-Ep_C__ROOTBUILDVERSION= 5.34/14
