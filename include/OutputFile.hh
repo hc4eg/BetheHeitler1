@@ -79,7 +79,6 @@ public:
     detector1 = 0;
   }
   */
-  
   private:
     ClassDef(BH_Event,1)
 };

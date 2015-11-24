@@ -205,11 +205,11 @@ void Histo(void){
 	TCanvas * c_EpDel = new TCanvas("c_EpDel", "Asymmetry Epsilon vs Delta from electron",800,400);
 	c_EpDel->ToggleEventStatus();
 	c_EpDel->Iconify();
-	
+	/*
 	TCanvas * c_N = new TCanvas("c_N", "Energy difference (Ee-Ep)/2 counts",800,400);
 	c_EpDel->ToggleEventStatus();
 	c_EpDel->Iconify();
-	
+	*/
   //Histograms
   TH1F * h_energy = new TH1F("h_energy", "Energy difference (Ee-Ep)/2",
 				600, -30.0, 30.0);
@@ -255,9 +255,9 @@ void Histo(void){
   Float_t AvEnergy = 0, NAv = 0;
   // Ne[]: array to store electron counts, N[]: array to store N counts(therefore to compute asymmetry epsilon)
   // Del[]: array to store delta (therefore to draw epsilon vs delta TGraph)
-  Float_t Ne[120], N[120], Del[120];
-  for(int i = 0; i < 120; i++){ Ne[i] = 0.; N[i] = 0.; Del[i] = 0.;}
-
+  Float_t Ne[60],Np[60], N[120], Del[120];
+  for(int i = 0; i < 120; i++){ N[i] = 0.; Del[i] = 0.;}
+  for(int i = 0; i < 60; i++){ Ne[i] = 0.; Np[i] = 0.;}
 
   //Read data from TTree and fill in the histograms
   Int_t j = 0;
@@ -289,7 +289,7 @@ void Histo(void){
       mE[0] = event->GetMonitor(0)->GetEnergy();
       mE[1] = event->GetMonitor(1)->GetEnergy();
       // Print out total energy and event number from root file 
-      cerr << "Ee- = " << mE[1] << ". " << "Ee+ = " << mE[0] << ". " << "Etot = "<< mE[1]+mE[0] << ". " << "Event number = " << i << endl;
+      //cerr << "Ee- = " << mE[1] << ". " << "Ee+ = " << mE[0] << ". " << "Etot = "<< mE[1]+mE[0] << ". " << "Event number = " << i << endl;
       //Apply following cut: both e+ and e- with energy larger than 0.1 MeV, 
       //and sum of e+ e- energy between 58.00 and 60.00 MeV will flag kTRUE.
       if(mE[0] > 0.1 && mE[1] > 0.1)
@@ -302,7 +302,8 @@ void Histo(void){
 		    N[n+60]++;
 		    AvEnergy += (mE[0]+mE[1]);
 		    NAv++;
-		    flag = kTRUE; //Only Ee>0.1MeV, Ep>0.1MeV, total energy from 58.00 to 60.5MeV fill histogram.
+		    flag = kTRUE; 
+		    // Only Ee>0.1MeV, Ep>0.1MeV, total energy from 58.00 to 60.5MeV fill histogram.
 		    // cerr << "Number of effective event " << NAv << endl;
 		  }
 	    }
@@ -321,22 +322,37 @@ void Histo(void){
 	      h_etheta->Fill(theta,((mE[1]-mE[0])/2));
 	    }
    }
-
+  
   AvEnergy /= NAv;
   cerr << "Average energy = " << AvEnergy << " Effective event entry "<< NAv << endl;
-  //  for(Int_t n = 0; n< 120 ; n++) cerr << "N["<< (n-60.)/2. << "] = " << N[n] << endl;
+  //for(Int_t n = 0; n< 120 ; n++) cerr << "N["<< (n-60.)/2. << "] = " << N[n] << endl;
 
-  //  for (Int_t n = 0; n < 60; n++)
-  for (Int_t n = 0; n <120; n++)
-  {      
-      //N[n] = (N[60+n]-N[60-n])/(N[60+n]+N[60-n]);
-      //     cerr << "Asymmetry = " << N[n] << endl;
-      //if(abs(N[n]) > 1.0) N[n] = 0.0;
-      //Del[n] = (-29.5) + n;
-      Del[n] = (-29.75)+n/2.0;
+  for (Int_t n = 0; n < 60; n++)
+    {
+      Ne[n] = N[n+60];
+      Np[n] = N[n];
+    }
+  
+  for (Int_t n = 0; n < 60; n++)
+  //for (Int_t n = 0; n <120; n++)
+  {   
+      //Need to use temporary array to store N[n]      
+      N[n] = (Np[n]-Ne[60-n-1])/(Np[n]+Ne[60-n-1]);
+      if (Np[n]==Ne[60-n-1]) N[n]=0.0;
+      N[60+n] = (Ne[n]-Np[60-n-1])/(Ne[n]+Np[60-n-1]);
+      if (Ne[n]==Np[60-n-1]) N[60+n]=0.0;
+  }
+  //N[0] = N[1];
+  //N[119] = N[118];
+  
+  for (Int_t n = 0; n < 120; n++)
+    {
+      //  cerr << "Asymmetry[" << n <<"] = " << N[n] << endl;
+      Del[n] = (-29.75) + n/2.0;
+    }
+      //Del[n] = (-29.75)+n/2.0;
       //   cerr << "Ne 30+Del = " << Ne[60+n] << "Ne 30-Del" << Ne[60-n];
       //cerr << "Epsilon = " << N[n] << " ." << "Del = " << Del[n] << endl;
-    }
   /*
   for (Int_t n = 0; n < 120; n++)
     {
