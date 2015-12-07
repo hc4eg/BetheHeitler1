@@ -202,7 +202,11 @@ void Histo(void){
 	c_etheta->ToggleEventStatus();
 	c_etheta->Iconify();
 
-	TCanvas * c_EpDel = new TCanvas("c_EpDel", "Asymmetry Epsilon vs Delta from electron",800,400);
+   TCanvas * c_EpDel = new TCanvas("c_EpDel", "Asymmetry Epsilon vs Delta from electron",800,400);
+	c_EpDel->ToggleEventStatus();
+	c_EpDel->Iconify();
+
+   TCanvas * c_EpDel10 = new TCanvas("c_EpDel10", "Asymmetry Epsilon vs Delta from electron at opening angle around 10 degree",800,400);
 	c_EpDel->ToggleEventStatus();
 	c_EpDel->Iconify();
 	/*
@@ -244,6 +248,7 @@ void Histo(void){
   TH2F * h_etheta = new TH2F("h_etheta", "Delta vs Theta", 100, 0, 40, 600, -energy_max, energy_max);
   h_etheta->SetXTitle("Opening Angle(Degree)");
   h_etheta->SetYTitle("Energy Difference Delta(MeV)");
+  h_etheta->SetOption("COLZ");
 
   //Temporary storage of charge, energy data of monitor in a single event
   //Int_t mcharge[2];
@@ -253,11 +258,22 @@ void Histo(void){
   Float_t theta = 0., thetae = 0., thetap = 0., phie = 0., phip = 0.;
   // AvEnergy: average energy for pairs with designate energy cut. NAv: counts of pairs for counting average energy
   Float_t AvEnergy = 0, NAv = 0;
+
+  //Below are method to compute (Epsilon - Delta) by counting number of Ee-Ep
+  //DelInt represents the interval of Delta (or (Ee-Ep)/2)
+  //NPt is the number of Pt in TGraph
+  Float_t DelInt = 2.0;
+  Int_t NPt = (Int_t)(60/DelInt);
+
   // Ne[]: array to store electron counts, N[]: array to store N counts(therefore to compute asymmetry epsilon)
   // Del[]: array to store delta (therefore to draw epsilon vs delta TGraph)
-  Float_t Ne[60],Np[60], N[120], Del[120];
-  for(int i = 0; i < 120; i++){ N[i] = 0.; Del[i] = 0.;}
-  for(int i = 0; i < 60; i++){ Ne[i] = 0.; Np[i] = 0.;}
+  Float_t Ne[(Int_t)(NPt/2)],Np[(Int_t)(NPt/2)], N[NPt], Del[NPt];
+  for(int i = 0; i < NPt; i++){ N[i] = 0.; Del[i] = 0.;}
+  for(int i = 0; i < (Int_t)(NPt/2); i++){ Ne[i] = 0.; Np[i] = 0.;}
+
+  Float_t Ne10[(Int_t)(NPt/2)],Np10[(Int_t)(NPt/2)], N10[NPt], Del10[NPt];
+  for(int i = 0; i < NPt; i++){ N10[i] = 0.; Del10[i] = 0.;}
+  for(int i = 0; i < (Int_t)(NPt/2); i++){ Ne10[i] = 0.; Np10[i] = 0.;}
 
   //Read data from TTree and fill in the histograms
   Int_t j = 0;
@@ -294,19 +310,30 @@ void Histo(void){
       //and sum of e+ e- energy between 58.00 and 60.00 MeV will flag kTRUE.
       if(mE[0] > 0.1 && mE[1] > 0.1)
 	{
-	  for (Int_t n = -60; n < 60; n++)
-	    {
-	      if (((Float_t)(n)< (mE[1]-mE[0])) && ((mE[1]-mE[0]) < (Float_t)((n+1))))
 		if (((mE[1]+mE[0]) > 58.00) && ((mE[1]+mE[0]) < 60.0))
 		  {
-		    N[n+60]++;
-		    AvEnergy += (mE[0]+mE[1]);
-		    NAv++;
-		    flag = kTRUE; 
-		    // Only Ee>0.1MeV, Ep>0.1MeV, total energy from 58.00 to 60.5MeV fill histogram.
-		    // cerr << "Number of effective event " << NAv << endl;
+		    for(Int_t n = 0; n < NPt; n++)
+		      {
+			if (((Float_t)(n*2.0*DelInt-60.0)< (mE[1]-mE[0])) && ((mE[1]-mE[0]) < (Float_t)((n+1)*2.0*DelInt-60.0)))
+			  {
+			    N[n]++;
+			    if (theta < 11.00 && theta >= 9.00) N10[n]++;
+			  }
+		      }
+		    
+		    for (Int_t n = -60; n < 60; n++)
+		      {
+			if (((Float_t)(n)< (mE[1]-mE[0])) && ((mE[1]-mE[0]) < (Float_t)((n+1))))
+			//Debug code used for computing average energy within valid range
+			AvEnergy += (mE[0]+mE[1]);
+			NAv++;
+
+			// Only Ee+Ep ranges from 58.00 MeV to 60.00 MeV will be analyzed 
+			flag = kTRUE;
+			// Only Ee>0.1MeV, Ep>0.1MeV, total energy from 58.00 to 60.5MeV fill histogram.
+			// cerr << "Number of effective event " << NAv << endl;
+		      }
 		  }
-	    }
 	}
 	  i++;
 	  j++;
@@ -325,31 +352,77 @@ void Histo(void){
   
   AvEnergy /= NAv;
   cerr << "Average energy = " << AvEnergy << " Effective event entry "<< NAv << endl;
-  //for(Int_t n = 0; n< 120 ; n++) cerr << "N["<< (n-60.)/2. << "] = " << N[n] << endl;
+  for(Int_t n = 0; n< NPt ; n++) cerr << "N["<< (n*2*DelInt-60.)/2. << "] = " << N[n] << endl;
+  //for(Int_t n = 0; n< 120 ; n++) cerr << "N10["<< (n-60.)/2. << "] = " << N10[n] << endl;
 
+  
+
+  for (Int_t n = 0; n < (Int_t)(NPt/2); n++)
+    {
+      Ne[n] = N[n+(Int_t)(NPt/2)];
+      Np[n] = N[n];
+    }
+  
+  for (Int_t n = 0; n < (Int_t)(NPt/2); n++)
+  {   
+      //Need to use temporary array to store N[n]      
+    N[n] = (Np[n]-Ne[(NPt/2)-n-1])/(Np[n]+Ne[(NPt/2)-n-1]);
+    if (Np[n]==Ne[(NPt/2)-n-1]) N[n]=0.0;
+    N[(NPt/2)+n] = (Ne[n]-Np[(NPt/2)-n-1])/(Ne[n]+Np[(NPt/2)-n-1]);
+    if (Ne[n]==Np[(NPt/2)-n-1]) N[(NPt/2)+n]=0.0;
+  }
+
+  for (Int_t n = 0; n < NPt; n++)
+    {
+      //  cerr << "Asymmetry[" << n <<"] = " << N[n] << endl;
+      Del[n] = -30.0+ (DelInt/2) + DelInt*n;
+    }
+  
+  // Ploting Epsilon vs Delta graph near opening angle 10 degree
+  for (Int_t n = 0; n < (Int_t)(NPt/2); n++)
+    {
+      Ne10[n] = N10[n+(Int_t)(NPt/2)];
+      Np10[n] = N10[n];
+    }
+  
+  for (Int_t n = 0; n < (Int_t)(NPt/2); n++)
+  {   
+      //Need to use temporary array to store N[n]      
+    N10[n] = (Np10[n]-Ne10[(NPt/2)-n-1])/(Np10[n]+Ne10[(NPt/2)-n-1]);
+    if (Np10[n]==Ne10[(NPt/2)-n-1]) N10[n]=0.0;
+    N10[(NPt/2)+n] = (Ne10[n]-Np10[(NPt/2)-n-1])/(Ne10[n]+Np10[(NPt/2)-n-1]);
+    if (Ne10[n]==Np10[(NPt/2)-n-1]) N10[(NPt/2)+n]=0.0;
+  }
+
+  for (Int_t n = 0; n < NPt; n++)
+    {
+      //  cerr << "Asymmetry[" << n <<"] = " << N[n] << endl;
+      Del10[n] = -30.0+ (DelInt/2) + DelInt*n;
+    }
+  /*
   for (Int_t n = 0; n < 60; n++)
     {
-      Ne[n] = N[n+60];
-      Np[n] = N[n];
+      Ne10[n] = N10[n+60];
+      Np10[n] = N10[n];
     }
   
   for (Int_t n = 0; n < 60; n++)
   //for (Int_t n = 0; n <120; n++)
   {   
-      //Need to use temporary array to store N[n]      
-      N[n] = (Np[n]-Ne[60-n-1])/(Np[n]+Ne[60-n-1]);
-      if (Np[n]==Ne[60-n-1]) N[n]=0.0;
-      N[60+n] = (Ne[n]-Np[60-n-1])/(Ne[n]+Np[60-n-1]);
-      if (Ne[n]==Np[60-n-1]) N[60+n]=0.0;
+      //Need to use temporary array to store N10[n]      
+      N10[n] = (Np10[n]-Ne10[60-n-1])/(Np10[n]+Ne10[60-n-1]);
+      if (Np10[n]==Ne10[60-n-1]) N10[n]=0.0;
+      N10[60+n] = (Ne10[n]-Np10[60-n-1])/(Ne10[n]+Np10[60-n-1]);
+      if (Ne10[n]==Np10[60-n-1]) N10[60+n]=0.0;
   }
-  //N[0] = N[1];
-  //N[119] = N[118];
-  
+
   for (Int_t n = 0; n < 120; n++)
     {
       //  cerr << "Asymmetry[" << n <<"] = " << N[n] << endl;
-      Del[n] = (-29.75) + n/2.0;
+      Del10[n] = (-29.75) + n/2.0;
     }
+  */
+  
       //Del[n] = (-29.75)+n/2.0;
       //   cerr << "Ne 30+Del = " << Ne[60+n] << "Ne 30-Del" << Ne[60-n];
       //cerr << "Epsilon = " << N[n] << " ." << "Del = " << Del[n] << endl;
@@ -364,8 +437,11 @@ void Histo(void){
     }
   */
   
-  TGraph * g_EpDel = new TGraph(120, Del, N);
+  TGraph * g_EpDel = new TGraph(NPt, Del, N);
   c_EpDel->cd(); g_EpDel->Draw();
+
+  TGraph * g_EpDel10 = new TGraph(NPt, Del10, N10);
+  c_EpDel10->cd(); g_EpDel10->Draw();
   //  c_N -> cd();h_N -> Draw();
   c_theta -> cd(); h_theta -> Draw();
   //    c_thetae -> cd(); h_thetae -> Draw();
