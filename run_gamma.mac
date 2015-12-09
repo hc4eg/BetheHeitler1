@@ -23,14 +23,18 @@
 /BH/gun/set_theta_max 0 mrad
 /BH/gun/set_phi_min -0 mrad
 /BH/gun/set_phi_max 0 mrad
+
 /BH/detector/set_target_thickness 0.025 mm
 /BH/detector/set_target_material G4_U # Uranium
+
 /BH/detector/update
 /BH/detector/print
 /BH/gun/print
+
 /BH/outputfile/set_use_monitor true
 /BH/outputfile/set_prefix Gamma
 /BH/outputfile/set_use_unique_filename true
-/run/beamOn 2000000
+
+/ run/beamOn 2000000
 #/run/beamOn 2000000
 #/run/beamOn 2000000
