@@ -249,9 +249,61 @@ OutputFile::WriteEvent()
 	  //      event->monitor1.clear();
 	if(fUseMonitor)
 		{
-		for(G4int i = 0; i < 2; i++)
-			{
-			if(fMonitorHit[i])
+		  //Check if there is single e+ or e- produced, or e+/e- pair produced
+		  if(fMonitorHit[0] && !fMonitorHit[1])
+		    {
+		      		  Monitor* moni = new Monitor;
+				  moni->enumber = (Int_t)fevent_number;
+				  moni->charge = 1.0;
+				  moni->energy_m = (Float_t)(fMonitorKineticEnergy[0]/MeV);
+				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[0]; 
+				  moni->x_m = (Float_t)(fMonitorX[0]/cm);
+				  moni->y_m = (Float_t)(fMonitorY[0]/cm);     
+				  moni->theta_m = (Float_t)(fMonitorTheta[0]/mrad);
+				  moni->phi_m = (Float_t)(fMonitorPhi[0]/mrad);
+				  event->monitor0.SetMonitor(moni);
+				  delete moni;
+				  
+				  Monitor* moni1 = new Monitor;
+				  moni1->enumber = (Int_t)fevent_number;
+				  moni1->charge = 0.0;
+				  moni1->energy_m = (Float_t)(0.0/MeV); 
+				  moni1->x_m = (Float_t)(0.0/cm);
+				  moni1->y_m = (Float_t)(0.0/cm);     
+				  moni1->theta_m = (Float_t)(0.0/mrad);
+				  moni1->phi_m = (Float_t)(0.0/mrad);
+				  event->monitor1.SetMonitor(moni1);
+				  delete moni1;
+		    }
+		  else if(!fMonitorHit[0] && fMonitorHit[1])
+		    {
+		      		  Monitor* moni = new Monitor;
+				  moni->enumber = (Int_t)fevent_number;
+				  moni->charge = -1.0;
+				  moni->energy_m = (Float_t)(fMonitorKineticEnergy[1]/MeV);
+				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[1]; 
+				  moni->x_m = (Float_t)(fMonitorX[1]/cm);
+				  moni->y_m = (Float_t)(fMonitorY[1]/cm);     
+				  moni->theta_m = (Float_t)(fMonitorTheta[1]/mrad);
+				  moni->phi_m = (Float_t)(fMonitorPhi[1]/mrad);
+				  event->monitor1.SetMonitor(moni);
+				  delete moni;
+
+				  Monitor* moni1 = new Monitor;
+				  moni1->enumber = (Int_t)fevent_number;
+				  moni1->charge = 0.0;
+				  moni1->energy_m = (Float_t)(0.0/MeV); 
+				  moni1->x_m = (Float_t)(0.0/cm);
+				  moni1->y_m = (Float_t)(0.0/cm);     
+				  moni1->theta_m = (Float_t)(0.0/mrad);
+				  moni1->phi_m = (Float_t)(0.0/mrad);
+				  event->monitor0.SetMonitor(moni1);
+				  delete moni;				  
+		    }
+		  else
+		    for(G4int i = 0; i < 2; i++)
+		      {
+			//if(fMonitorHit[i])
 				{
 				  Monitor* moni = new Monitor;
 				  //fprintf(fd,"Monitor:");
