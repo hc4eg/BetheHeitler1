@@ -91,7 +91,8 @@ if(use_monitor)
 		mon_hit[ipart] = true;
 		}
 	}
-	
+  //we need both monitor hit to get result of e+ /e- pair production
+  //if(mon_hit[0] && mon_hit[1])
   if(mon_hit[0] || mon_hit[1])
 	{
   	for(ipart = 0; ipart < 2; ipart++)
