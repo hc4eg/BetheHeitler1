@@ -177,7 +177,7 @@ void Histo(void){
   Float_t energy_max = 30.;
 
   //Canvas
-   TCanvas * c_energy = new TCanvas("c_energy", "Energy Diff (Ee-Ep)/2 Distribution", 800, 400);
+   TCanvas * c_energy = new TCanvas("c_energy", "Energy Diff (Ee-Ep) Distribution", 800, 400);
 	c_energy->ToggleEventStatus();
 	c_energy->Iconify();
 
@@ -215,8 +215,8 @@ void Histo(void){
 	c_EpDel->Iconify();
 	*/
   //Histograms
-  TH1F * h_energy = new TH1F("h_energy", "Energy difference (Ee-Ep)/2",
-				600, -30.0, 30.0);
+  TH1F * h_energy = new TH1F("h_energy", "Energy difference (Ee-Ep)",
+				600, -60.0, 60.0);
   h_energy->SetXTitle("Energy Difference Delta(MeV)");
   h_energy->SetYTitle("Counts");
 
@@ -342,7 +342,7 @@ void Histo(void){
 	  if(flag == kTRUE)
 	    {
 	      h_totenergy->Fill((mE[1]+mE[0]));
-	      h_energy->Fill((mE[1]-mE[0])/2);
+	      h_energy->Fill((mE[1]-mE[0]));
 	      h_theta->Fill(theta);
 	      h_thetae->Fill(thetae);
 	      h_thetap->Fill(thetap);
@@ -399,43 +399,6 @@ void Histo(void){
       //  cerr << "Asymmetry[" << n <<"] = " << N[n] << endl;
       Del10[n] = -30.0+ (DelInt/2) + DelInt*n;
     }
-  /*
-  for (Int_t n = 0; n < 60; n++)
-    {
-      Ne10[n] = N10[n+60];
-      Np10[n] = N10[n];
-    }
-  
-  for (Int_t n = 0; n < 60; n++)
-  //for (Int_t n = 0; n <120; n++)
-  {   
-      //Need to use temporary array to store N10[n]      
-      N10[n] = (Np10[n]-Ne10[60-n-1])/(Np10[n]+Ne10[60-n-1]);
-      if (Np10[n]==Ne10[60-n-1]) N10[n]=0.0;
-      N10[60+n] = (Ne10[n]-Np10[60-n-1])/(Ne10[n]+Np10[60-n-1]);
-      if (Ne10[n]==Np10[60-n-1]) N10[60+n]=0.0;
-  }
-
-  for (Int_t n = 0; n < 120; n++)
-    {
-      //  cerr << "Asymmetry[" << n <<"] = " << N[n] << endl;
-      Del10[n] = (-29.75) + n/2.0;
-    }
-  */
-  
-      //Del[n] = (-29.75)+n/2.0;
-      //   cerr << "Ne 30+Del = " << Ne[60+n] << "Ne 30-Del" << Ne[60-n];
-      //cerr << "Epsilon = " << N[n] << " ." << "Del = " << Del[n] << endl;
-  /*
-  for (Int_t n = 0; n < 120; n++)
-    {
-      Int Nmax = N[n];
-      for (Int_t i = 0; i < Nmax ; i++)
-	{
-	  h_N->Fill((-29.5)+n);
-	}
-    }
-  */
   
   TGraph * g_EpDel = new TGraph(NPt, Del, N);
   c_EpDel->cd(); g_EpDel->Draw();
