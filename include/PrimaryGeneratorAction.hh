@@ -38,6 +38,7 @@ public:
   inline void Set_phi_min(G4double val) { phi_min = val;};
   inline void Set_phi_max(G4double val) { phi_max = val;};
   inline void Set_gamma_mode(G4bool mode) { gamma_mode = mode; }
+  inline void Set_pair_mode(G4bool mode) { pair_mode = mode;}
   //inline G4double Get_central_energy() { return central_energy;};
   void PrintParameters();
   void PrintParametersToFile();
@@ -53,6 +54,12 @@ private:
   G4double central_energy, target_position;
   G4double target_thickness;
   G4bool gamma_mode;
+
+  G4bool pair_mode;
+  G4double E, c;
+  G4double Ee,KEe, Pe,Thetae, Phie, Pex, Pey, Pez, Me;
+  G4double Ep,KEp, Pp,Thetap, Phip, Ppx, Ppy, Ppz;
+
 
   OutputFile * pOutputFile;
 };

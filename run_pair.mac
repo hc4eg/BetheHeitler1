@@ -1,0 +1,21 @@
+#
+/control/verbose 1
+/control/saveHistory
+#
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+/process/verbose 0
+#
+# parameters for creating a file to fit to.
+
+
+/BH/gun/set_pair_mode true
+#/BH/detector/update
+/BH/outputfile/set_out_pair_mode true
+/BH/outputfile/set_use_monitor true
+/BH/outputfile/set_prefix Pair
+/BH/outputfile/set_use_unique_filename true
+
+/run/beamOn 50000
+#/run/beamOn 500000

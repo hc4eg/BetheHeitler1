@@ -1,5 +1,6 @@
 #include "OutputFile.hh"
 #include "OutputFileMessenger.hh"
+#include "PrimaryGeneratorAction.hh"
 #include "G4ios.hh"
 #include <fstream>
 
@@ -20,7 +21,7 @@ OutputFile::OutputFile()
 	fuse_unique_filename = false;
 	flines_for_heading = -1; // -1 = no additional headings
 	fUseMonitor = false;
-
+	out_pair_mode = false;
 	// Start a messenger
 	fmessenger = new OutputFileMessenger( this);
 	}
@@ -95,7 +96,7 @@ OutputFile::OpenFile(G4int runno)
 		}
 
 	*/
-cerr << "got here 1" << endl;
+	//cerr << "got here 1" << endl;
 	TString fname = Form("%s.%.4d.root", fFilename_prefix.c_str(), frunno);
 	
 	bh_tree_file = new TFile(fname,"recreate");
@@ -104,24 +105,14 @@ cerr << "got here 1" << endl;
 			<< " for output." << G4endl;
 		return false;
 	}
-cerr << "The root file: " << fname << " is opened." << endl;
-cerr << "got here 2" << endl;
-//     TTree* T = new TTree("T","root tree");	
-      //        tree = (TTree*)bh_tree_file->Get("T");
-      tree = new TTree("tree","root_tree");
+	cerr << "The root file: " << fname << " is opened." << endl;
 
+	tree = new TTree("T","root_tree");
 
-cerr << "got here 3" << endl; 
- event = new BH_Event();
-	//        event = 0;
-cerr << "got here 3.1" << endl;
+	event = new BH_Event();
 
-	branch = (TBranch*)tree->Branch("Event_Branch","BH_Event",&event);
+	branch = (TBranch*)tree->Branch("B","BH_Event",&event);
 
-//branch = (TBranch*)tree->FindBranch("Event_Branch");
-
-//branch = tree->GetBranch("Event_Branch");	
-cerr << "got here 4" << endl;
 	foutput_lines = 0;
 	fFile_open = true;
 	G4cout << "File " << fname << " opened for output." << G4endl;
@@ -139,8 +130,6 @@ OutputFile::CloseFile()
 	
         	bh_tree_file->Write();
 		delete tree;
-		//cerr << "The root file "<< fname <<" has been written" << endl;
-		
 		fFile_open = false;
 		//G4cout << "Output File " << fname << " closed." <<G4endl;
 		}
@@ -185,7 +174,7 @@ OutputFile::WriteEvent()
 		if(fUseMonitor)
 			{
 			fprintf(fd,"#  Monitor: <e-/e+>");
-			fprintf(fd," energy_m(MeV)");      
+			fprintf(fd," Energy(MeV)");      
 			fprintf(fd,"       x_m(cm)");      
 			fprintf(fd,"       y_m(cm)");      
 			fprintf(fd," theta_m(mrad)");      
@@ -212,92 +201,114 @@ OutputFile::WriteEvent()
 	  */
 
 	  //fprintf(fd,"Event: %8d\n",fevent_number); 
-	  event->event_num = (Int_t)fevent_number;
-	  cerr << "fevent_number is: " << fevent_number << endl;
-	  //cerr << "get event number: " << event->event_num << endl;
-	  //fprintf(fd,"Input:");
-	  //fprintf(fd," %13.4g",fenergy_i/MeV);
-	  //event->input->energy = 30.0;
-	  //event->input->energy = (Float_t)30.0;
-	    //(Float_t)(fenergy_i);
-	  event->input.energy = (Float_t)(fenergy_i/MeV);
-	  //cerr << "fenergy_i is: " << (fenergy_i/MeV) << " [MeV]." << endl;
-	  //cerr << "fenergy_i is: " << (fenergy_i/keV) << " [keV]." << endl;
+	  event->ENum = (Int_t)fevent_number;
 	  
-	//fprintf(fd," %13.4g",fdelta_i);   
-	  event->input.delta = (Float_t)(fdelta_i);
-	  //cerr << "fdelta_i is: " << fdelta_i << endl;
-   	  //cerr << "get input delta: " << event->input.delta << endl;
-	 
-	//fprintf(fd," %13.4g",fx_i/cm);      
-	  event->input.x = (Float_t)(fx_i/cm);
-	  //cerr << "fx_i is: " << fx_i << endl;
-	//fprintf(fd," %13.4g",fy_i/cm);
-	  event->input.y = (Float_t)(fy_i/cm);
-	  //cerr << "fy_i is: " << fy_i << endl;
-	//fprintf(fd," %13.4g",ftheta_i/mrad);
-	  event->input.theta = (Float_t)(ftheta_i/mrad);
-	  //cerr << "ftheta_i is: "<< ftheta_i << endl;
-	//fprintf(fd," %13.4g\n",fphi_i/mrad);
-	  event->input.phi = (Float_t)(fphi_i/mrad);
-	  // cerr << "fphi_i is: "<< fphi_i << endl;
 
-	  
-	  //	  fUseMonitor = 1;
-	  //cerr << "fUseMonitor is: " << fUseMonitor << endl;
-	  //	  event->monitor0.clear();
-	  //      event->monitor1.clear();
+	  //After Input change to vector to store e-,e+ data for pair_mode
+	  if (out_pair_mode){
+	    
+	    /*
+		Input* In0;
+		In0->Energy = (Float_t)(fenergy_i[0]/MeV);  
+		In0->Delta = (Float_t)(fdelta_i[0]);
+		In0->X = (Float_t)(fx_i[0]/cm);
+		In0->Y = (Float_t)(fy_i[0]/cm);
+		In0->Theta = (Float_t)(ftheta_i[0]/mrad);
+		In0->Phi = (Float_t)(fphi_i[0]/mrad);
+		event->I0.SetInput(In0);
+
+		delete In0;
+
+		Input *In1;
+		In1->Energy = (Float_t)(fenergy_i[1]/MeV);  
+		In1->Delta = (Float_t)(fdelta_i[1]);
+		In1->X = (Float_t)(fx_i[1]/cm);
+		In1->Y = (Float_t)(fy_i[1]/cm);
+		In1->Theta = (Float_t)(ftheta_i[1]/mrad);
+		In1->Phi = (Float_t)(fphi_i[1]/mrad);
+		event->I1.SetInput(In1);
+
+		delete In1;
+	    */
+	        
+		event->I0.Energy = (Float_t)(fenergy_i[0]/MeV);  
+		event->I0.Delta = (Float_t)(fdelta_i[0]);
+		event->I0.X = (Float_t)(fx_i[0]/cm);
+		event->I0.Y = (Float_t)(fy_i[0]/cm);
+		event->I0.Theta = (Float_t)(ftheta_i[0]/mrad);
+		event->I0.Phi = (Float_t)(fphi_i[0]/mrad);
+
+		event->I1.Energy = (Float_t)(fenergy_i[1]/MeV);  
+		event->I1.Delta = (Float_t)(fdelta_i[1]);
+		event->I1.X = (Float_t)(fx_i[1]/cm);
+		event->I1.Y = (Float_t)(fy_i[1]/cm);
+		event->I1.Theta = (Float_t)(ftheta_i[1]/mrad);
+		event->I1.Phi = (Float_t)(fphi_i[1]/mrad);
+	  }
+	  else{
+;
+	    event->I0.Energy = (Float_t)(fenergy_i/MeV);
+	    //fprintf(fd," %13.4g",fdelta_i);   
+	    event->I0.Delta = (Float_t)(fdelta_i);	 
+	    //fprintf(fd," %13.4g",fx_i/cm);
+	    event->I0.X = (Float_t)(fx_i/cm);
+	    //fprintf(fd," %13.4g",fy_i/cm);
+	    event->I0.Y = (Float_t)(fy_i/cm);
+	    //fprintf(fd," %13.4g",ftheta_i/mrad);
+	    event->I0.Theta = (Float_t)(ftheta_i/mrad);
+	    //fprintf(fd," %13.4g\n",fphi_i/mrad);
+	    event->I0.Phi = (Float_t)(fphi_i/mrad);
+	  }
+
 	if(fUseMonitor)
 		{
 		  //Check if there is single e+ or e- produced, or e+/e- pair produced
+		  // Only monitor 0 is hit, set data for monitor 1 to be all 0
 		  if(fMonitorHit[0] && !fMonitorHit[1])
 		    {
 		      		  Monitor* moni = new Monitor;
-				  moni->enumber = (Int_t)fevent_number;
-				  moni->charge = 1.0;
-				  moni->energy_m = (Float_t)(fMonitorKineticEnergy[0]/MeV);
-				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[0]; 
-				  moni->x_m = (Float_t)(fMonitorX[0]/cm);
-				  moni->y_m = (Float_t)(fMonitorY[0]/cm);     
-				  moni->theta_m = (Float_t)(fMonitorTheta[0]/mrad);
-				  moni->phi_m = (Float_t)(fMonitorPhi[0]/mrad);
-				  event->monitor0.SetMonitor(moni);
+				  moni->Charge = 1.0;
+				  moni->Energy = (Float_t)(fMonitorKineticEnergy[0]/MeV);
+				  //cerr << "Ep = " << fMonitorKineticEnergy[0] << endl; 
+				  moni->X = (Float_t)(fMonitorX[0]/cm);
+				  moni->Y = (Float_t)(fMonitorY[0]/cm);     
+				  moni->Theta = (Float_t)(fMonitorTheta[0]/mrad);
+				  moni->Phi = (Float_t)(fMonitorPhi[0]/mrad);
+				  event->M0.SetMonitor(moni);
 				  delete moni;
 				  
 				  Monitor* moni1 = new Monitor;
-				  moni1->enumber = (Int_t)fevent_number;
-				  moni1->charge = 0.0;
-				  moni1->energy_m = (Float_t)(0.0/MeV); 
-				  moni1->x_m = (Float_t)(0.0/cm);
-				  moni1->y_m = (Float_t)(0.0/cm);     
-				  moni1->theta_m = (Float_t)(0.0/mrad);
-				  moni1->phi_m = (Float_t)(0.0/mrad);
-				  event->monitor1.SetMonitor(moni1);
+				  moni1->Charge = 0.0;
+				  moni1->Energy = (Float_t)(0.0/MeV); 
+				  moni1->X = (Float_t)(0.0/cm);
+				  moni1->Y = (Float_t)(0.0/cm);     
+				  moni1->Theta = (Float_t)(0.0/mrad);
+				  moni1->Phi = (Float_t)(0.0/mrad);
+				  event->M1.SetMonitor(moni1);
 				  delete moni1;
 		    }
+		  // Only monitor 1 is hit, set data for monitor 0 to be all 0
 		  else if(!fMonitorHit[0] && fMonitorHit[1])
 		    {
 		      		  Monitor* moni = new Monitor;
-				  moni->enumber = (Int_t)fevent_number;
-				  moni->charge = -1.0;
-				  moni->energy_m = (Float_t)(fMonitorKineticEnergy[1]/MeV);
-				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[1]; 
-				  moni->x_m = (Float_t)(fMonitorX[1]/cm);
-				  moni->y_m = (Float_t)(fMonitorY[1]/cm);     
-				  moni->theta_m = (Float_t)(fMonitorTheta[1]/mrad);
-				  moni->phi_m = (Float_t)(fMonitorPhi[1]/mrad);
-				  event->monitor1.SetMonitor(moni);
+				  moni->Charge = -1.0;
+				  moni->Energy = (Float_t)(fMonitorKineticEnergy[1]/MeV);
+				  //cerr << "Ee = " << fMonitorKineticEnergy[1] << endl; 
+				  moni->X = (Float_t)(fMonitorX[1]/cm);
+				  moni->Y = (Float_t)(fMonitorY[1]/cm);     
+				  moni->Theta = (Float_t)(fMonitorTheta[1]/mrad);
+				  moni->Phi = (Float_t)(fMonitorPhi[1]/mrad);
+				  event->M1.SetMonitor(moni);
 				  delete moni;
 
 				  Monitor* moni1 = new Monitor;
-				  moni1->enumber = (Int_t)fevent_number;
-				  moni1->charge = 0.0;
-				  moni1->energy_m = (Float_t)(0.0/MeV); 
-				  moni1->x_m = (Float_t)(0.0/cm);
-				  moni1->y_m = (Float_t)(0.0/cm);     
-				  moni1->theta_m = (Float_t)(0.0/mrad);
-				  moni1->phi_m = (Float_t)(0.0/mrad);
-				  event->monitor0.SetMonitor(moni1);
+				  moni1->Charge = 0.0;
+				  moni1->Energy = (Float_t)(0.0/MeV); 
+				  moni1->X = (Float_t)(0.0/cm);
+				  moni1->Y = (Float_t)(0.0/cm);     
+				  moni1->Theta = (Float_t)(0.0/mrad);
+				  moni1->Phi = (Float_t)(0.0/mrad);
+				  event->M0.SetMonitor(moni1);
 				  delete moni;				  
 		    }
 		  else
@@ -308,34 +319,31 @@ OutputFile::WriteEvent()
 				  Monitor* moni = new Monitor;
 				  //fprintf(fd,"Monitor:");
 				  //if(i == 1) fprintf(fd," e-");
-				  moni->enumber = (Int_t)fevent_number;
-				  if(i==1) moni->charge = -1.0;
+				  if(i==1) moni->Charge = -1.0;
 				  //else fprintf(fd," e+");
-				  else moni->charge = 1.0;
+				  else moni->Charge = 1.0;
 				  //fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);
-				  moni->energy_m = (Float_t)(fMonitorKineticEnergy[i]/MeV);
-				  cerr << "fMonitorKineticEnergy is: " << fMonitorKineticEnergy[i];
-				  //fprintf(fd," %13.4g",fMonitorX[i]/cm);   
-				  moni->x_m = (Float_t)(fMonitorX[i]/cm);
+				  moni->Energy = (Float_t)(fMonitorKineticEnergy[i]/MeV);   
+				  moni->X = (Float_t)(fMonitorX[i]/cm);
 				  //fprintf(fd," %13.4g",fMonitorY[i]/cm); 
-				  moni->y_m = (Float_t)(fMonitorY[i]/cm);
+				  moni->Y = (Float_t)(fMonitorY[i]/cm);
 				  //fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
-				  moni->theta_m = (Float_t)(fMonitorTheta[i]/mrad);
+				  moni->Theta = (Float_t)(fMonitorTheta[i]/mrad);
 				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
-				  moni->phi_m = (Float_t)(fMonitorPhi[i]/mrad);
+				  moni->Phi = (Float_t)(fMonitorPhi[i]/mrad);
 				  if (i == 0 )
-				    event->monitor0.SetMonitor(moni);
+				    event->M0.SetMonitor(moni);
 				  else
-				    event->monitor1.SetMonitor(moni);
+				    event->M1.SetMonitor(moni);
 				  delete moni;
 				}
 			}
 		}
 	  
-	event->detector0.vdc.clear();
-	event->detector1.vdc.clear();
-	event->detector0.paddles.clear();
-	event->detector1.paddles.clear();
+	event->D0.V.clear();
+	event->D1.V.clear();
+	event->D0.P.clear();
+	event->D1.P.clear();
 	for(G4int i = 0; i < 2; i++)
 		{
 		if(fdetector_package[i])
@@ -345,24 +353,31 @@ OutputFile::WriteEvent()
 			  VDC dc;
 			  //fprintf(fd,"VDC:");
 			  //fprintf(fd," %13.4g",fx_f[i]/cm);
-			  dc.x_f = (Float_t)(fx_f[i]/cm);
+			  dc.X = (Float_t)(fx_f[i]/cm);
 			  //fprintf(fd," %13.4g",fy_f[i]/cm);
-			  dc.y_f = (Float_t)(fy_f[i]/cm);
+			  dc.Y = (Float_t)(fy_f[i]/cm);
 			  //fprintf(fd," %13.4g",ftheta_f[i]/mrad);
-			  dc.theta_f = (Float_t)(ftheta_f[i]/mrad);
+			  dc.Theta = (Float_t)(ftheta_f[i]/mrad);
 			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
-			  dc.phi_f = (Float_t)(fphi_f[i]/mrad);
-			  //fprintf(fd,"\n");
-			  //cerr << "i: " << i << endl
-			  //     << "vdc.x_f: " << dc.x_f <<endl;
-			  //<< "y_f: " << dc.y_f <<endl
-			  //<< "thta_f:" << dc.theta_f <<endl
-			  //<< "phi_f: " << dc.phi_f <<endl;
-			  if(i==0) {event->detector0.vdc.push_back(dc);
-			    // cerr << "detector0 vdc x_f: " << event->detector0.vdc.at(0).x_f << endl;}
+			  dc.Phi = (Float_t)(fphi_f[i]/mrad);
+
+			  for(G4int j = 0; j < 2; j++)
+			    for(G4int k = 0; k < 2; k++)
+			      {
+				if(j == 0 && k == 0)
+				  dc.E0u = (Float_t)(fedep_f[i][0][0]/MeV);
+				if(j == 0 && k == 1)
+				  dc.E0v = (Float_t)(fedep_f[i][0][1]/MeV);
+				if(j == 0 && k == 0)
+				  dc.E1u = (Float_t)(fedep_f[i][1][0]/MeV);
+				if(j == 0 && k == 0)
+				  dc.E1v = (Float_t)(fedep_f[i][1][1]/MeV);
+				
+			      }
+
+			  if(i==0) {event->D0.V.push_back(dc);
 			  }
-			  else {event->detector1.vdc.push_back(dc);
-			    // cerr << "detector1 vdc x_f: " << event->detector1.vdc.at(0).x_f << endl;}
+			  else {event->D1.V.push_back(dc);
 			  }
 			if(fHod_hit[i])
 			   {
@@ -372,17 +387,17 @@ OutputFile::WriteEvent()
 					{
 					  Paddle paddle;
 					  //fprintf(fd,"Paddle: %d ", j);
-					  paddle.paddle_num = (Int_t)j;
+					  paddle.PNum = (Int_t)j;
 					  //fprintf(fd," %13.4g",fPadEnergy[i][j]/MeV);  
 					  paddle.Edep = (Float_t)(fPadEnergy[i][j]/MeV);
 					  //fprintf(fd," %13.4g",fPadLight[i][j]/MeV);
-					  paddle.Light_out = (Float_t)(fPadLight[i][j]/MeV);
+					  paddle.Light = (Float_t)(fPadLight[i][j]/MeV);
 					  //fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
-					  paddle.Hit_time = (Float_t)(fPadTime[i][j]/ns);
+					  paddle.Time = (Float_t)(fPadTime[i][j]/ns);
 					  //fprintf(fd,"\n");
-					  if(i==0) event->detector0.paddles.push_back(paddle);
-					  else event->detector1.paddles.push_back(paddle);
-					  //else detector1->paddles->push_back(paddle);
+					  if(i==0) event->D0.P.push_back(paddle);
+					  else event->D1.P.push_back(paddle);
+					  //else D1->P->push_back(paddle);
 					}
 				}
 			   }

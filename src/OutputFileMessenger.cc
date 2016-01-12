@@ -30,6 +30,10 @@ OutputFileMessenger::OutputFileMessenger( OutputFile* out)
 	Set_prefix_cmd->SetGuidance("Usage: set_prefix <prefix>");
 	Set_prefix_cmd->AvailableForStates(G4State_Idle);
 
+	Set_out_pair_mode_cmd = new G4UIcmdWithABool("/BH/outputfile/set_out_pair_mode", this);
+	Set_out_pair_mode_cmd->SetGuidance("Set Pair Mode: e+ e- pair data will be stored in E.B.I");
+	Set_out_pair_mode_cmd->AvailableForStates(G4State_Idle);
+
 	PrintCmd = new G4UIcmdWithoutParameter("/BH/outputfile/print", this);
 	PrintCmd->SetGuidance("Print current output file parameters.");
 	PrintCmd->AvailableForStates(G4State_Idle);
@@ -44,6 +48,7 @@ OutputFileMessenger::~OutputFileMessenger()
 	delete Set_header_frequency_cmd;
 	delete Set_unique_cmd;
 	delete Set_use_monitor_cmd;
+	delete Set_out_pair_mode_cmd;
 	delete Dir1;
 }
 
@@ -51,6 +56,8 @@ void
 OutputFileMessenger::SetNewValue( G4UIcommand *command, G4String newValue)
 {
 	if(command == PrintCmd) { fout->PrintParameters(); }
+	else if(command == Set_out_pair_mode_cmd)
+		{ fout->Set_out_pair_mode( Set_out_pair_mode_cmd->GetNewBoolValue(newValue)); }
 	else if(command == Set_header_frequency_cmd)
 		{ fout->Set_output_lines( Set_header_frequency_cmd->GetNewIntValue(newValue)); }
 	else if(command == Set_unique_cmd)

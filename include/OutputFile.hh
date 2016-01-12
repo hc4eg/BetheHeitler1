@@ -19,66 +19,65 @@ using namespace std;
 
 class Monitor{
 public:
-    Int_t enumber;
-    Float_t charge;
-    Float_t energy_m;
-    Float_t x_m;
-    Float_t y_m;
-    Float_t theta_m;
-    Float_t phi_m;
+    Float_t Charge;
+    Float_t Energy;
+    Float_t X;
+    Float_t Y;
+    Float_t Theta;
+    Float_t Phi;
     
-  inline void SetMonitor(Monitor* mo){
-    enumber = mo->enumber; charge = mo->charge; energy_m = mo->energy_m; x_m = mo->x_m;
-    y_m = mo->y_m; theta_m = mo->theta_m; phi_m = mo->phi_m;}
+  inline void SetMonitor(Monitor* M){
+    Charge = M->Charge; Energy = M->Energy; X = M->X;
+    Y = M->Y; Theta = M->Theta; Phi = M->Phi;};
   };
 
 struct Input{
-  Float_t energy;
-  Float_t delta;
-  Float_t x;
-  Float_t y;
-  Float_t theta;
-  Float_t phi;
+  Float_t Energy;
+  Float_t Delta;
+  Float_t X;
+  Float_t Y;
+  Float_t Theta;
+  Float_t Phi;
+
+  inline void SetInput(Input* I){
+    Energy = I->Energy; Delta = I->Delta; X = I->X;
+    Y = I->Y; Theta = I->Theta; Phi = I->Phi;};
 };
 
 struct VDC{
-    Float_t x_f;
-    Float_t y_f;
-    Float_t theta_f;
-    Float_t phi_f;
+    Float_t X;
+    Float_t Y;
+    Float_t Theta;
+    Float_t Phi;
+    Float_t E0u;
+    Float_t E0v;
+    Float_t E1u;
+    Float_t E1v;
 };
 
 struct Paddle{
-  Int_t paddle_num;
+  Int_t PNum;
   Float_t Edep;
-  Float_t Light_out;
-  Float_t Hit_time;
+  Float_t Light;
+  Float_t Time;
 };
 
 struct Detector{
-  //Int_t detector_num;
-  vector<VDC> vdc;
-  vector<Paddle> paddles;
+  vector<VDC> V;
+  vector<Paddle> P;
 };
 
 class BH_Event : public TObject{
 //class BH_Event{
 public:
-  Int_t event_num;
-  Monitor monitor1;
-  Monitor monitor0;
-  Input input;
-  Detector detector0;
-  Detector detector1;
-  /*
-  BH_Event(){
-    event_num = 0;
-    monitors = 0;
-    input = 0;
-    detector0 = 0;
-    detector1 = 0;
-  }
-  */
+  Int_t ENum;
+  Monitor M1;
+  Monitor M0;
+  Input I0;
+  Input I1;
+  Detector D0;
+  Detector D1;
+
   private:
     ClassDef(BH_Event,1)
 };
@@ -93,19 +92,24 @@ class OutputFile {
 	void WriteComment(G4String line);
 	void PrintParameters();
 
+        inline void Set_out_pair_mode(G4bool val){out_pair_mode = val;};
+
 	inline void Set_event_number(G4int val) {fevent_number = val;};
-	inline void Set_energy_i(G4double val) {fenergy_i = val;};
-	inline void Set_delta_i(G4double val) {fdelta_i = val;};
-	inline void Set_x_i(G4double val) {fx_i = val;};
-	inline void Set_y_i(G4double val) {fy_i = val;};
-	inline void Set_theta_i(G4double val) {ftheta_i = val;};
-	inline void Set_phi_i(G4double val) {fphi_i = val;};
+
+        inline void Set_energy_i(G4int n,G4double val) {fenergy_i[n] = val;};
+        inline void Set_delta_i(G4int n, G4double val) {fdelta_i[n] = val;};
+        inline void Set_x_i(G4int n,G4double val) {fx_i[n] = val;};
+        inline void Set_y_i(G4int n,G4double val) {fy_i[n] = val;};
+        inline void Set_theta_i(G4int n,G4double val) {ftheta_i[n] = val;};
+        inline void Set_phi_i(G4int n,G4double val) {fphi_i[n] = val;};
 
 	inline void Set_detector_package(G4int i, G4bool val) {fdetector_package[i] = val;};
 	inline void Set_x_f(G4int i, G4double val) {fx_f[i] = val;};
 	inline void Set_y_f(G4int i, G4double val) {fy_f[i] = val;};
 	inline void Set_theta_f(G4int i, G4double val) {ftheta_f[i] = val;};
 	inline void Set_phi_f(G4int i, G4double val) {fphi_f[i] = val;};
+        //Add edep for vdc
+        inline void Set_edep_f(G4int i, G4int j, G4int k, G4double val){fedep_f[i][j][k] = val;};
 
 	inline void Set_pad_hit(G4int hod, G4int pad, G4bool val) { fPad_hit[hod][pad] = val;};
 	inline void Set_hod_hit(G4int hod, G4bool val) { fHod_hit[hod] = val;};
@@ -139,7 +143,8 @@ class OutputFile {
 	G4int frunno;
 	G4int foutput_lines;
 	G4int flines_for_heading;
-
+        G4bool out_pair_mode;
+        //Root File Ouput
         TFile* bh_tree_file;
         TTree* tree;
         BH_Event* event;
@@ -148,11 +153,13 @@ class OutputFile {
 	// data to be written per event
 	G4int fevent_number;
 	// input data
-	G4double fx_i, fy_i, ftheta_i, fphi_i;
-	G4double fenergy_i, fdelta_i;
+	G4double fx_i[2], fy_i[2], ftheta_i[2], fphi_i[2];
+	G4double fenergy_i[2], fdelta_i[2];
 	// which detector package got a hit
 	G4bool fdetector_package[2];
 	G4double fx_f[2], fy_f[2], ftheta_f[2], fphi_f[2];
+
+        G4double fedep_f[2][2][2];
 	// which hodoscope and paddles got hit
 	G4bool fHod_hit[2];
 	G4bool fPad_hit[2][29];

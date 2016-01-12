@@ -47,7 +47,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   particleGun->SetParticleMomentumDirection(G4ThreeVector(1.,0.,0.));
   particleGun->SetParticleEnergy(central_energy);
   particleGun->SetParticlePosition(G4ThreeVector(target_position, 0.*cm, 0.*cm));
-
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -63,62 +62,247 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
 
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
-	G4double x_in, y_in, radius, energy_in, theta_in, phi_in;
-	G4double delta_in, v_x, v_y, v_z, targ_in;
-  //this function is called at the begining of event
-  //
-  // get from geometry  - may have changed after constructor
-  target_position = -Detector->GetTargetDistance();
-  target_thickness = Detector->GetTargetThickness();
 
-   	//G4cout << "Generate Primaries called." << G4endl;
-  	// choose position
-  	do	{
-		if(x_max == x_min) { x_in = x_min; }
-		else { x_in =  CLHEP::RandFlat::shoot(x_min, x_max); }
-		if(y_max == y_min) { y_in = y_min; }
-		else { y_in =  CLHEP::RandFlat::shoot(y_min, y_max); }
-		radius = sqrt(x_in*x_in +y_in*y_in);
-		} while (radius > radius_max);
-	// choose angle
-	do	{
-		if(theta_max == theta_min) { theta_in = theta_min; }
-		else { theta_in =  CLHEP::RandFlat::shoot(theta_min, theta_max); }
-		if(phi_max == phi_min) { phi_in = phi_min; }
-		else { phi_in =  CLHEP::RandFlat::shoot(phi_min, phi_max); }
-		radius = sqrt(theta_in*theta_in +phi_in*phi_in);
-		} while (radius > angle_max);
-	// choose delta
-	if(delta_max == delta_min) { delta_in = delta_min; }
-	else { delta_in =  CLHEP::RandFlat::shoot(delta_min, delta_max); }
-	energy_in = central_energy*(1. + delta_in/100.);
-	particleGun->SetParticleEnergy(energy_in);
-	if(gamma_mode)
-		{
-		targ_in = target_position - Detector->GetTargetContainerThick()/2.;
-		}
-	else
-		{
-		// choose random depth within target
-		targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-		}
-	particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	v_x = 1.*cm;
-	v_y = tan(theta_in)*v_x;
-	v_z = tan(phi_in)*v_x;
- 	particleGun->SetParticleMomentumDirection(G4ThreeVector(v_x, v_y, v_z));
+      G4double x_in, y_in, radius, energy_in, theta_in, phi_in;
+      G4double delta_in, v_x, v_y, v_z, targ_in;
+      //this function is called at the begining of event
+      //
+      // get from geometry  - may have changed after constructor
+      target_position = -Detector->GetTargetDistance();
+      target_thickness = Detector->GetTargetThickness();
 
-	pOutputFile->Set_energy_i(energy_in);
-	pOutputFile->Set_delta_i(delta_in);
-	pOutputFile->Set_x_i(x_in);
-	pOutputFile->Set_y_i(y_in);
-	pOutputFile->Set_theta_i(theta_in);
-	pOutputFile->Set_phi_i(phi_in);
+      //G4cout << "Generate Primaries called." << G4endl;
+      // choose position
+      do	{
+	if(x_max == x_min) { x_in = x_min; }
+	else { x_in =  CLHEP::RandFlat::shoot(x_min, x_max); }
+	if(y_max == y_min) { y_in = y_min; }
+	else { y_in =  CLHEP::RandFlat::shoot(y_min, y_max); }
+	radius = sqrt(x_in*x_in +y_in*y_in);
+      } while (radius > radius_max);
+      
+  //Consider artificially generate e+ e- pair
+      if (pair_mode)
+	{
+	  /*
+	  //Code below: generate e+ e- pair with same energy and theta distribution.
+	  E = 60*MeV;
+	  c = CLHEP::c_light;
+	  Me = CLHEP::electron_mass_c2;
+
+	  //Compute electron energy, momentum components
+ 
+	  G4double Rand = CLHEP::RandFlat::shoot(0.0, 1.0);
+	  if(Rand <= 0.50){
+	      do{
+		Ee = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
+		Thetae = CLHEP::RandFlat::shoot( -90.0*deg, 90.0*deg);
+	     
+		Pe = sqrt(Ee*Ee-Me*Me);
+		Pex = Pe*cos(Thetae);
+		Pey = Pe*sin(Thetae);
+		KEe = Ee - Me;
+
+		//Compute positron energy, momentum components
+		Ep = E - Ee;
+		Ppx = sqrt((E-Ee)*(E-Ee)-Pey*Pey-Me*Me);
+		Ppy = -Pey;
+		Thetap = atan(Ppy/Ppx);
+		KEp = Ep - Me;
+
+	      }while (Ee < Me || ((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0);
+	  }
+	  else{
+	    do{
+		Ep = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
+		Thetap = CLHEP::RandFlat::shoot( -90.0*deg, 90.0*deg);
+	     
+		Pp = sqrt(Ep*Ep-Me*Me);
+		Ppx = Pp*cos(Thetap);
+		Ppy = Pp*sin(Thetap);
+		KEp = Ep - Me;
+
+		//Compute electron energy, momentum components
+		Ee = E - Ep;
+		Pex = sqrt((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me);
+		Pey = -Ppy;
+		Thetae = atan(Pey/Pex);
+		KEe = Ee - Me;
+
+	    }while (Ep < Me || ((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me) < 0.0);
+	  }	
+	   
+
+	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
+	  G4String ParticleName;
+
+	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
+	  particleGun->SetParticleDefinition(P_electron);
+	  
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEe);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, 0.0));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  //	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
+
+	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
+	  particleGun->SetParticleDefinition(P_positron);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEp);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, 0.0));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
+	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;
+	  // Code above: Generate e+ e- pair with same energy and momentum distribution
+	  */
+
+	  E = 60*MeV;
+	  c = CLHEP::c_light;
+	  Me = CLHEP::electron_mass_c2;
+
+	  //Compute electron energy, momentum components
+ 
+	  G4double Rand = CLHEP::RandFlat::shoot(0.0, 1.0);
+	  if(Rand <= 0.50){
+	      do{
+		Ee = CLHEP::RandFlat::shoot(20.00*MeV, 40.0*MeV);
+		//Ee = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
+		Thetae = CLHEP::RandFlat::shoot( 0.0, 1);
+		Phie = CLHEP::RandFlat::shoot(0.0*deg, 360.0*deg);
+		Thetae = (acos(-2*Thetae + 1))*rad;
+
+		Pe = sqrt(Ee*Ee-Me*Me);
+		Pex = Pe*cos(Thetae);
+		Pey = Pe*sin(Thetae)*cos(Phie);
+		Pez = Pe*sin(Thetae)*sin(Phie);
+		KEe = Ee - Me;
+
+		//Compute positron energy, momentum components
+		Ep = E - Ee;
+		Ppx = sqrt((E-Ee)*(E-Ee)-Pey*Pey-Pez*Pez-Me*Me);
+		Ppy = -Pey;
+		Ppz = -Pez;
+		KEp = Ep - Me;
+
+	      }while (Ee < Me || ((E-Ee)*(E-Ee)-Pey*Pey-Pez*Pez-Me*Me) < 0.0 || Thetae > 20.0*deg);
+
+	      Thetap = (atan2(sqrt(Ppy*Ppy+Ppz*Ppz),Ppx))*rad;
+	  }
+	  else {
+	      do{
+		Ep = CLHEP::RandFlat::shoot(20.0*MeV, 40.0*MeV);
+		//Ep = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
+		Thetap = CLHEP::RandFlat::shoot( 0.0, 1);
+		Phip = CLHEP::RandFlat::shoot(0.0*deg, 360.0*deg);
+		Thetap = (acos(-2*Thetap + 1))*rad;
+
+		Pp = sqrt(Ep*Ep-Me*Me);
+		Ppx = Pp*cos(Thetap);
+		Ppy = Pp*sin(Thetap)*cos(Phip);
+		Ppz = Pp*sin(Thetap)*sin(Phip);
+		KEp = Ep - Me;
+
+		//Compute positron energy, momentum components
+		Ee = E - Ep;
+		Pex = sqrt((E-Ep)*(E-Ep)-Ppy*Ppy-Ppz*Ppz-Me*Me);
+		Pey = -Ppy;
+		Pez = -Ppz;
+		KEe = Ee - Me;
+
+	      }while (Ep < Me || ((E-Ep)*(E-Ep)-Ppy*Ppy-Ppz*Ppz-Me*Me) < 0.0 || Thetap > 20.0*deg);
+
+	      Thetae = (atan2(sqrt(Pey*Pey+Pez*Pez),Pex))*rad;
+	  }
+
+
+
+	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
+	  G4String ParticleName;
+
+	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
+	  particleGun->SetParticleDefinition(P_electron);
+	  
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEe);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  pOutputFile->Set_energy_i(1,KEe);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(1,x_in);
+	  pOutputFile->Set_y_i(1,y_in);
+	  pOutputFile->Set_theta_i(1,Thetae);
+	  pOutputFile->Set_phi_i(1,Phie);
+
+	  //	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
+
+	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
+	  particleGun->SetParticleDefinition(P_positron);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEp);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, Ppz));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  pOutputFile->Set_energy_i(0,KEp);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(0,x_in);
+	  pOutputFile->Set_y_i(0,y_in);
+	  pOutputFile->Set_theta_i(0,Thetap);
+	  pOutputFile->Set_phi_i(0,Phip);
+	}
+	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
+	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;
+
 	
-  //G4cout << "Generate Primary...." << G4endl;
-  particleGun->GeneratePrimaryVertex(anEvent);
-  //G4cout << "Generated Primary...." << G4endl;
+      /*
+      //Normal case or gamma mode.
+      else
+	{
+      // choose angle
+      do	{
+	if(theta_max == theta_min) { theta_in = theta_min; }
+	else { theta_in =  CLHEP::RandFlat::shoot(theta_min, theta_max); }
+	if(phi_max == phi_min) { phi_in = phi_min; }
+	else { phi_in =  CLHEP::RandFlat::shoot(phi_min, phi_max); }
+	radius = sqrt(theta_in*theta_in +phi_in*phi_in);
+      } while (radius > angle_max);
+      
+      // choose delta
+      if(delta_max == delta_min) { delta_in = delta_min; }
+      else { delta_in =  CLHEP::RandFlat::shoot(delta_min, delta_max); }
+      energy_in = central_energy*(1. + delta_in/100.);
+      particleGun->SetParticleEnergy(energy_in);
+      if(gamma_mode)
+	{
+	  targ_in = target_position - Detector->GetTargetContainerThick()/2.;
+	}
+      else
+	{
+	  // choose random depth within target
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	}
+      particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+      v_x = 1.*cm;
+      v_y = tan(theta_in)*v_x;
+      v_z = tan(phi_in)*v_x;
+      particleGun->SetParticleMomentumDirection(G4ThreeVector(v_x, v_y, v_z));
 
+      pOutputFile->Set_energy_i(0,energy_in);
+      pOutputFile->Set_delta_i(0,delta_in);
+      pOutputFile->Set_x_i(0,x_in);
+      pOutputFile->Set_y_i(0,y_in);
+      pOutputFile->Set_theta_i(0,theta_in);
+      pOutputFile->Set_phi_i(0,phi_in);
+	
+      //G4cout << "Generate Primary...." << G4endl;
+      particleGun->GeneratePrimaryVertex(anEvent);
+      //G4cout << "Generated Primary...." << G4endl;
+      }
+      */
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
