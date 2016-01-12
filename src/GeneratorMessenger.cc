@@ -111,6 +111,11 @@ GeneratorMessenger::GeneratorMessenger( PrimaryGeneratorAction* gen)
 	Set_gamma_mode_cmd->SetGuidance("upstream of target.");
 	Set_gamma_mode_cmd->AvailableForStates(G4State_Idle);
 
+	Set_pair_mode_cmd = new G4UIcmdWithABool("/BH/gun/set_pair_mode", this);
+	Set_pair_mode_cmd->SetGuidance("Set Pair Mode: e+ e- pair will be generated");
+	Set_pair_mode_cmd->SetGuidance("upstream of target.");
+	Set_pair_mode_cmd->AvailableForStates(G4State_Idle);
+
 	PrintCmd = new G4UIcmdWithoutParameter("/BH/gun/print", this);
 	PrintCmd->SetGuidance("Print current gun parameters.");
 	PrintCmd->AvailableForStates(G4State_Idle);
@@ -135,6 +140,7 @@ GeneratorMessenger::~GeneratorMessenger()
 	delete Set_phi_max_cmd;
 	delete Set_angle_max_cmd;
 	delete Set_gamma_mode_cmd;
+	delete Set_pair_mode_cmd;
 	delete Dir1;
 }
 
@@ -144,6 +150,8 @@ GeneratorMessenger::SetNewValue( G4UIcommand *command, G4String newValue)
 	if(command == PrintCmd) { generator->PrintParameters(); }
 	else if(command == Set_gamma_mode_cmd)
 		{ generator->Set_gamma_mode( Set_gamma_mode_cmd->GetNewBoolValue(newValue)); }
+	else if(command == Set_pair_mode_cmd)
+		{ generator->Set_pair_mode( Set_pair_mode_cmd->GetNewBoolValue(newValue)); }
 	else if(command == Set_central_energy_cmd)
 		{ generator->Set_central_energy( Set_central_energy_cmd->GetNewDoubleValue(newValue)); }
 	else if(command == Set_delta_min_cmd)

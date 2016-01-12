@@ -1,8 +1,5 @@
 #include "EventAction.hh"
-
 #include "RunAction.hh"
-//#include "EventActionMessenger.hh"
-
 #include "G4Event.hh"
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
@@ -61,7 +58,9 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   // --------------- Monitor -----------------
   // Skip this part if we are not going to output Monitor info
   G4bool use_monitor = pOutputFile->GetUseMonitor();
-  //  cerr << "use_monitor is: " << use_monitor << endl;
+
+  //G4bool mon_hit[2];
+  
 if(use_monitor)
   {
   G4int MONID = G4SDManager::GetSDMpointer()->GetCollectionID("Monitor/MonitorHitCollection");
@@ -92,8 +91,8 @@ if(use_monitor)
 		}
 	}
   //we need both monitor hit to get result of e+ /e- pair production
-  //if(mon_hit[0] && mon_hit[1])
-  if(mon_hit[0] || mon_hit[1])
+  if(mon_hit[0] && mon_hit[1])
+    //  if(mon_hit[0] || mon_hit[1])
 	{
   	for(ipart = 0; ipart < 2; ipart++)
 		{
@@ -147,9 +146,9 @@ if(use_monitor)
 	G4double edep = aHit->GetEdep();
 	if(edep > 0.)
 		{
-		energyTotal[package][chamber][layer] += edep;
-		pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
-		position[package][chamber][layer] += pos*edep;
+		  energyTotal[package][chamber][layer] += edep;
+		  pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
+		  position[package][chamber][layer] += pos*edep;
 		}
 	}
   G4bool det_hit[2];
@@ -163,8 +162,10 @@ if(use_monitor)
 			{ det_hit[i] = false;}
 		else
 			{
-			position[i][j][k] /= energyTotal[i][j][k];
-			position[i][j][k].setY(0.);
+
+			  pOutputFile->Set_edep_f(i,j,k,energyTotal[i][j][k]);
+			  position[i][j][k] /= energyTotal[i][j][k];
+			  position[i][j][k].setY(0.);
 			}
 		}
 	}
@@ -326,16 +327,32 @@ if(use_monitor)
 					 
 		}
 	}
+
+  
   // If we are using the monitor - always write event
   // else write the event if there is a hit in a VDC
   // but not if we are requiring a hit in the hodoscope and there is no
   // hit in the corresponding hodoscope
   if(use_monitor)
     {
-      //If the following line is added, monitors will write data when all detectors are hit
+      //If the following line is added, monitors will write data when all detectors are hit.
+      /*
       if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
-  	pOutputFile->WriteEvent();
+	{
+	  cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
+	  pOutputFile->WriteEvent();
+	}
+      */
+      //If following lines are used, such data will be stored if at least one of the SD is hit.
+      //if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
+      if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
+	{
+	  cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
+	  pOutputFile->WriteEvent();
+	}
     }
+
+  /*
   else
 	{
 	if( fRequireHodoscopeHit )
@@ -349,8 +366,34 @@ if(use_monitor)
   			pOutputFile->WriteEvent();
 		}
 	}
+  
+ 
+
+  //Rob's code
+   if(use_monitor)
+    {
+	  pOutputFile->WriteEvent();
+    }
+
+  
+  else
+	{
+	if( fRequireHodoscopeHit )
+		{
+		if((det_hit[0] && hod_hit[0]) || (det_hit[1] && hod_hit[1]) )
+  			pOutputFile->WriteEvent();
+		}
+	else
+		{
+		if( det_hit[0] || det_hit[1])
+  			pOutputFile->WriteEvent();
+		}
+	}
+
+  */
   return;
 
 }  
+
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
