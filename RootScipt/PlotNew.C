@@ -15,7 +15,65 @@ using namespace std;
 
 //Usage of Plot.C:
 // Ananlyzing simulation root files, extract data by using AND cut (Only take events with all 4 detector hit)
+void PlotInput(){
+  //Open the root file
+  string filename;
+  cout<< "Input datafile name: (Format: ****.root)" << endl;
+  getline(cin,filename);
+  cout << endl;
+  TFile * histofile = TFile::Open(filename.c_str());
 
+  string OoN;
+  cout << "Old or New file? (O/N)" << endl;
+  getline(cin,OoN);
+  cout << endl;
+
+  TTree* T = new TTree();
+  T = (TTree * ) histofile->Get("T");
+
+  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
+    
+  if (OoN == "N"){
+
+    cerr << "OoN is " << OoN << endl;
+    TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
+    CENum->cd();           T->Draw("B.ENum",Cut);
+
+    TCanvas* CI0 = new TCanvas ("CI0", "Input0 data", 1600, 1500);
+    CI0->Divide(3,2);
+
+    CI0->cd(1);            T->Draw("B.I0.Energy",Cut);
+    CI0->cd(2);            T->Draw("B.I0.Delta",Cut);
+    CI0->cd(3);            T->Draw("B.I0.X",Cut);
+    CI0->cd(4);            T->Draw("B.I0.Y",Cut);
+    CI0->cd(5);            T->Draw("B.I0.Theta",Cut);
+    CI0->cd(6);            T->Draw("B.I0.Phi",Cut);
+
+    TCanvas* CI1 = new TCanvas ("CI1", "Input1 data", 1600, 1500);
+    CI1->Divide(3,2);
+
+    CI1->cd(1);            T->Draw("B.I1.Energy",Cut);
+    CI1->cd(2);            T->Draw("B.I1.Delta",Cut);
+    CI1->cd(3);            T->Draw("B.I1.X",Cut);
+    CI1->cd(4);            T->Draw("B.I1.Y",Cut);
+    CI1->cd(5);            T->Draw("B.I1.Theta",Cut);
+    CI1->cd(6);            T->Draw("B.I1.Phi",Cut);
+  }
+  else{
+    TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
+    CENum->cd();           T->Draw("B.ENum",Cut);
+ 
+    TCanvas* CI = new TCanvas ("CI", "Input data", 1600, 1500);
+    CI->Divide(3,2);
+
+    CI->cd(1);            T->Draw("B.I.Energy",Cut);
+    CI->cd(2);            T->Draw("B.I.Delta",Cut);
+    CI->cd(3);            T->Draw("B.I.X",Cut);
+    CI->cd(4);            T->Draw("B.I.Y",Cut);
+    CI->cd(5);            T->Draw("B.I.Theta",Cut);
+    CI->cd(6);            T->Draw("B.I.Phi",Cut);
+  }    
+}
 
 void PlotMonitor(){
   //Open the root file
