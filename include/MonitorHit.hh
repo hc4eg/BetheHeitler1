@@ -39,7 +39,7 @@ class MonitorHit : public G4VHit
     void SetParticle(G4String part) { fParticle = part; };
     void SetKineticEnergy(G4double e) { fKineticEnergy = e; };
     void SetTime(G4double time) { fTime = time; };
-
+  void SetCharge(G4double charge) {fCharge = charge;};
 
     // Get methods
     G4int GetTrackID() const { return fTrackID; };
@@ -48,6 +48,7 @@ class MonitorHit : public G4VHit
     G4String GetParticle() const { return fParticle; };
     G4double GetKineticEnergy() const { return fKineticEnergy; };
     G4double GetTime() const { return fTime; };
+  G4double GetCharge() const { return fCharge; };
 
   private:
 
@@ -57,6 +58,7 @@ class MonitorHit : public G4VHit
       G4ThreeVector fGlobalPrePosition;
       G4double      fKineticEnergy;
       G4double      fTime;
+  G4double fCharge;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
