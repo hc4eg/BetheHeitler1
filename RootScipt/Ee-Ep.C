@@ -58,6 +58,13 @@ public:
   Float_t Y;
   Float_t Theta;
   Float_t Phi;
+
+  inline Float_t GetEnergy(){return Energy;}
+  inline Float_t GetDelta(){return Delta;}
+  inline Float_t GetX(){return X;}
+  inline Float_t GetY(){return Y;}
+  inline Float_t GetTheta(){return Theta;}
+  inline Float_t GetPhi(){return Phi;}
   
 protected:
   ClassDef(Input,2);
@@ -117,13 +124,17 @@ public:
   UInt_t ENum;
   Monitor M0;
   Monitor M1;
-  Input I;
+  Input I0;
+  Input I1;
   Detector D0;
   Detector D1;
 
   Monitor* GetMonitor(Int_t i){
-		if(i == 1) return &M1;
-		else return &M0; }
+    if(i == 1) return &M1;
+    else return &M0; }
+  Input* GetInput(Int_t i){
+    if(i == 1) return &I1;
+    else return &I0;}
 protected:
   ClassDef(BH_Event,2);
 };
@@ -214,6 +225,24 @@ void Histo(void){
 	c_EpDel->ToggleEventStatus();
 	c_EpDel->Iconify();
 
+
+
+	//Canvas for Input
+	TCanvas * c_Ienergy = new TCanvas ("c_Ienergy", "Energy Diff and Sum Distribution", 1600, 1800);
+	c_Ienergy->ToggleEventStatus();
+	c_Ienergy->Iconify();
+	c_Ienergy->Divide(1,2);
+
+	TCanvas * c_Itheta = new TCanvas("c_Itheta", "Openning angle and Delta vs Theta Ditribution", 1600, 1800);
+	c_Itheta->ToggleEventStatus();
+	c_Itheta->Iconify();
+	c_Itheta->Divide(1,2);
+	
+	TCanvas * c_IEpDel = new TCanvas("c_IEpDel", "Asymmetry Epsilon vs Delta from electron (And one near 10degree)",1600,1800);
+	c_IEpDel->ToggleEventStatus();
+	c_IEpDel->Iconify();
+	
+	
   //Histograms
   TH1F * h_energy = new TH1F("h_energy", "Energy difference (Ee-Ep)",
 				600, -60.0, 60.0);
@@ -245,10 +274,12 @@ void Histo(void){
   h_etheta->SetYTitle("Energy Difference Delta(MeV)");
   h_etheta->SetOption("COLZ");
 
+  //Input version
+
   //Temporary storage of charge, energy data of monitor in a single event
 
-  // mE[0] positron engergy, mE[1] electron energy.
-  Float_t mE[2];
+  // ME[0] positron engergy, ME[1] electron energy.
+  Float_t ME[2];
   // theta: opening angle, thetae: electron theta, thetap: positron theta, phie: eletron phi, phip: eletron phi
   Float_t theta = 0., thetae = 0., thetap = 0., phie = 0., phip = 0.;
   // AvEnergy: average energy for pairs with designate energy cut. NAv: counts of pairs for counting average energy
@@ -256,7 +287,8 @@ void Histo(void){
 
   //Below are method to compute (Epsilon vs Delta) by counting number of Ee-Ep
   //DelInt represents the interval of Delta (or (Ee-Ep)/2)
-  //NPt is the number of Pt in TGraph
+  //NPt is the number of Point in TGraph
+  //Make sure 60/DelInt is an even number!
   Float_t DelInt = 2.0;
   Int_t NPt = (Int_t)(60/DelInt);
 
@@ -266,6 +298,8 @@ void Histo(void){
   for(int i = 0; i < NPt; i++){ N[i] = 0.; Del[i] = 0.;}
   for(int i = 0; i < (Int_t)(NPt/2); i++){ Ne[i] = 0.; Np[i] = 0.;}
 
+
+  //Ne10 ... Version are only counting points where near angle = 10 degrees.
   Float_t Ne10[(Int_t)(NPt/2)],Np10[(Int_t)(NPt/2)], N10[NPt], Del10[NPt];
   for(int i = 0; i < NPt; i++){ N10[i] = 0.; Del10[i] = 0.;}
   for(int i = 0; i < (Int_t)(NPt/2); i++){ Ne10[i] = 0.; Np10[i] = 0.;}
@@ -273,54 +307,58 @@ void Histo(void){
   //Read data from TTree and fill in the histograms
   Int_t j = 0;
   Int_t i = 0;
-  //  for (Int_t i = 0; i < NumEntry; i++)  
+  //  for (Int_t i = 0; i < NuMEntry; i++)  
   for (; i < NumEntry ; ) {
-    // Turn on flag to count valid e+ e- pairs
+    // Turn on flag to kTRUE only when counting valid e+ e- pairs
     Bool_t flag = kFALSE;
     tree -> GetEntry(i);
 
-      mE[0] = 0.0; mE[1] = 0.0;
+    ME[0] = 0.0; ME[1] = 0.0;
 
       theta = 0., thetae = 0., thetap = 0., phie = 0., phip = 0.;
-      
+   
+      // Note these thetas from root files are using mrads as unit.
       thetae = event->GetMonitor(1)->GetTheta();
       thetap = event->GetMonitor(0)->GetTheta();
       phie = event->GetMonitor(1)->GetPhi();
       phip = event->GetMonitor(0)->GetPhi();
 
       // Following code computes openging angle theta from thetae, thetap, phie, phip
-      // /1000 converts mrad to rad, *180/PI converts rad to degree
+      // /1000 converts mrad to rad, *180/PI converts rad to degree, the final unit is degree
       theta = 1 + tan(thetae/1000)*tan(thetap/1000) + tan(phie)*tan(phip/1000);
       theta /= sqrt(1 + tan(thetae/1000)*tan(thetae/1000) + tan(phie/1000)*tan(phie/1000));
       theta /= sqrt(1 + tan(thetap/1000)*tan(thetap/1000) + tan(phip/1000)*tan(phip/1000));      
       theta = acos(theta);
       theta = theta*180/PI;
 
-      // Read energy of e+ mE[0], and energy of e- me[1]
-      mE[0] = event->GetMonitor(0)->GetEnergy();
-      mE[1] = event->GetMonitor(1)->GetEnergy();
+      // Read energy of e+ ME[0], and energy of e- me[1]
+      ME[0] = event->GetMonitor(0)->GetEnergy();
+      ME[1] = event->GetMonitor(1)->GetEnergy();
       // Print out total energy and event number from root file 
-      //cerr << "Ee- = " << mE[1] << ". " << "Ee+ = " << mE[0] << ". " << "Etot = "<< mE[1]+mE[0] << ". " << "Event number = " << i << endl;
+      //cerr << "Ee- = " << ME[1] << ". " << "Ee+ = " << ME[0] << ". " << "Etot = "<< ME[1]+ME[0] << ". " << "Event number = " << i << endl;
+  
       //Apply following cut: both e+ and e- with energy larger than 0.1 MeV, 
       //and sum of e+ e- energy between 58.00 and 60.00 MeV will flag kTRUE.
-      if(mE[0] > 0.1 && mE[1] > 0.1)
+      if(ME[0] > 0.1 && ME[1] > 0.1)
 	{
-		if (((mE[1]+mE[0]) > 58.00) && ((mE[1]+mE[0]) < 60.0))
+		if (((ME[1]+ME[0]) > 58.00) && ((ME[1]+ME[0]) < 60.0))
 		  {
 		    for(Int_t n = 0; n < NPt; n++)
 		      {
-			if (((Float_t)(n*2.0*DelInt-60.0)< (mE[1]-mE[0])) && ((mE[1]-mE[0]) < (Float_t)((n+1)*2.0*DelInt-60.0)))
+			if (((Float_t)(n*2.0*DelInt-60.0)< (ME[1]-ME[0])) && ((ME[1]-ME[0]) < (Float_t)((n+1)*2.0*DelInt-60.0)))
 			  {
+			    // Counting N[n]
 			    N[n]++;
-			    if (theta < 11.00 && theta >= 9.00) N10[n]++;
+			    // Couting N near 10 degree (points with opening angle from 9.00 degree to 11.00 degree)
+			    if (theta <= 11.00 && theta > 9.00) N10[n]++;
 			  }
 		      }
 		    
 		    for (Int_t n = -60; n < 60; n++)
 		      {
-			if (((Float_t)(n)< (mE[1]-mE[0])) && ((mE[1]-mE[0]) < (Float_t)((n+1))))
+			if (((Float_t)(n)< (ME[1]-ME[0])) && ((ME[1]-ME[0]) < (Float_t)((n+1))))
 			//Debug code used for computing average energy within valid range
-			AvEnergy += (mE[0]+mE[1]);
+			AvEnergy += (ME[0]+ME[1]);
 			NAv++;
 
 			// Only Ee+Ep ranges from 58.00 MeV to 60.00 MeV will be analyzed 
@@ -336,12 +374,12 @@ void Histo(void){
 	  // Filling histograms with cutted data
 	  if(flag == kTRUE)
 	    {
-	      h_totenergy->Fill((mE[1]+mE[0]));
-	      h_energy->Fill((mE[1]-mE[0]));
+	      h_totenergy->Fill((ME[1]+ME[0]));
+	      h_energy->Fill((ME[1]-ME[0]));
 	      h_theta->Fill(theta);
 	      h_thetae->Fill(thetae);
 	      h_thetap->Fill(thetap);
-	      h_etheta->Fill(theta,((mE[1]-mE[0])/2));
+	      h_etheta->Fill(theta,((ME[1]-ME[0])/2));
 	    }
    }
   
