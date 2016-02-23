@@ -39,6 +39,7 @@ class PaddleHit : public G4VHit
     void SetEdep(G4double de)           { fEdep = de; };
     void SetLight(G4double de)           { fLight = de; };
     void SetTime(G4double time)         { fTime = time; };
+  void SetKE(G4double KE) { fKE = KE;}
 
 
     // Get methods
@@ -48,6 +49,7 @@ class PaddleHit : public G4VHit
     G4double GetEdep() const     { return fEdep; };
     G4double GetLight() const     { return fLight; };
     G4double GetTime() const     { return fTime; };
+  G4double GetKE() const {return fKE;};
 
   private:
 
@@ -57,6 +59,7 @@ class PaddleHit : public G4VHit
       G4double      fEdep;
       G4double      fLight;
       G4double      fTime;
+  G4double fKE;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
