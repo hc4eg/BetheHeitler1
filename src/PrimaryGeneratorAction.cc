@@ -83,7 +83,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	radius = sqrt(x_in*x_in +y_in*y_in);
       } while (radius > radius_max);
       
-      
+      /*     
   //Consider artificially generate e+ e- pair with fixed asymmetry in 2D
   
       if (pair_mode)
@@ -140,7 +140,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
 		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
 	  }
-
+      */
 
 	  //Fixed energy , x-only direction beam
 	  /*
@@ -193,7 +193,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	      }*/
 	  /////////////////////////
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution
-	  
+      /*	  
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 
@@ -232,7 +232,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  if( Ppy > 0.) pOutputFile->Set_phi_i(0, 0.0);
 	  else pOutputFile->Set_phi_i(0, 180.0*deg);
 	}
-      
+      */    
 
       //Fixed asymmetry 2D
 
@@ -240,8 +240,10 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution
-	  /*
-
+      //Symmetric energy distribution 3D
+      // Code below: Generte e+ e- pair with same energy and momentum distribution in 3D
+      if (pair_mode)
+	{	  
 	  E = 60*MeV;
 	  c = CLHEP::c_light;
 	  Me = CLHEP::electron_mass_c2;
@@ -302,6 +304,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 
 
+
+	  //Below just assigning data to particle gun.
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 
@@ -336,13 +340,17 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  pOutputFile->Set_y_i(0,y_in);
 	  pOutputFile->Set_theta_i(0,Thetap);
 	  pOutputFile->Set_phi_i(0,Phip);
-	}
+}
 	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
-	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;
-	  */
-	
-      /*
-      //Normal case or gamma mode.
+	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;	
+      //Code Above:Symmetric energy distribution 3D
+
+
+
+
+    /*
+      //Code Below: Normal case or gamma mode.
+
       else
 	{
       // choose angle
@@ -386,6 +394,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //G4cout << "Generated Primary...." << G4endl;
       }
       */
+      //Code Above: Normal case or gamma mode.
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
