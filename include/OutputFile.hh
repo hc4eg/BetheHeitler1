@@ -71,8 +71,8 @@ class BH_Event : public TObject{
 //class BH_Event{
 public:
   Int_t ENum;
-  Monitor M1;
   Monitor M0;
+  Monitor M1;
   Input I0;
   Input I1;
   Detector D0;
