@@ -18,6 +18,9 @@ WireChamberHit::WireChamberHit()
    fVDClayer(-1),
    fEdep(0.),
    fTime(0.),
+   fKE(0.),
+   fParticle(""),
+   fCharge(0.),
    fGlobalPrePosition(G4ThreeVector()),
    fLocalPrePosition(G4ThreeVector()),
    fGlobalPostPosition(G4ThreeVector()),
@@ -38,6 +41,9 @@ WireChamberHit::WireChamberHit(const WireChamberHit& right)
   fVDClayer = right.fVDClayer;
   fEdep      = right.fEdep;
   fTime      = right.fTime;
+  fKE        = right.fKE;
+  fParticle  = right.fParticle;
+  fCharge    = right.fCharge;
   fGlobalPrePosition       = right.fGlobalPrePosition;
   fLocalPrePosition       = right.fLocalPrePosition;
   fGlobalPostPosition       = right.fGlobalPostPosition;
@@ -53,6 +59,9 @@ const WireChamberHit& WireChamberHit::operator=(const WireChamberHit& right)
   fVDClayer = right.fVDClayer;
   fEdep      = right.fEdep;
   fTime      = right.fTime;
+  fKE        = right.fKE;
+  fParticle  = right.fParticle;
+  fCharge    = right.fCharge;
   fGlobalPrePosition       = right.fGlobalPrePosition;
   fLocalPrePosition       = right.fLocalPrePosition;
   fGlobalPostPosition       = right.fGlobalPostPosition;
@@ -97,6 +106,10 @@ void WireChamberHit::Print()
      << std::setw(7) << G4BestUnit(fEdep,"Energy") 
      << "   Time: "
      << std::setw(7) << G4BestUnit(fTime,"Time") 
+     << "   KineticEnergy: "
+     << std::setw(7) << G4BestUnit(fKE,"KineticEnergy")
+	  << "   Particle: "<<std::setw(7) << fParticle
+	  << "   Charge: " << std::setw(7) << fCharge
 	<< G4endl;
   G4cout << " Position Global Pre: "
      << std::setw(7) << G4BestUnit( fGlobalPrePosition,"Length") <<G4endl;

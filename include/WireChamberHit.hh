@@ -41,6 +41,10 @@ class WireChamberHit : public G4VHit
     void SetVDCpackage(G4int package)   { fVDCpackage = package; };
     void SetEdep(G4double de)           { fEdep = de; };
     void SetTime(G4double time)         { fTime = time; };
+    void SetKE(G4double KE) {fKE = KE;};
+  void SetParticle(G4String part) {fParticle = part;};
+  void SetCharge(G4double charge) {fCharge = charge;};
+
     void SetGlobalPrePosition(G4ThreeVector pos)  { fGlobalPrePosition = pos; };
     void SetLocalPrePosition(G4ThreeVector pos)   { fLocalPrePosition = pos; };
     void SetGlobalPostPosition(G4ThreeVector pos) { fGlobalPostPosition = pos; };
@@ -54,6 +58,10 @@ class WireChamberHit : public G4VHit
     G4int GetVDCpackage() const  { return fVDCpackage; };
     G4double GetEdep() const     { return fEdep; };
     G4double GetTime() const     { return fTime; };
+  G4double GetKE() const {return fKE;};
+  G4String GetParticle() const { return fParticle; };
+  G4double GetCharge() const { return fCharge; };
+
     G4ThreeVector GetGlobalPrePosition() const  { return fGlobalPrePosition; };
     G4ThreeVector GetLocalPrePosition() const   { return fLocalPrePosition; };
     G4ThreeVector GetGlobalPostPosition() const { return fGlobalPostPosition; };
@@ -67,6 +75,9 @@ class WireChamberHit : public G4VHit
       G4int         fVDCpackage;
       G4double      fEdep;
       G4double      fTime;
+  G4double      fKE;
+  G4String      fParticle;
+  G4double      fCharge;
       G4ThreeVector fGlobalPrePosition;
       G4ThreeVector fLocalPrePosition;
       G4ThreeVector fGlobalPostPosition;
