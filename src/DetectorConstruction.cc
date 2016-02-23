@@ -68,8 +68,8 @@ DefineMaterials();
 //sizes are based on the RayTrace diagram (z is conservative guess) *5!
 fWorldSize = new G4ThreeVector(150.*cm*5, 200.*cm*5, 100.*cm*5);
 fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
-//fBackgroundMaterial = Helium; //
-//fBackgroundMaterial = Vacuum; //
+//fBackgroundMaterial = Helium;
+//fBackgroundMaterial = Vacuum;
 fBackgroundMaterial = Air;
 //
 // Magnetic field
@@ -122,7 +122,7 @@ fTargetToBagMaterial = Air;
 // Target material and thickness can be changed through messenger
 fTargetThick = 0.025*mm; // Thickness of Uranium target
 fTargetMaterial = Uranium;  // Target material
-
+// fTargetMaterial = Vacuum;
 
 //VDC Chambers
 fVDCSizeX = 96*inch;
@@ -851,7 +851,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
 
   // Carefulle if you want to make all Vaccum
   fLogicVDCHolder = new G4LogicalVolume(VDCBox,
-					 			Air, 
+					//Vacuum,//	
+					Air, 
 					//fVDCMaterial,
 					"VDC Holder");
   // =================================================================================
@@ -867,7 +868,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   
   G4LogicalVolume* logicAlFrameLeft =                         
     new G4LogicalVolume(alFrameLeft,            //its solid
-                        Aluminum,
+                        //Vacuum,//
+			Aluminum,
                         "Al Frame Left/Right");         //its name    
   G4ThreeVector position = G4ThreeVector(-fVDCSizeX/2. + fVDCSideWidth/2.,0.,0.);
   new G4PVPlacement(0, 
@@ -899,7 +901,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   
   G4LogicalVolume* logicAlFrameTop = new G4LogicalVolume(
 			alFrameTop,            //its solid
-                        Aluminum,
+                        //Vacuum,//
+			Aluminum,
                         "Al Frame Top/Bottom");         //its name    
 
   position.setX(0.);
@@ -1114,6 +1117,7 @@ DetectorConstruction::ConstructHodoscope()
   fLogicHodoscopeHolder = 0;
   fLogicHodoscopeHolder = 
     new G4LogicalVolume(hodoscopeHolderBox, Air, "Hodoscope Holder");
+  //new G4LogicalVolume(hodoscopeHolderBox, Vacuum, "Hodoscope Holder");
   // make holder invisible
   fLogicHodoscopeHolder->SetVisAttributes(G4VisAttributes::Invisible);
 
@@ -1121,9 +1125,11 @@ DetectorConstruction::ConstructHodoscope()
   // first the wrapping
   G4Box* paddleBox = new G4Box("Paddle Box", PaddleX/2., PaddleY/2., PaddleZ/2.);
   G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Poly, "Paddle Wrap");
+  //G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Vacuum, "Paddle Wrap");
   // then the scintillator
   G4Box* scintBox = new G4Box("Paddle Scint", fPaddleWidth/2., fPaddleThick/2., fPaddleHeight/2.);
   G4LogicalVolume * scintLogic = new G4LogicalVolume(scintBox, Sci, "Paddle Scintillator");
+  //G4LogicalVolume * scintLogic = new G4LogicalVolume(scintBox, Vacuum, "Paddle Scintillator");
   G4ThreeVector position(0.,0.,0.);
    new G4PVPlacement(0, position, scintLogic, "PaddleScint", paddleLogic, false, 0);  
 
