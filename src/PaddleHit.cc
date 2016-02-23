@@ -18,7 +18,8 @@ PaddleHit::PaddleHit()
    fPaddleNB(-1),
    fEdep(0.),
    fLight(0.),
-   fTime(0.)
+   fTime(0.),
+   fKE(0.)
 {}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -36,6 +37,7 @@ PaddleHit::PaddleHit(const PaddleHit& right)
   fEdep      = right.fEdep;
   fLight      = right.fLight;
   fTime      = right.fTime;
+  fKE        = right.fKE;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -48,6 +50,7 @@ const PaddleHit& PaddleHit::operator=(const PaddleHit& right)
   fEdep      = right.fEdep;
   fLight      = right.fLight;
   fTime      = right.fTime;
+  fKE        = right.fKE;
   return *this;
 }
 
@@ -76,6 +79,7 @@ void PaddleHit::Print()
 	<< " Edep: " << std::setw(7) << G4BestUnit(fEdep,"Energy") 
 	<< " Light: " << std::setw(7) << G4BestUnit(fLight,"Energy") 
 	<< " Time: " << std::setw(7) << G4BestUnit(fTime,"Time") 
+        << " Kinetic Energy: " << std::setw(7) << G4BestUnit(fKE, "Kinetic Energy")
 	<< G4endl;
 }
 

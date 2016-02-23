@@ -52,6 +52,8 @@ G4bool PaddleSD::ProcessHits(G4Step* aStep, G4TouchableHistory*)
   G4double time = preStepPoint->GetGlobalTime();
   G4double dtime = aStep->GetDeltaTime();
   time += dtime/2.;
+  G4double KE = preStepPoint->GetKineticEnergy();
+
   //G4double preEng = preStepPoint->GetKineticEnergy();
 
   //G4TouchableHistory* theTouchable
@@ -86,6 +88,7 @@ for(G4int fparentage = 0; fparentage < 3; fparentage++)
 	// for now not implementing light output response
    newHit->SetLight(edep);
    newHit->SetTime(time);
+   newHit->SetKE(KE);
 
    //newHit->Print();
 
