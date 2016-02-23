@@ -5,6 +5,7 @@
 #include "Randomize.hh"
 #include <iomanip>
 
+#define PI 3.14159265
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -100,6 +101,7 @@ if(use_monitor)
 		if(mon_hit[ipart])
 			{
 			mHit = (*MonitorHC)[min_time_hit[ipart]];
+			//cerr << "Time when monitor hit: " << min_time[ipart]/ns << "(ns)" << endl;
 			// Set into output file
 			// Translating to RAYTRACE coordinates
 			pOutputFile->SetMonitorKineticEnergy(ipart, mHit->GetKineticEnergy() );
@@ -107,8 +109,24 @@ if(use_monitor)
 			pOutputFile->SetMonitorX(ipart, pos.y() );
 			pOutputFile->SetMonitorY(ipart, pos.z() );
 			G4ThreeVector dir = mHit->GetMomentumDirection();
-			G4double theta_m = atan2( dir.y(), dir.x() );
-			G4double phi_m = atan2( dir.z(), dir.x() );
+			//G4double theta_m = atan2( dir.y(), dir.x() );
+			//G4double phi_m = atan2( dir.z(), dir.x() );
+
+			// theta_m , phi_m here are spherical angle about x-axis.
+			//Since direction from target to monitorSD always makes dir.x positive, theta_m is always in (0,PI/2)
+			G4double theta_m = atan2( sqrt(dir.y()*dir.y()+dir.z()*dir.z()), dir.x() );
+			G4double phi_m = 0.0;
+			if( (dir.z() >= 0. && dir.y() > 0.) )
+			  phi_m = atan( dir.z()/dir.y() );
+			else if( (dir.z() <= 0. && dir.y() < 0.) || (dir.z() >= 0. && dir.y() < 0.) )
+			  phi_m = atan( dir.z()/dir.y() ) + PI;
+			else if( dir.z() <= 0. && dir.y() > 0.)
+			  phi_m = atan( dir.z()/dir.y() ) + 2.*PI;
+			else if ( dir.z() > 0. && dir.y() == 0.)
+			  phi_m = PI/2.;
+			else if ( dir.z() < 0. && dir.y() == 0.)
+			  phi_m = PI/2.;
+
 			pOutputFile->SetMonitorTheta(ipart, theta_m );
 			pOutputFile->SetMonitorPhi(ipart, phi_m );
 			}
