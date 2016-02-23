@@ -80,6 +80,10 @@ for(G4int fparentage = 0; fparentage < 3; fparentage++)
   // what is important to us is the position of the track
   // since that is what we will get from the the VDC
   G4double time = preStepPoint->GetGlobalTime();
+  G4Track* aTrack = aStep->GetTrack();
+  G4ParticleDefinition * aParticle = aTrack->GetDefinition();
+  G4String part = aParticle->GetParticleName();
+  G4double charge = aParticle->GetPDGCharge();
   const G4AffineTransform transformation = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform();
    G4ThreeVector globalPrePosition = preStepPoint->GetPosition();
    G4ThreeVector localPrePosition = transformation.TransformPoint(globalPrePosition);
@@ -92,6 +96,9 @@ for(G4int fparentage = 0; fparentage < 3; fparentage++)
    newHit->SetVDCpackage(VDCpackage);
    newHit->SetEdep(edep);
    newHit->SetTime(time);
+newHit->SetKE(aStep->GetPreStepPoint()->GetKineticEnergy());
+newHit->SetParticle(part);
+newHit->SetCharge(charge);
    newHit->SetGlobalPrePosition(globalPrePosition);
    newHit->SetLocalPrePosition(localPrePosition);
    newHit->SetGlobalPostPosition(globalPostPosition);
