@@ -4,7 +4,9 @@
 #include "G4ParticleTable.hh"
 #include "G4ParticleDefinition.hh"
 #include "Randomize.hh"
+#include "math.h"
 
+#define PI 3.14159265
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
 PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
@@ -81,69 +83,137 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	radius = sqrt(x_in*x_in +y_in*y_in);
       } while (radius > radius_max);
       
-  //Consider artificially generate e+ e- pair
+      
+  //Consider artificially generate e+ e- pair with fixed asymmetry in 2D
+  
       if (pair_mode)
 	{
-	  /*
+	  
 	  //Code below: generate e+ e- pair with same energy and theta distribution.
 	  E = 60*MeV;
 	  c = CLHEP::c_light;
 	  Me = CLHEP::electron_mass_c2;
+	  
+	  G4double A,a, Temp, Randa, ThetaM;
+	  //Assigning Asymmetry
+	  A = 0.2;
+	  a = (1-A)/(1+A);
 
 	  //Compute electron energy, momentum components
  
-	  G4double Rand = CLHEP::RandFlat::shoot(0.0, 1.0);
-	  if(Rand <= 0.50){
-	      do{
-		Ee = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
-		Thetae = CLHEP::RandFlat::shoot( -90.0*deg, 90.0*deg);
-	     
-		Pe = sqrt(Ee*Ee-Me*Me);
-		Pex = Pe*cos(Thetae);
-		Pey = Pe*sin(Thetae);
-		KEe = Ee - Me;
-
-		//Compute positron energy, momentum components
-		Ep = E - Ee;
-		Ppx = sqrt((E-Ee)*(E-Ee)-Pey*Pey-Me*Me);
-		Ppy = -Pey;
-		Thetap = atan(Ppy/Ppx);
-		KEp = Ep - Me;
-
-	      }while (Ee < Me || ((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0);
-	  }
-	  else{
+	  //G4double Rand = CLHEP::RandFlat::shoot(0.0, 1.0);
+	  //if(Rand <= 0.50){
+	  // Generating Fixed Asymmetry distritution in 2D
+	  if(1){
 	    do{
-		Ep = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
-		Thetap = CLHEP::RandFlat::shoot( -90.0*deg, 90.0*deg);
-	     
+	      Randa = CLHEP::RandFlat::shoot(0.0 , 1+a);
+	      if (Randa <= 1.0){
+		Ee = CLHEP::RandFlat::shoot(15.0*MeV, 30.0*MeV);
+	      }
+	      else{
+		Ee = CLHEP::RandFlat::shoot(30.0*MeV, 45.0*MeV);		  
+	      }
+	      
+		do{
+		  Temp = sqrt(((E-Ee)*(E-Ee)-Me*Me)/(Ee*Ee-Me*Me));	  
+		  if(-1 < Temp && 1 > Temp){
+		    ThetaM = asin(Temp)*rad;
+		    Thetae = CLHEP::RandFlat::shoot(-ThetaM, ThetaM);
+		  }
+		  else
+		    Thetae = CLHEP::RandFlat::shoot(-90.0*deg,90.0*deg);
+	    
+		  Pe = sqrt(Ee*Ee-Me*Me);
+		  Pex = Pe*cos(Thetae);
+		  Pey = Pe*sin(Thetae);
+		  KEe = Ee - Me;
+	    
+		  Ep = E - Ee;
+		  Ppx = sqrt((E-Ee)*(E-Ee)-(Ee*Ee-Me*Me)*sin(Thetae)*sin(Thetae)-Me*Me);
+		  Ppy = -sqrt(Ee*Ee-Me*Me)*sin(Thetae);
+		  KEp = Ep - Me;
+		  Thetap = atan2(Ppy,Ppx);
+		}while(Thetae > 20.0*deg || Thetap > 20.0*deg || Thetae < -20.0*deg || Thetap < -20.0*deg);
+
+	      }while (((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0 || Ee < Me);	      
+		cerr << "Thetae = " << Thetae/deg << " deg. Thetap = " << Thetap/deg << " deg." << endl;
+		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
+		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
+	  }
+
+
+	  //Fixed energy , x-only direction beam
+	  /*
+	  Ee = 45.0*MeV;
+	  Pe = sqrt(Ee*Ee-Me*Me);
+	  Pex = Pe;
+	  Pey = 0;
+	  KEe = Ee - Me;
+	  
+	  Ep = E - Ee;
+	  Ppx = sqrt(Ep*Ep- Me*Me);
+	  Ppy = 0;
+	  KEp = Ep - Me;
+	  */
+	  
+	  /*
+	  else{
+	      do{
+		Randa = CLHEP::RandFlat::shoot(0.0 , 1+a);
+		if (Randa <= 1.0){
+		  Ep = CLHEP::RandFlat::shoot(0.0*MeV, 30.0*MeV);
+		}
+		else{
+		  Ep = CLHEP::RandFlat::shoot(30.0*MeV, 60.0*MeV);		  
+		}
+
+
+		//Assigning angle theta
+		Temp = sqrt(((E-Ep)*(E-Ep)-Me*Me)/(Ep*Ep-Me*Me));	  
+		if(-1 < Temp && 1 > Temp){
+		  ThetaM = asin(Temp);
+		  Thetap = CLHEP::RandFlat::shoot(-ThetaM*rad, ThetaM*rad);
+		}
+		else
+		  Thetap = CLHEP::RandFlat::shoot(-90*deg,90*deg);
+		
 		Pp = sqrt(Ep*Ep-Me*Me);
 		Ppx = Pp*cos(Thetap);
 		Ppy = Pp*sin(Thetap);
 		KEp = Ep - Me;
 
-		//Compute electron energy, momentum components
+		//Compute positron energy, momentum components
 		Ee = E - Ep;
 		Pex = sqrt((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me);
 		Pey = -Ppy;
 		Thetae = atan(Pey/Pex);
 		KEe = Ee - Me;
 
-	    }while (Ep < Me || ((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me) < 0.0);
-	  }	
-	   
-
+	      }while (Ep < Me || ((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me) < 0.0);
+	      }*/
+	  /////////////////////////
+	  // Code above: Generate e+ e- pair with same energy and momentum distribution
+	  
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 
 	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
 	  particleGun->SetParticleDefinition(P_electron);
 	  
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  targ_in = target_position;
+	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(KEe);
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, 0.0));
 	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  pOutputFile->Set_energy_i(1,KEe);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(1,x_in);
+	  pOutputFile->Set_y_i(1,y_in);
+	  pOutputFile->Set_theta_i(1,abs(Thetae));
+	  if(Pey > 0.)pOutputFile->Set_phi_i(1, 0.0);
+	  else pOutputFile->Set_phi_i(1, 180.0*deg);
 
 	  //	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
 
@@ -154,10 +224,23 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, 0.0));
 	  particleGun->GeneratePrimaryVertex(anEvent);
 
-	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
-	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;
+	  pOutputFile->Set_energy_i(0,KEp);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(0,x_in);
+	  pOutputFile->Set_y_i(0,y_in);
+	  pOutputFile->Set_theta_i(0,abs(Thetap));
+	  if( Ppy > 0.) pOutputFile->Set_phi_i(0, 0.0);
+	  else pOutputFile->Set_phi_i(0, 180.0*deg);
+	}
+      
+
+      //Fixed asymmetry 2D
+
+
+
+
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution
-	  */
+	  /*
 
 	  E = 60*MeV;
 	  c = CLHEP::c_light;
@@ -256,7 +339,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	}
 	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
 	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;
-
+	  */
 	
       /*
       //Normal case or gamma mode.

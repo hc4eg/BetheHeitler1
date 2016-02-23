@@ -202,8 +202,7 @@ OutputFile::WriteEvent()
 
 	  //fprintf(fd,"Event: %8d\n",fevent_number); 
 	  event->ENum = (Int_t)fevent_number;
-	  
-
+	  //Input data
 	  //After Input change to vector to store e-,e+ data for pair_mode
 	  if (out_pair_mode){
 	    
@@ -247,18 +246,20 @@ OutputFile::WriteEvent()
 	  }
 	  else{
 ;
-	    event->I0.Energy = (Float_t)(fenergy_i/MeV);
+	    event->I0.Energy = (Float_t)(fenergy_i[0]/MeV);
 	    //fprintf(fd," %13.4g",fdelta_i);   
-	    event->I0.Delta = (Float_t)(fdelta_i);	 
+	    event->I0.Delta = (Float_t)(fdelta_i[0]);	 
 	    //fprintf(fd," %13.4g",fx_i/cm);
-	    event->I0.X = (Float_t)(fx_i/cm);
+	    event->I0.X = (Float_t)(fx_i[0]/cm);
 	    //fprintf(fd," %13.4g",fy_i/cm);
-	    event->I0.Y = (Float_t)(fy_i/cm);
+	    event->I0.Y = (Float_t)(fy_i[0]/cm);
 	    //fprintf(fd," %13.4g",ftheta_i/mrad);
-	    event->I0.Theta = (Float_t)(ftheta_i/mrad);
+	    event->I0.Theta = (Float_t)(ftheta_i[0]/mrad);
 	    //fprintf(fd," %13.4g\n",fphi_i/mrad);
-	    event->I0.Phi = (Float_t)(fphi_i/mrad);
+	    event->I0.Phi = (Float_t)(fphi_i[0]/mrad);
 	  }
+
+
 
 	if(fUseMonitor)
 		{
