@@ -150,7 +150,7 @@ if(use_monitor)
   G4ThreeVector position[2][2][2]; // position on [package][chamber][layer]
   G4double energyTotal[2][2][2];
   vector<G4double> kineticenergy[2]; 
-  vector<G4double> KEavg[2];
+  //vector<G4double> KEavg[2];
   G4int KENum[2], Num[2][2][2];
   //G4double kineticenergy[2];
   //G4double charge[2];
@@ -163,7 +163,7 @@ if(use_monitor)
   for(G4int k = 0; k < 2; k++)
     { position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.; 
       kineticenergy[i].clear(); KENum[i] = 0; Num[i][j][k] = 0;
-      KEavg[i].clear();
+      //KEavg[i].clear();
       //kineticenergy[i] = 0.;
       //charge[i] = 0.;
       //VDC_time[i] = 0;
@@ -225,7 +225,7 @@ if(use_monitor)
 	}
 	*/
 	
-	
+	/*
 	//Sort kineticenergy in each detector in groups, every energy difference in members of group < epsilon = 0.5MeV. Keep avg KE for each group.
 	//Group avg KEs are stored in decreasing order
 	for (G4int m = 0; m < 2; m++){
@@ -256,7 +256,7 @@ if(use_monitor)
 	  }
 	  
 	}
-
+	*/
 
 
 
@@ -281,8 +281,10 @@ if(use_monitor)
 		    
 		    if(energyTotal[i][j][k] > 0.2*keV){
 		      
+		      // Storing largest KE of the event
+		      if ( kineticenergy[i].size() > 0) pOutputFile->Set_KE_f(i, kineticenergy[i].at(0));
 		      // Storing largest group KEavg
-		      if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
+		      //if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
 
 		      pOutputFile->Set_edep_f(i,j,k,energyTotal[i][j][k]);
 		      //position[i][j][k] /= energyTotal[i][j][k];
