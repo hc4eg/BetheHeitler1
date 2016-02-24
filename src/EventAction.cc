@@ -150,8 +150,7 @@ if(use_monitor)
   G4ThreeVector position[2][2][2]; // position on [package][chamber][layer]
   G4double energyTotal[2][2][2];
   vector<G4double> kineticenergy[2]; 
-  //vector<G4double> KEavg[2];
-  G4double KEavg[2];
+  vector<G4double> KEavg[2];
   G4int KENum[2], Num[2][2][2];
   //G4double kineticenergy[2];
   //G4double charge[2];
@@ -164,8 +163,7 @@ if(use_monitor)
   for(G4int k = 0; k < 2; k++)
     { position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.; 
       kineticenergy[i].clear(); KENum[i] = 0; Num[i][j][k] = 0;
-      KEavg[i] = 0.;
-      //KEavg[i].clear();
+      KEavg[i].clear();
       //kineticenergy[i] = 0.;
       //charge[i] = 0.;
       //VDC_time[i] = 0;
@@ -211,7 +209,7 @@ if(use_monitor)
 		{ G4double Temp; Temp = kineticenergy[m].at(l); kineticenergy[m].at(l) = kineticenergy[m].at(n); kineticenergy[m].at(n) = Temp;}
 	    }
  
-	
+	/*
 	//find out the largest group of kineticenergy, epsilon = 0.5*MeV
 	for (G4int m = 0; m < 2; m++){
 	  G4double avg = 0., epsilon = 0.5*MeV, num = 0.;
@@ -225,11 +223,40 @@ if(use_monitor)
 	  KEavg[m] = avg;
 	  if ( m == 1 && KEavg[1] != 0.) cerr << "D1.V.KE is " << KEavg[1] << " Step Count " << num+1 << ". Out of " << kineticenergy[1].size() << endl; 
 	}
-
-	
-	/*	
-	}
 	*/
+	
+	
+	//Sort kineticenergy in each detector in groups, every energy difference in members of group < epsilon = 0.5MeV. Keep avg KE for each group.
+	//Group avg KEs are stored in decreasing order
+	for (G4int m = 0; m < 2; m++){
+	  
+	  G4int l = 0;
+	  cerr << "D" << m << ".V's total KE counts is " << kineticenergy[m].size() << endl;
+	  while ( kineticenergy[m].size() > 0 ){
+	    
+	    G4double avg = 0., epsilon = 0.5*MeV, num = 0.; 
+	    
+	    for( unsigned n = 0; n < kineticenergy[m].size(); n++){
+	      if ( kineticenergy[m].at(n) > (kineticenergy[m].at(0) - epsilon) ) num ++;
+	      else break;}
+	    
+	    for (G4int n = 0; n < num; n++)
+	      avg += kineticenergy[m].at(n);
+	    
+	    avg /= num;
+	    KEavg[m].push_back(avg);
+	    
+	    if (kineticenergy[m].size() > num){
+	      for ( unsigned n = num; n < kineticenergy[m].size(); n++) kineticenergy[m].at(n-num) = kineticenergy[m].at(n);}
+
+	    for (unsigned n = 0; n < num; n++) kineticenergy[m].pop_back();
+
+	    cerr <<"D" << m <<  ".V's group energy is " << KEavg[m].at(l) << " MeV. With " << num << " counts." << endl;
+	    l++;
+	  }
+	  
+	}
+
 
 
 
@@ -249,12 +276,13 @@ if(use_monitor)
 	      { det_hit[i] = false;}
 	    else
 	      { 
+		// Storing largest group KEavg
+		//if( KEavg[i].size() > 0 && KEavg[i].at(0) >= 2.*MeV)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
 		    
 		    if(energyTotal[i][j][k] > 0.2*keV){
 		      
 		      // Storing largest group KEavg
-		      //if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));	      
-		      if( KEavg[i] > 0)  pOutputFile->Set_KE_f(i,KEavg[i]);
+		      if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
 
 		      pOutputFile->Set_edep_f(i,j,k,energyTotal[i][j][k]);
 		      //position[i][j][k] /= energyTotal[i][j][k];
