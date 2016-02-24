@@ -357,6 +357,10 @@ OutputFile::WriteEvent()
 			{
 			  Detector detector;
 			  //fprintf(fd,"Detector: %d\n",i);//if (i==0) to detector0
+
+
+
+			  //VDC data
 			  VDC dc;
 			  //fprintf(fd,"VDC:");
 			  //fprintf(fd," %13.4g",fx_f[i]/cm);
@@ -367,6 +371,9 @@ OutputFile::WriteEvent()
 			  dc.Theta = (Float_t)(ftheta_f[i]/mrad);
 			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
 			  dc.Phi = (Float_t)(fphi_f[i]/mrad);
+			  dc.KE = (Float_t)(fKE_f[i]/MeV);
+			  dc.ToF = (Float_t)(fToF_f[i]/ns);
+			  dc.Charge = (Float_t)(fCharge_f[i]/eplus);
 
 			  for(G4int j = 0; j < 2; j++)
 			    for(G4int k = 0; k < 2; k++)
