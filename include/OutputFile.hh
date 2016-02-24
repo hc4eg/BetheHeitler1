@@ -45,14 +45,17 @@ struct Input{
 };
 
 struct VDC{
-    Float_t X;
-    Float_t Y;
-    Float_t Theta;
-    Float_t Phi;
-    Float_t E0u;
-    Float_t E0v;
-    Float_t E1u;
-    Float_t E1v;
+  Float_t X;
+  Float_t Y;
+  Float_t Theta;
+  Float_t Phi;
+  Float_t E0u;
+  Float_t E0v;
+  Float_t E1u;
+  Float_t E1v;
+  Float_t KE;
+  Float_t ToF;
+  Float_t Charge;
 };
 
 struct Paddle{
@@ -105,11 +108,15 @@ class OutputFile {
         inline void Set_y_i(G4int n,G4double val) {fy_i[n] = val;};
         inline void Set_theta_i(G4int n,G4double val) {ftheta_i[n] = val;};
         inline void Set_phi_i(G4int n,G4double val) {fphi_i[n] = val;};
+  //vdc
 	inline void Set_detector_package(G4int i, G4bool val) {fdetector_package[i] = val;};
 	inline void Set_x_f(G4int i, G4double val) {fx_f[i] = val;};
 	inline void Set_y_f(G4int i, G4double val) {fy_f[i] = val;};
 	inline void Set_theta_f(G4int i, G4double val) {ftheta_f[i] = val;};
 	inline void Set_phi_f(G4int i, G4double val) {fphi_f[i] = val;};
+        inline void Set_KE_f(G4int i, G4double val) {fKE_f[i] = val;};
+  inline void Set_ToF_f(G4int i, G4double val) { fToF_f[i] = val;};
+  inline void Set_Charge_f(G4int i, G4double val) {fCharge_f[i] = val;};
         //Add edep for vdc
         inline void Set_edep_f(G4int i, G4int j, G4int k, G4double val){fedep_f[i][j][k] = val;};
   //Paddle
@@ -165,6 +172,8 @@ class OutputFile {
 	G4bool fdetector_package[2];
 	G4double fx_f[2], fy_f[2], ftheta_f[2], fphi_f[2];
         G4double fedep_f[2][2][2];
+  G4double fKE_f[2], fToF_f[2], fCharge_f[2];
+	
         // which hodoscope and paddles got hit
 	G4bool fHod_hit[2];
 	G4bool fPad_hit[2][29];

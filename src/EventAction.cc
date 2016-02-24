@@ -149,43 +149,122 @@ if(use_monitor)
   WireChamberHit * aHit;
   G4ThreeVector position[2][2][2]; // position on [package][chamber][layer]
   G4double energyTotal[2][2][2];
+  vector<G4double> kineticenergy[2]; 
+  //vector<G4double> KEavg[2];
+  G4double KEavg[2];
+  G4int KENum[2], Num[2][2][2];
+  //G4double kineticenergy[2];
+  //G4double charge[2];
+  //G4String particle[2];
+  //G4double VDC_time[2];
   G4ThreeVector pos;
+  
   for(G4int i = 0; i < 2; i++)
   for(G4int j = 0; j < 2; j++)
   for(G4int k = 0; k < 2; k++)
-	{ position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.;}
+    { position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.; 
+      kineticenergy[i].clear(); KENum[i] = 0; Num[i][j][k] = 0;
+      KEavg[i] = 0.;
+      //KEavg[i].clear();
+      //kineticenergy[i] = 0.;
+      //charge[i] = 0.;
+      //VDC_time[i] = 0;
+    }
+  
   for(G4int jj = 0; jj < totalHits; jj++) //for all hits
 	{
-	aHit = (*chamberHC)[jj];
-//	aHit->Print();
-	G4int chamber = aHit->GetVDCnumber();
-	G4int layer = aHit->GetVDClayer();
-	G4int package = aHit->GetVDCpackage();
-	G4double edep = aHit->GetEdep();
-	if(edep > 0.)
-		{
-		  energyTotal[package][chamber][layer] += edep;
-		  pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
-		  position[package][chamber][layer] += pos*edep;
-		}
+	  aHit = (*chamberHC)[jj];
+	  //	aHit->Print();
+	  G4int chamber = aHit->GetVDCnumber();
+	  G4int layer = aHit->GetVDClayer();
+	  G4int package = aHit->GetVDCpackage();
+	  G4double edep = aHit->GetEdep();
+	  //G4double KE[2] = {0.,0.};
+
+
+	  if(edep > 0.)
+	  {
+	    // Storing edep for each wireplane
+	    energyTotal[package][chamber][layer] += edep;
+	    pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
+	    // Storing number of hit for each wireplane
+	    Num[package][chamber][layer] ++;
+	    // Edep weighted sum of position
+	    //position[package][chamber][layer] += pos*edep;
+	    // Sum of position
+	    position[package][chamber][layer] += pos;
+	    
+	    // Storing KE at each step in hit collection of 1st wireplane in each side
+	    if(layer == 0 && chamber== 0 && aHit->GetKE() > 0.){
+	      kineticenergy[package].push_back(aHit->GetKE());
+	      KENum[package] ++;}
+	  }
+	  //else kineticenergy[package] = 0.;
 	}
+
+  
+	//sort kineticenergy in decrement order:
+	for (G4int m = 0; m < 2; m++)
+	  for (unsigned n = 0; n < kineticenergy[m].size(); n++)
+	    for (unsigned l = n; l < kineticenergy[m].size() ; l++ ){
+	      if(kineticenergy[m].at(l) > kineticenergy[m].at(n) )
+		{ G4double Temp; Temp = kineticenergy[m].at(l); kineticenergy[m].at(l) = kineticenergy[m].at(n); kineticenergy[m].at(n) = Temp;}
+	    }
+ 
+	
+	//find out the largest group of kineticenergy, epsilon = 0.5*MeV
+	for (G4int m = 0; m < 2; m++){
+	  G4double avg = 0., epsilon = 0.5*MeV, num = 0.;
+	  
+	  if ( kineticenergy[m].size() > 0){
+	    avg = kineticenergy[m].at(0), num = 0.;
+	    if ( kineticenergy[m].size() > 1){
+	      for(unsigned n = 1; n < kineticenergy[m].size() ; n++){
+		if ( abs( kineticenergy[m].at(n) - avg ) < epsilon ){num ++;avg = ( avg * num + kineticenergy[m].at(n) )/( num + 1.0 );}}}}
+	  
+	  KEavg[m] = avg;
+	  if ( m == 1 && KEavg[1] != 0.) cerr << "D1.V.KE is " << KEavg[1] << " Step Count " << num+1 << ". Out of " << kineticenergy[1].size() << endl; 
+	}
+
+	
+	/*	
+	}
+	*/
+
+
+
+
   G4bool det_hit[2];
   for(G4int i = 0; i < 2; i++)
 	{
 	det_hit[i] = true;
-  	for(G4int j = 0; j < 2; j++)
+  	
+	for(G4int j = 0; j < 2; j++)
   	for(G4int k = 0; k < 2; k++)
-		{
-		if(energyTotal[i][j][k] < 0.2*keV)
-			{ det_hit[i] = false;}
-		else
-			{
+	  {
+	    //change following line to deal with vacuum setting.
+	    if(energyTotal[i][j][k] < 0.2*keV)
+	    //if (kineticenergy[i]/KENum[i] < 2.0*MeV)
+	    //if (position[i][j][k].getX() == 0. && position[i][j][k].getY() == 0. && position[i][j][k].getZ() == 0.)
+	      { det_hit[i] = false;}
+	    else
+	      { 
+		    
+		    if(energyTotal[i][j][k] > 0.2*keV){
+		      
+		      // Storing largest group KEavg
+		      //if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));	      
+		      if( KEavg[i] > 0)  pOutputFile->Set_KE_f(i,KEavg[i]);
 
-			  pOutputFile->Set_edep_f(i,j,k,energyTotal[i][j][k]);
-			  position[i][j][k] /= energyTotal[i][j][k];
-			  position[i][j][k].setY(0.);
-			}
-		}
+		      pOutputFile->Set_edep_f(i,j,k,energyTotal[i][j][k]);
+		      //position[i][j][k] /= energyTotal[i][j][k];
+		      // Storing avg position
+		      if (position[i][j][k].getX() != 0. && position[i][j][k].getY()!= 0. && position[i][j][k].getZ() != 0.){
+			      position[i][j][k] /=Num[i][j][k];
+			      position[i][j][k].setY(0.);}
+		    }
+	      }	
+	  }
 	}
 
   // ----------------- Hodoscope -----------------------
