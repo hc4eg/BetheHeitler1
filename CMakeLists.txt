@@ -3,7 +3,10 @@ project(BetheHeitler)
 
 
 IF(NOT CMAKE_BUILD_TYPE)
-  SET(CMAKE_BUILD_TYPE Release CACHE STRING
+
+  #SET(CMAKE_BUILD_TYPE Release CACHE STRING
+  SET(CMAKE_BUILD_TYPE Debug CACHE STRING
+
       "Choose the type of build, options are: None Debug Release
 RelWithDebInfo MinSizeRel."
       FORCE)
@@ -21,8 +24,11 @@ else()
   find_package(Geant4 REQUIRED)
 endif()
 
+#find_package(ROOT REQUIRED)
+
 # Setup Geant4 include directories and compile definitions
 include(${Geant4_USE_FILE})
+
 
 # LightOutput is needed by this simulation
 #if( DEFINED ${LightOutput_dir} )
@@ -33,12 +39,16 @@ include(${Geant4_USE_FILE})
 
 # Include directories need for this compile
 include_directories(${PROJECT_SOURCE_DIR}/include)
+include_directories(/usr/include/root)
 #include_directories("${PROJECT_SOURCE_DIR}/Fakelucid/include")
 #include_directories("${LightOutput_dir}/include")
 
+EXECUTE_PROCESS(COMMAND rootcint -f dict.cxx -c -I/usr/local/include/Geant4/ -I/usr/incldue/root/ -p include/OutputFile.hh include/BH_LinkDef.h)
+
+
 # Locate sources and headers for this project
 # NB: headers are included so they will show up in IDEs
-file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
+file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/dict.cxx)
 #file(GLOB headers ${PROJECT_SOURCE_DIR}/include/*.hh)
 
 #message("LightOuptut_dir = ${LightOutput_dir}" )
@@ -52,7 +62,10 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc)
 # Add the executable, and link it to the Geant4 libraries
 #add_executable(fluxnolucid fluxnolucid.cc ${sources} ${headers}) 
 add_executable(BetheHeitler BetheHeitler.cc ${sources}) 
-target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} )
+
+# ROOT libraries are in /usr/lib/i386-linux-gnu/root5.34/lib
+target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} -L/usr/lib/i386-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGpad -lTree -lRint -lMatrix -lMathCore -lThread -pthread -lm -ldl -rdynamic)
+#target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #target_link_libraries(fluxnolucid ${Geant4_LIBRARIES} ${G4FakeLucid_lib}
 #${LightOutput_lib})
  

@@ -14,6 +14,11 @@
 /gui/addButton run "beamOn 100" "/run/beamOn 100"
 /gui/addButton run run_input.mac "/control/execute run_input.mac"
 /gui/addButton run run_gamma.mac "/control/execute run_gamma.mac"
+
+/gui/addButton run run_beamon_5000.mac "/control/execute run_beamon_5000.mac"
+/gui/addButton run run_Haoyu.mac "/control/execute run_Haoyu.mac"
+/gui/addButton run run_pair.mac "/control/execute run_pair.mac"
+
 #/gui/addButton run run2 "/control/execute run2.mac"
 #
 # Gun menu :

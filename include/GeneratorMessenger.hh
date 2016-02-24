@@ -6,6 +6,7 @@
 #include "globals.hh"
 #include "G4SystemOfUnits.hh"
 #include "G4UIdirectory.hh"
+
 #include "G4UIcmdWithAString.hh"
 #include "G4UIcmdWithoutParameter.hh"
 #include "G4UIcmdWithADoubleAndUnit.hh"
@@ -42,5 +43,6 @@ class GeneratorMessenger: public G4UImessenger
 	G4UIcmdWithADoubleAndUnit * Set_phi_max_cmd;
 	G4UIcmdWithADoubleAndUnit * Set_angle_max_cmd;
 	G4UIcmdWithABool * Set_gamma_mode_cmd;
+        G4UIcmdWithABool * Set_pair_mode_cmd;
 };
 #endif

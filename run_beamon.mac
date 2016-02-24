@@ -1,0 +1,21 @@
+#
+/control/verbose 1
+/control/saveHistory
+#
+/run/verbose 0
+/event/verbose 0
+/tracking/verbose 0
+/process/verbose 0
+#
+# parameters for creating a file to fit to.
+
+/gun/particle e-
+/BH/gun/set_central_energy 38.00 MeV
+
+/BH/detector/update
+
+/BH/outputfile/set_use_monitor true
+/BH/outputfile/set_prefix ElectronBeam
+/BH/outputfile/set_use_unique_filename true
+
+/run/beamOn 5000

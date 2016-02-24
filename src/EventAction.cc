@@ -1,13 +1,11 @@
 #include "EventAction.hh"
-
 #include "RunAction.hh"
-//#include "EventActionMessenger.hh"
-
 #include "G4Event.hh"
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 #include <iomanip>
 
+#define PI 3.14159265
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -23,6 +21,7 @@ EventAction::EventAction(DetectorConstruction* det)
 	// these may need to be adjusted
   fsigmaLightStatistical = 77.0*keV;
   fsigmaLightNoise = 5.0*keV;
+  //pOutputFile->ClearKE();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -40,8 +39,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   G4int event_number = evt->GetEventID();
   // get needed detector info here because it may have changed since constructor
   fVDCSpacing = pDetector->GetVDCSpacing();
-
-
+  pOutputFile->ClearKE();
   if (event_number < 5 || event_number%printModulo == 0)
 	{ 
 	if(event_number >= 10*printModulo && printModulo < 100000) printModulo *= 10;
@@ -61,6 +59,9 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   // --------------- Monitor -----------------
   // Skip this part if we are not going to output Monitor info
   G4bool use_monitor = pOutputFile->GetUseMonitor();
+
+  //G4bool mon_hit[2];
+
 if(use_monitor)
   {
   G4int MONID = G4SDManager::GetSDMpointer()->GetCollectionID("Monitor/MonitorHitCollection");
@@ -70,7 +71,7 @@ if(use_monitor)
   // We just need to find earliest time for each of e- and e+ hits
   G4double min_time[2]; G4int min_time_hit[2]; G4int ipart;
   G4bool mon_hit[2];
-  for(G4int i; i < 2; i++)
+  for(G4int i=0 ; i < 2; i++)
 	{
   	min_time[i] = 0;
 	min_time_hit[i] = -1;
@@ -90,8 +91,10 @@ if(use_monitor)
 		mon_hit[ipart] = true;
 		}
 	}
-	
-  if(mon_hit[0] || mon_hit[1])
+
+  //we need both monitor hit to get result of e+ /e- pair production
+  if(mon_hit[0] && mon_hit[1])
+    //  if(mon_hit[0] || mon_hit[1])
 	{
   	for(ipart = 0; ipart < 2; ipart++)
 		{
@@ -99,6 +102,7 @@ if(use_monitor)
 		if(mon_hit[ipart])
 			{
 			mHit = (*MonitorHC)[min_time_hit[ipart]];
+			//cerr << "Time when monitor hit: " << min_time[ipart]/ns << "(ns)" << endl;
 			// Set into output file
 			// Translating to RAYTRACE coordinates
 			pOutputFile->SetMonitorKineticEnergy(ipart, mHit->GetKineticEnergy() );
@@ -106,8 +110,24 @@ if(use_monitor)
 			pOutputFile->SetMonitorX(ipart, pos.y() );
 			pOutputFile->SetMonitorY(ipart, pos.z() );
 			G4ThreeVector dir = mHit->GetMomentumDirection();
-			G4double theta_m = atan2( dir.y(), dir.x() );
-			G4double phi_m = atan2( dir.z(), dir.x() );
+			//G4double theta_m = atan2( dir.y(), dir.x() );
+			//G4double phi_m = atan2( dir.z(), dir.x() );
+
+			// theta_m , phi_m here are spherical angle about x-axis.
+			//Since direction from target to monitorSD always makes dir.x positive, theta_m is always in (0,PI/2)
+			G4double theta_m = atan2( sqrt(dir.y()*dir.y()+dir.z()*dir.z()), dir.x() );
+			G4double phi_m = 0.0;
+			if( (dir.z() >= 0. && dir.y() > 0.) )
+			  phi_m = atan( dir.z()/dir.y() );
+			else if( (dir.z() <= 0. && dir.y() < 0.) || (dir.z() >= 0. && dir.y() < 0.) )
+			  phi_m = atan( dir.z()/dir.y() ) + PI;
+			else if( dir.z() <= 0. && dir.y() > 0.)
+			  phi_m = atan( dir.z()/dir.y() ) + 2.*PI;
+			else if ( dir.z() > 0. && dir.y() == 0.)
+			  phi_m = PI/2.;
+			else if ( dir.z() < 0. && dir.y() == 0.)
+			  phi_m = PI/2.;
+
 			pOutputFile->SetMonitorTheta(ipart, theta_m );
 			pOutputFile->SetMonitorPhi(ipart, phi_m );
 			}
@@ -130,41 +150,177 @@ if(use_monitor)
   WireChamberHit * aHit;
   G4ThreeVector position[2][2][2]; // position on [package][chamber][layer]
   G4double energyTotal[2][2][2];
+  //vector<G4double> kineticenergy[2]; 
+  //vector<G4double> KEavg[2];
+  //G4int KENum[2];
+  G4int Num[2][2][2];
+  G4double kineticenergy[2];
+  G4double charge[2];
+  G4String particle[2];
+  G4double VDC_time[2];
   G4ThreeVector pos;
+  
   for(G4int i = 0; i < 2; i++)
   for(G4int j = 0; j < 2; j++)
   for(G4int k = 0; k < 2; k++)
-	{ position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.;}
+    { position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.; 
+      //kineticenergy[i].clear(); KENum[i] = 0; 
+      Num[i][j][k] = 0;
+      //KEavg[i].clear();
+      kineticenergy[i] = 0.;
+      charge[i] = 0.;
+      VDC_time[i] = 0;
+    }
+  
   for(G4int jj = 0; jj < totalHits; jj++) //for all hits
 	{
-	aHit = (*chamberHC)[jj];
-//	aHit->Print();
-	G4int chamber = aHit->GetVDCnumber();
-	G4int layer = aHit->GetVDClayer();
-	G4int package = aHit->GetVDCpackage();
-	G4double edep = aHit->GetEdep();
-	if(edep > 0.)
-		{
-		energyTotal[package][chamber][layer] += edep;
-		pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
-		position[package][chamber][layer] += pos*edep;
+	  aHit = (*chamberHC)[jj];
+	  //	aHit->Print();
+	  G4int chamber = aHit->GetVDCnumber();
+	  G4int layer = aHit->GetVDClayer();
+	  G4int package = aHit->GetVDCpackage();
+	  G4double edep = aHit->GetEdep();
+	  //G4double KE[2] = {0.,0.};
+
+	  //Find out Time of Flight and associate KE of 1st hit in time in VDC SD
+	  G4double now = aHit->GetTime();	  
+	  for (G4int n = 0; n < 2 ; n ++){
+	    if (layer == 0 && chamber == 0 && package == n){
+	      if(VDC_time[package] == 0. || VDC_time[package] > now)
+		{ VDC_time[package] = now;  
+		  kineticenergy[package] = aHit->GetKE(); 
+		  particle[package] = aHit->GetParticle();
+		  charge[package] = aHit->GetCharge();
 		}
+		}}
+
+	  if(edep > 0.)
+	  {
+	    // Storing edep for each wireplane
+	    energyTotal[package][chamber][layer] += edep;
+	    pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
+	    // Storing number of hit for each wireplane
+	    Num[package][chamber][layer] ++;
+	    // Edep weighted sum of position
+	    //position[package][chamber][layer] += pos*edep;
+	    // Sum of position
+	    position[package][chamber][layer] += pos;
+	    
+	    /*
+	    // Storing KE at each step in hit collection of 1st wireplane in each side
+	    if(layer == 0 && chamber== 0 && aHit->GetKE() > 0.){
+	      kineticenergy[package].push_back(aHit->GetKE());
+	      KENum[package] ++;}*/
+	  }
+	  else kineticenergy[package] = 0.;
 	}
+
+  /*
+	//sort kineticenergy in decrement order:
+	for (G4int m = 0; m < 2; m++)
+	  for (unsigned n = 0; n < kineticenergy[m].size(); n++)
+	    for (unsigned l = n; l < kineticenergy[m].size() ; l++ ){
+	      if(kineticenergy[m].at(l) > kineticenergy[m].at(n) )
+		{ G4double Temp; Temp = kineticenergy[m].at(l); kineticenergy[m].at(l) = kineticenergy[m].at(n); kineticenergy[m].at(n) = Temp;}
+	    }
+  */ 
+
+	/*
+	//find out the largest group of kineticenergy, epsilon = 0.5*MeV
+	for (G4int m = 0; m < 2; m++){
+	  G4double avg = 0., epsilon = 0.5*MeV, num = 0.;
+	  
+	  if ( kineticenergy[m].size() > 0){
+	    avg = kineticenergy[m].at(0), num = 0.;
+	    if ( kineticenergy[m].size() > 1){
+	      for(unsigned n = 1; n < kineticenergy[m].size() ; n++){
+		if ( abs( kineticenergy[m].at(n) - avg ) < epsilon ){num ++;avg = ( avg * num + kineticenergy[m].at(n) )/( num + 1.0 );}}}}
+	  
+	  KEavg[m] = avg;
+	  if ( m == 1 && KEavg[1] != 0.) cerr << "D1.V.KE is " << KEavg[1] << " Step Count " << num+1 << ". Out of " << kineticenergy[1].size() << endl; 
+	}
+	*/
+	
+	/*
+	//Sort kineticenergy in each detector in groups, every energy difference in members of group < epsilon = 0.5MeV. Keep avg KE for each group.
+	//Group avg KEs are stored in decreasing order
+	for (G4int m = 0; m < 2; m++){
+	  
+	  G4int l = 0;
+	  cerr << "D" << m << ".V's total KE counts is " << kineticenergy[m].size() << endl;
+	  while ( kineticenergy[m].size() > 0 ){
+	    
+	    G4double avg = 0., epsilon = 0.5*MeV, num = 0.; 
+	    
+	    for( unsigned n = 0; n < kineticenergy[m].size(); n++){
+	      if ( kineticenergy[m].at(n) > (kineticenergy[m].at(0) - epsilon) ) num ++;
+	      else break;}
+	    
+	    for (G4int n = 0; n < num; n++)
+	      avg += kineticenergy[m].at(n);
+	    
+	    avg /= num;
+	    KEavg[m].push_back(avg);
+	    
+	    if (kineticenergy[m].size() > num){
+	      for ( unsigned n = num; n < kineticenergy[m].size(); n++) kineticenergy[m].at(n-num) = kineticenergy[m].at(n);}
+
+	    for (unsigned n = 0; n < num; n++) kineticenergy[m].pop_back();
+
+	    cerr <<"D" << m <<  ".V's group energy is " << KEavg[m].at(l) << " MeV. With " << num << " counts." << endl;
+	    l++;
+	  }
+	  
+	}
+	*/
+
+
+
+
   G4bool det_hit[2];
   for(G4int i = 0; i < 2; i++)
 	{
 	det_hit[i] = true;
-  	for(G4int j = 0; j < 2; j++)
+  	
+	for(G4int j = 0; j < 2; j++)
   	for(G4int k = 0; k < 2; k++)
-		{
-		if(energyTotal[i][j][k] < 0.2*keV)
-			{ det_hit[i] = false;}
-		else
-			{
-			position[i][j][k] /= energyTotal[i][j][k];
-			position[i][j][k].setY(0.);
-			}
-		}
+	  {
+	    //change following line to deal with vacuum setting.
+	    if(energyTotal[i][j][k] < 0.2*keV)
+	    //if (kineticenergy[i]/KENum[i] < 2.0*MeV)
+	    //if (position[i][j][k].getX() == 0. && position[i][j][k].getY() == 0. && position[i][j][k].getZ() == 0.)
+	      { det_hit[i] = false;}
+	    else
+	      { 
+		// Storing largest group KEavg
+		//if( KEavg[i].size() > 0 && KEavg[i].at(0) >= 2.*MeV)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
+		    
+		    if(energyTotal[i][j][k] > 0.2*keV){
+		      
+		      if ( kineticenergy[i] > 0 && j == 0 && k ==0) {
+			pOutputFile->Set_KE_f(i, kineticenergy[i]); 
+			pOutputFile->Set_ToF_f(i, VDC_time[i]);
+			pOutputFile->Set_Charge_f(i, charge[i]);
+			cerr << 			  
+			  "KE[" << i << "] = " << kineticenergy[i] << 
+			  " , and ToF = " << VDC_time[i]/ns << "(ns)."  << 
+			  " Particle is: " <<  particle[i] << " ." << 
+			  " Charge is: " << charge[i] << endl;}
+		      
+		      // Storing largest KE of the event
+		      //if ( kineticenergy[i].size() > 0) pOutputFile->Set_KE_f(i, kineticenergy[i].at(0));
+		      // Storing largest group KEavg
+		      //if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
+
+		      pOutputFile->Set_edep_f(i,j,k,energyTotal[i][j][k]);
+		      //position[i][j][k] /= energyTotal[i][j][k];
+		      // Storing avg position
+		      if (position[i][j][k].getX() != 0. && position[i][j][k].getY()!= 0. && position[i][j][k].getZ() != 0.){
+			      position[i][j][k] /=Num[i][j][k];
+			      position[i][j][k].setY(0.);}
+		    }
+	      }	
+	  }
 	}
 
   // ----------------- Hodoscope -----------------------
@@ -205,9 +361,19 @@ if(use_monitor)
 	//G4cout << "Valid Hits = " << valid_hits << G4endl;
 	G4double PadEnergy[2][NUMPADDLES], PadLight[2][NUMPADDLES], PadTime[2][NUMPADDLES];
 	G4bool pad_hit[2][NUMPADDLES], hod_hit[2];
+
+
+
+	//Store paddle KE (PadKE), and counts of paddle KE(PadKENum)
+	G4double PadKE[2], PadKENum[2];
 	for(G4int i = 0; i < 2; i++)
 		{
 		hod_hit[i] = false;
+
+
+
+
+		PadKE[i] = 0.; PadKENum[i] = 0.;
 		for(G4int j = 0; j < NUMPADDLES; j++)
 			{
 			PadEnergy[i][j] = PadLight[i][j] = PadTime[i][j] = 0;
@@ -224,10 +390,21 @@ if(use_monitor)
 		G4int pad = pHit->GetPaddleNB();
 		PadEnergy[hod][pad] += pHit->GetEdep();
 		PadLight[hod][pad] += pHit->GetLight();
+
+
+
+
+		// May change this value: only when KE at each step is bigger than 2MeV, KE of the step will be stored
+		if( (pHit->GetKE()) >= 2.0*MeV){
+		  PadKE[hod] += pHit->GetKE();
+		  PadKENum[hod]++;}
+		
+		// Below invalidate in vacuum
 		if(PadLight[hod][pad] >= fPaddleThreshold && PadTime[hod][pad] == 0.)
+		  //if (pHit->GetKE() >= 2.0*MeV)
 			{
-			PadTime[hod][pad] = pHit->GetTime();
-			pad_hit[hod][pad] = true;
+			  PadTime[hod][pad] = pHit->GetTime();
+			  pad_hit[hod][pad] = true;
 			}
 		}
 	delete[] hit_time;
@@ -238,17 +415,22 @@ if(use_monitor)
   for(G4int hod = 0; hod < 2; hod++)
 	for(G4int pad = 0; pad < NUMPADDLES; pad++)
 		{
-		if(pad_hit[hod][pad])
-			{
-			//Units are carried by sigmaLightStatistical and sigmaLightNoise
-			//Statistical -- proportional to sqrt(light_output)
-  			lightOutSmear = (sqrt(PadLight[hod][pad]/MeV)) * G4RandGauss::shoot(0.0, fsigmaLightStatistical);
-			//Noise -- constant contribution
-			lightOutSmear += G4RandGauss::shoot(0.0, fsigmaLightNoise);
-			PadLight[hod][pad] += lightOutSmear;
-			if(PadLight[hod][pad] < fPaddleThreshold) pad_hit[hod][pad] = false;
-			else hod_hit[hod] = true;
-			}
+		  if(pad_hit[hod][pad])
+		  {
+		    //Units are carried by sigmaLightStatistical and sigmaLightNoise
+		    //Statistical -- proportional to sqrt(light_output)
+		    lightOutSmear = (sqrt(PadLight[hod][pad]/MeV)) * G4RandGauss::shoot(0.0, fsigmaLightStatistical);
+		    //Noise -- constant contribution
+		    lightOutSmear += G4RandGauss::shoot(0.0, fsigmaLightNoise);
+		    PadLight[hod][pad] += lightOutSmear;
+			
+
+		    //use below line when in vacuum
+		    //if( PadTime[hod][pad] == 0.)
+		    if(PadLight[hod][pad] < fPaddleThreshold) 
+		      pad_hit[hod][pad] = false;
+		    else hod_hit[hod] = true;
+		  }
 		}
 
   for(G4int hod = 0; hod < 2; hod++)
@@ -256,6 +438,10 @@ if(use_monitor)
 	pOutputFile->Set_hod_hit(hod, hod_hit[hod]);
 	if(hod_hit[hod])
 		{
+		  if( PadKE[hod]/PadKENum[hod]>2.0*MeV &&  PadKE[hod]/PadKENum[hod] < 60.0*MeV){
+		    pOutputFile->Set_pad_KE(hod, PadKE[hod]/PadKENum[hod]);
+		    //cerr << "Number " << hod << " hit. With KE " <<  PadKE[hod]/PadKENum[hod] << endl;}
+		  }
 		for(G4int pad = 0; pad < NUMPADDLES; pad++)
 			{
 			pOutputFile->Set_pad_hit(hod, pad, pad_hit[hod][pad]);
@@ -298,19 +484,57 @@ if(use_monitor)
 	  	//G4cout << "theta_out = " << theta_out/mrad << " mrad" << G4endl;
 	  	//G4cout << "phi_out = " << phi_out/mrad << " mrad" << G4endl;
 		
-	  	pOutputFile->Set_x_f(det, x_out);
-	  	pOutputFile->Set_y_f(det, y_out);
-	  	pOutputFile->Set_theta_f(det, theta_out);
-	  	pOutputFile->Set_phi_f(det, phi_out);
-	
+
+/*
+
+                // new choose for data coordinate for output.
+                // theta and phi are angle between trajectory of electrons (positrons) and global coordinate system 
+                // where theta and phi here are pi/2 minus ordinary spherical coordinate theta or phi in global coordinate system (+x downstream direction, +z up direction)
+                // x,y are also measured same direction as global coordinate system, but relative to center of 1st VDC for each detector package.
+		G4double x_f = x_out;
+		G4double y_f = y_out/sqrt(2);
+		G4double theta_f = atan2((y_out-y2_out)/sqrt(2),sqrt((x_out-x2_out)*(x_out-x2_out)+2*(fVDCSpacing+(y_out-y2_out)/2)*(fVDCSpacing+(y_out-y2_out)/2)))*rad;
+		G4double phi_f = (atan2((x_out-x2_out),sqrt(2)*(fVDCSpacing+(y_out-y2_out)/2)))*rad;
+					 
+					 x_out = x_f;
+					 y_out = y_f;
+					 theta_out = theta_f;
+					 phi_out = phi_f;
+*/
+
+					 pOutputFile->Set_x_f(det, x_out);
+					 pOutputFile->Set_y_f(det, y_out);
+					 pOutputFile->Set_theta_f(det, theta_out);
+					 pOutputFile->Set_phi_f(det, phi_out);
+					 
 		}
 	}
+
+  
   // If we are using the monitor - always write event
   // else write the event if there is a hit in a VDC
   // but not if we are requiring a hit in the hodoscope and there is no
   // hit in the corresponding hodoscope
   if(use_monitor)
-  	pOutputFile->WriteEvent();
+    {
+      //If the following line is added, monitors will write data when all detectors are hit.
+      /*
+      if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
+	{
+	  cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
+	  pOutputFile->WriteEvent();
+	}
+      */
+      //If following lines are used, such data will be stored if at least one of the SD is hit.
+      //if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
+      if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
+	{
+	  cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
+	  pOutputFile->WriteEvent();
+	}
+    }
+
+  /*
   else
 	{
 	if( fRequireHodoscopeHit )
@@ -324,8 +548,33 @@ if(use_monitor)
   			pOutputFile->WriteEvent();
 		}
 	}
+  
+ 
+
+  //Rob's code
+   if(use_monitor)
+    {
+	  pOutputFile->WriteEvent();
+    }
+
+  
+  else
+	{
+	if( fRequireHodoscopeHit )
+		{
+		if((det_hit[0] && hod_hit[0]) || (det_hit[1] && hod_hit[1]) )
+  			pOutputFile->WriteEvent();
+		}
+	else
+		{
+		if( det_hit[0] || det_hit[1])
+  			pOutputFile->WriteEvent();
+		}
+	}
+
+  */
   return;
 
-}  
+	}
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

@@ -31,5 +31,6 @@ class OutputFileMessenger: public G4UImessenger
 	G4UIcmdWithAnInteger * Set_header_frequency_cmd;
 	G4UIcmdWithABool * Set_unique_cmd;
 	G4UIcmdWithABool * Set_use_monitor_cmd;
+        G4UIcmdWithABool * Set_out_pair_mode_cmd;
 };
 #endif

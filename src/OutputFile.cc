@@ -1,9 +1,13 @@
 #include "OutputFile.hh"
 #include "OutputFileMessenger.hh"
-//#include "G4ios.hh"
+#include "PrimaryGeneratorAction.hh"
+#include "G4ios.hh"
 #include <fstream>
+
 using namespace std;
 class OutputFile;
+#include "TBranch.h"
+ClassImp(BH_Event)
 
 // initialize pointer
 OutputFile * OutputFile::pOutputFilePointer = 0;
@@ -17,7 +21,7 @@ OutputFile::OutputFile()
 	fuse_unique_filename = false;
 	flines_for_heading = -1; // -1 = no additional headings
 	fUseMonitor = false;
-
+	out_pair_mode = false;
 	// Start a messenger
 	fmessenger = new OutputFileMessenger( this);
 	}
@@ -25,7 +29,7 @@ OutputFile::~OutputFile()
 	{
 	if(fFile_open)
 		{
-		fclose(fd);
+		  //fclose(fd);
 		fFile_open = false;
 		}
 	pOutputFilePointer = 0;
@@ -80,29 +84,53 @@ OutputFile::OpenFile(G4int runno)
 			G4cout << "Cannot open " << infile << " for output." << G4endl;
 			}
 		}
-	sprintf(filename, "%s.%.4d.dat", fFilename_prefix.c_str(), frunno);
-	fd = fopen(filename, "w");
+	//sprintf(filename, "%s.%.4d.dat", fFilename_prefix.c_str(), frunno);
+	//sprintf(filename, "%s.%.4d.root", fFilename_prefix.c_str(), frunno);
+	//fd = fopen(filename, "w");
+	/*
 	if(fd == NULL)
 		{
 		G4cout << "ERROR: OutputFile::Openfile(): Cannot open file " << G4String(filename)
 			<< " for output." << G4endl;
 		return false;
 		}
+	*/
+	//cerr << "got here 1" << endl;
+	TString fname = Form("%s.%.4d.root", fFilename_prefix.c_str(), frunno);
+	
+	bh_tree_file = new TFile(fname,"recreate");
+	if(bh_tree_file == NULL) {
+	  G4cerr << "ERROR: OutputFile::Openfile(): Cannot open file " << fname
+			<< " for output." << G4endl;
+		return false;
+	}
+	cerr << "The root file: " << fname << " is opened." << endl;
+
+	tree = new TTree("T","root_tree");
+
+	event = new BH_Event();
+
+	branch = (TBranch*)tree->Branch("B","BH_Event",&event);
 
 	foutput_lines = 0;
 	fFile_open = true;
-	G4cout << "File " << G4String(filename) << " opened for output." << G4endl;
+	G4cout << "File " << fname << " opened for output." << G4endl;
 	return true;
+	
 	}
 // Close a file
 void
 OutputFile::CloseFile()
-	{
+	{	  
+	 
 	if(fFile_open)
 		{
-		fclose(fd);
+		  //fclose(fd);
+	
+        	bh_tree_file->Write();
+		delete tree;
 		fFile_open = false;
-		G4cout << "Output File " << G4String(filename) << " closed." <<G4endl;
+		//G4cout << "Output File " << fname << " closed." <<G4endl;
 		}
 	else
 		{
@@ -114,6 +142,15 @@ OutputFile::CloseFile()
 void 
 OutputFile::WriteEvent()
 	{
+	  //event = new BH_Event;
+	  //event->event_num = (Int_t)fevent_number;
+	  //cerr << "Event number " << event->event_num << "has been read" << endl;
+          
+	  //branch->SetAddress(&event);
+
+	  //tree->Fill();
+	  
+	  /*
 	//G4cout << "OutputFile::WriteEvent(): Called." << G4endl;
 	if(!fFile_open)
 		{
@@ -135,7 +172,7 @@ OutputFile::WriteEvent()
 		if(fUseMonitor)
 			{
 			fprintf(fd,"#  Monitor: <e-/e+>");
-			fprintf(fd," energy_m(MeV)");      
+			fprintf(fd," Energy(MeV)");      
 			fprintf(fd,"       x_m(cm)");      
 			fprintf(fd,"       y_m(cm)");      
 			fprintf(fd," theta_m(mrad)");      
@@ -158,66 +195,239 @@ OutputFile::WriteEvent()
 		fprintf(fd,"#    .... [possible repeat for other detector package]\n");      
 		fprintf(fd,"# --------\n");
 		}
+	  */
 
-	fprintf(fd,"Event: %8d\n",fevent_number);
-	fprintf(fd,"Input:");
-	fprintf(fd," %13.4g",fenergy_i/MeV);      
-	fprintf(fd," %13.4g",fdelta_i);      
-	fprintf(fd," %13.4g",fx_i/cm);      
-	fprintf(fd," %13.4g",fy_i/cm);      
-	fprintf(fd," %13.4g",ftheta_i/mrad);      
-	fprintf(fd," %13.4g\n",fphi_i/mrad);      
+	  //fprintf(fd,"Event: %8d\n",fevent_number); 
+	  event->ENum = (Int_t)fevent_number;
+	  //Input data
+	  //After Input change to vector to store e-,e+ data for pair_mode
+	  if (out_pair_mode){
+	    
+	    /*
+		Input* In0;
+		In0->Energy = (Float_t)(fenergy_i[0]/MeV);  
+		In0->Delta = (Float_t)(fdelta_i[0]);
+		In0->X = (Float_t)(fx_i[0]/cm);
+		In0->Y = (Float_t)(fy_i[0]/cm);
+		In0->Theta = (Float_t)(ftheta_i[0]/mrad);
+		In0->Phi = (Float_t)(fphi_i[0]/mrad);
+		event->I0.SetInput(In0);
+
+		delete In0;
+
+		Input *In1;
+		In1->Energy = (Float_t)(fenergy_i[1]/MeV);  
+		In1->Delta = (Float_t)(fdelta_i[1]);
+		In1->X = (Float_t)(fx_i[1]/cm);
+		In1->Y = (Float_t)(fy_i[1]/cm);
+		In1->Theta = (Float_t)(ftheta_i[1]/mrad);
+		In1->Phi = (Float_t)(fphi_i[1]/mrad);
+		event->I1.SetInput(In1);
+
+		delete In1;
+	    */
+	        
+		event->I0.Energy = (Float_t)(fenergy_i[0]/MeV);  
+		event->I0.Delta = (Float_t)(fdelta_i[0]);
+		event->I0.X = (Float_t)(fx_i[0]/cm);
+		event->I0.Y = (Float_t)(fy_i[0]/cm);
+		event->I0.Theta = (Float_t)(ftheta_i[0]/mrad);
+		event->I0.Phi = (Float_t)(fphi_i[0]/mrad);
+
+		event->I1.Energy = (Float_t)(fenergy_i[1]/MeV);  
+		event->I1.Delta = (Float_t)(fdelta_i[1]);
+		event->I1.X = (Float_t)(fx_i[1]/cm);
+		event->I1.Y = (Float_t)(fy_i[1]/cm);
+		event->I1.Theta = (Float_t)(ftheta_i[1]/mrad);
+		event->I1.Phi = (Float_t)(fphi_i[1]/mrad);
+	  }
+	  else{
+	    event->I0.Energy = (Float_t)(fenergy_i[0]/MeV);
+	    //fprintf(fd," %13.4g",fdelta_i);   
+	    event->I0.Delta = (Float_t)(fdelta_i[0]);	 
+	    //fprintf(fd," %13.4g",fx_i/cm);
+	    event->I0.X = (Float_t)(fx_i[0]/cm);
+	    //fprintf(fd," %13.4g",fy_i/cm);
+	    event->I0.Y = (Float_t)(fy_i[0]/cm);
+	    //fprintf(fd," %13.4g",ftheta_i/mrad);
+	    event->I0.Theta = (Float_t)(ftheta_i[0]/mrad);
+	    //fprintf(fd," %13.4g\n",fphi_i/mrad);
+	    event->I0.Phi = (Float_t)(fphi_i[0]/mrad);
+	  }
+
+
+
+	  // Monitor data
 	if(fUseMonitor)
 		{
-		for(G4int i = 0; i < 2; i++)
-			{
-			if(fMonitorHit[i])
+		  //Check if there is single e+ or e- produced, or e+/e- pair produced
+		  // Only monitor 0 is hit, set data for monitor 1 to be all 0
+		  if(fMonitorHit[0] && !fMonitorHit[1])
+		    {
+		      		  Monitor* moni = new Monitor;
+				  moni->Charge = 1.0;
+				  moni->Energy = (Float_t)(fMonitorKineticEnergy[0]/MeV);
+				  //cerr << "Ep = " << fMonitorKineticEnergy[0] << endl; 
+				  moni->X = (Float_t)(fMonitorX[0]/cm);
+				  moni->Y = (Float_t)(fMonitorY[0]/cm);     
+				  moni->Theta = (Float_t)(fMonitorTheta[0]/mrad);
+				  moni->Phi = (Float_t)(fMonitorPhi[0]/mrad);
+				  event->M0.SetMonitor(moni);
+				  delete moni;
+				  
+				  Monitor* moni1 = new Monitor;
+				  moni1->Charge = 0.0;
+				  moni1->Energy = (Float_t)(0.0/MeV); 
+				  moni1->X = (Float_t)(0.0/cm);
+				  moni1->Y = (Float_t)(0.0/cm);     
+				  moni1->Theta = (Float_t)(0.0/mrad);
+				  moni1->Phi = (Float_t)(0.0/mrad);
+				  event->M1.SetMonitor(moni1);
+				  delete moni1;
+		    }
+		  // Only monitor 1 is hit, set data for monitor 0 to be all 0
+		  else if(!fMonitorHit[0] && fMonitorHit[1])
+		    {
+		      		  Monitor* moni = new Monitor;
+				  moni->Charge = -1.0;
+				  moni->Energy = (Float_t)(fMonitorKineticEnergy[1]/MeV);
+				  //cerr << "Ee = " << fMonitorKineticEnergy[1] << endl; 
+				  moni->X = (Float_t)(fMonitorX[1]/cm);
+				  moni->Y = (Float_t)(fMonitorY[1]/cm);     
+				  moni->Theta = (Float_t)(fMonitorTheta[1]/mrad);
+				  moni->Phi = (Float_t)(fMonitorPhi[1]/mrad);
+				  event->M1.SetMonitor(moni);
+				  delete moni;
+
+				  Monitor* moni1 = new Monitor;
+				  moni1->Charge = 0.0;
+				  moni1->Energy = (Float_t)(0.0/MeV); 
+				  moni1->X = (Float_t)(0.0/cm);
+				  moni1->Y = (Float_t)(0.0/cm);     
+				  moni1->Theta = (Float_t)(0.0/mrad);
+				  moni1->Phi = (Float_t)(0.0/mrad);
+				  event->M0.SetMonitor(moni1);
+				  delete moni;				  
+		    }
+		  else
+		    for(G4int i = 0; i < 2; i++)
+		      {
+			//if(fMonitorHit[i])
 				{
-				fprintf(fd,"Monitor:");
-				if(i == 1) fprintf(fd," e-");
-				else fprintf(fd," e+");
-				fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);      
-				fprintf(fd," %13.4g",fMonitorX[i]/cm);      
-				fprintf(fd," %13.4g",fMonitorY[i]/cm);      
-				fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
-				fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);      
+				  Monitor* moni = new Monitor;
+				  //fprintf(fd,"Monitor:");
+				  //if(i == 1) fprintf(fd," e-");
+				  if(i==1) moni->Charge = -1.0;
+				  //else fprintf(fd," e+");
+				  else moni->Charge = 1.0;
+				  //fprintf(fd," %13.4g",fMonitorKineticEnergy[i]/MeV);
+				  moni->Energy = (Float_t)(fMonitorKineticEnergy[i]/MeV);   
+				  moni->X = (Float_t)(fMonitorX[i]/cm);
+				  //fprintf(fd," %13.4g",fMonitorY[i]/cm); 
+				  moni->Y = (Float_t)(fMonitorY[i]/cm);
+				  //fprintf(fd," %13.4g",fMonitorTheta[i]/mrad);      
+				  moni->Theta = (Float_t)(fMonitorTheta[i]/mrad);
+				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
+				  moni->Phi = (Float_t)(fMonitorPhi[i]/mrad);
+				  if (i == 0 )
+				    event->M0.SetMonitor(moni);
+				  else
+				    event->M1.SetMonitor(moni);
+				  delete moni;
 				}
 			}
 		}
+
+
+
+	// Detector data
+	event->D0.V.clear();
+	event->D1.V.clear();
+	event->D0.P.clear();
+	event->D1.P.clear();
+	event->HKE1.clear();
+	event->HKE0.clear();
 	for(G4int i = 0; i < 2; i++)
 		{
 		if(fdetector_package[i])
 			{
-			fprintf(fd,"Detector: %d\n",i);
-			fprintf(fd,"VDC:");
-			fprintf(fd," %13.4g",fx_f[i]/cm);      
-			fprintf(fd," %13.4g",fy_f[i]/cm);      
-			fprintf(fd," %13.4g",ftheta_f[i]/mrad);      
-			fprintf(fd," %13.4g",fphi_f[i]/mrad);      
-			fprintf(fd,"\n");
+			  Detector detector;
+			  //fprintf(fd,"Detector: %d\n",i);//if (i==0) to detector0
+
+
+
+			  //VDC data
+			  VDC dc;
+			  //fprintf(fd,"VDC:");
+			  //fprintf(fd," %13.4g",fx_f[i]/cm);
+			  dc.X = (Float_t)(fx_f[i]/cm);
+			  //fprintf(fd," %13.4g",fy_f[i]/cm);
+			  dc.Y = (Float_t)(fy_f[i]/cm);
+			  //fprintf(fd," %13.4g",ftheta_f[i]/mrad);
+			  dc.Theta = (Float_t)(ftheta_f[i]/mrad);
+			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
+			  dc.Phi = (Float_t)(fphi_f[i]/mrad);
+			  dc.KE = (Float_t)(fKE_f[i]/MeV);
+			  dc.ToF = (Float_t)(fToF_f[i]/ns);
+			  dc.Charge = (Float_t)(fCharge_f[i]/eplus);
+
+			  for(G4int j = 0; j < 2; j++)
+			    for(G4int k = 0; k < 2; k++)
+			      {
+				if(j == 0 && k == 0)
+				  dc.E0u = (Float_t)(fedep_f[i][0][0]/MeV);
+				if(j == 0 && k == 1)
+				  dc.E0v = (Float_t)(fedep_f[i][0][1]/MeV);
+				if(j == 0 && k == 0)
+				  dc.E1u = (Float_t)(fedep_f[i][1][0]/MeV);
+				if(j == 0 && k == 0)
+				  dc.E1v = (Float_t)(fedep_f[i][1][1]/MeV);
+				
+			      }
+
+			  if(i==0) {event->D0.V.push_back(dc);}
+			  else {event->D1.V.push_back(dc);}
+			}
+
+
+
+		// Hodoscope data
 			if(fHod_hit[i])
 			   {
+			     if (i == 1 && fPadKE[1] > 0.*MeV && fPadKE[1] < 60.0*MeV) {event->HKE1.push_back((Double_t)fPadKE[1]); cerr << "HKE1 = " << event->HKE1.at(0) << endl;}
+			     else if(i == 0 && fPadKE[0] > 0.*MeV && fPadKE[0] < 60.0*MeV) {event->HKE0.push_back((Double_t)fPadKE[0]); cerr << "HKE0 = " << event->HKE0.at(0) << endl;}
+
 			   for(G4int j = 0; j < 29; j++)
 				{
 				if(fPad_hit[i][j])
 					{
-					fprintf(fd,"Paddle: %d ", j);
-					fprintf(fd," %13.4g",fPadEnergy[i][j]/MeV);      
-					fprintf(fd," %13.4g",fPadLight[i][j]/MeV);      
-					fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
-					fprintf(fd,"\n");
+					  Paddle paddle;
+					  //fprintf(fd,"Paddle: %d ", j);
+					  paddle.PNum = (Int_t)j;
+					  //fprintf(fd," %13.4g",fPadEnergy[i][j]/MeV);  
+					  paddle.Edep = (Float_t)(fPadEnergy[i][j]/MeV);
+					  //fprintf(fd," %13.4g",fPadLight[i][j]/MeV);
+					  paddle.Light = (Float_t)(fPadLight[i][j]/MeV);
+					  //fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
+					  paddle.Time = (Float_t)(fPadTime[i][j]/ns);
+					  //fprintf(fd,"\n");
+					  if(i==0) event->D0.P.push_back(paddle);
+					  else event->D1.P.push_back(paddle);
+					  //else D1->P->push_back(paddle);
 					}
 				}
 			   }
-			}
 		}
+	
 	//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
-	foutput_lines++;
-	}
+	//foutput_lines++;
+	tree->Fill();
+     	}
+
 void
 OutputFile::WriteComment(G4String line)
 	{
-	fprintf(fd,"# %s\n",line.c_str());
+	  //fprintf(fd,"# %s\n",line.c_str());
 	}
 	
 void
@@ -233,5 +443,5 @@ OutputFile::PrintParameters()
 	if(fUseMonitor)
 		G4cout << "Monitor information will be recorded and included in output file." << G4endl;
 	else
-		G4cout << "Monitor information will not be recorded." << G4endl;
+		G4cout << "Monitor information will not be recorded." << G4endl;	
 	}

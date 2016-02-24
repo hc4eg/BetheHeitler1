@@ -68,11 +68,13 @@ DefineMaterials();
 //sizes are based on the RayTrace diagram (z is conservative guess) *5!
 fWorldSize = new G4ThreeVector(150.*cm*5, 200.*cm*5, 100.*cm*5);
 fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
-fBackgroundMaterial = Helium; //
-//fBackgroundMaterial = Vacuum; //
+//fBackgroundMaterial = Helium;
+//fBackgroundMaterial = Vacuum;
+fBackgroundMaterial = Air;
 //
 // Magnetic field
 fBcenter = -0.4536*tesla;
+//fBcenter = -0.*tesla;
 
 //pole
 fPoleOuterDiameter = 15.75*inch;
@@ -106,6 +108,7 @@ fYokeMaterial = Iron;
 // Bag
 fBagThick = 0.1*mm;
 fBagMaterial = Poly;
+// fBagMaterial = Vacuum;
 fMagnetToBagDistance = 1.0*mm;
 
 //target
@@ -113,11 +116,13 @@ fTargetDistance = 42.26*cm;
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
 fTargetToBagMaterial = Air;
+//fTargetToBagMaterial = Vacuum;
+//fTargetToBagMaterial = Helium;
 
 // Target material and thickness can be changed through messenger
 fTargetThick = 0.025*mm; // Thickness of Uranium target
 fTargetMaterial = Uranium;  // Target material
-
+// fTargetMaterial = Vacuum;
 
 //VDC Chambers
 fVDCSizeX = 96*inch;
@@ -131,6 +136,9 @@ fVDCLayerThick = 0.5*inch;
 fVDCAlLayerThick = 0.75*inch;
 fChamberSheetMaterial = Mylar;
 fChamberGasMaterial = Ethane_Argon;
+// fChamberSheetMaterial = Vacuum;
+// fChamberGasMaterial = Vacuum;
+
 
 fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
 
@@ -839,9 +847,13 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   G4Box* VDCBox = 
     new G4Box("VDC Box", fVDCSizeX/2., fVDCSizeY/2. + fBagThick, fVDCSizeZ/2.);
   fLogicVDCHolder = 0;
+
+  // Careful if you want to make all Vaccum
   fLogicVDCHolder = new G4LogicalVolume(VDCBox,
- 			Air, 
-			"VDC Holder");
+					//Vacuum,//	
+					Air, 
+					//fVDCMaterial,
+					"VDC Holder");
   // =================================================================================
   //aluminum frame for a single VDC:
 
@@ -855,7 +867,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   
   G4LogicalVolume* logicAlFrameLeft =                         
     new G4LogicalVolume(alFrameLeft,            //its solid
-                        Aluminum,
+                        //Vacuum,//
+			Aluminum,
                         "Al Frame Left/Right");         //its name    
   G4ThreeVector position = G4ThreeVector(-fVDCSizeX/2. + fVDCSideWidth/2.,0.,0.);
   new G4PVPlacement(0, 
@@ -887,7 +900,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   
   G4LogicalVolume* logicAlFrameTop = new G4LogicalVolume(
 			alFrameTop,            //its solid
-                        Aluminum,
+                        //Vacuum,//
+			Aluminum,
                         "Al Frame Top/Bottom");         //its name    
 
   position.setX(0.);
@@ -1102,6 +1116,7 @@ DetectorConstruction::ConstructHodoscope()
   fLogicHodoscopeHolder = 0;
   fLogicHodoscopeHolder = 
     new G4LogicalVolume(hodoscopeHolderBox, Air, "Hodoscope Holder");
+  //new G4LogicalVolume(hodoscopeHolderBox, Vacuum, "Hodoscope Holder");
   // make holder invisible
   fLogicHodoscopeHolder->SetVisAttributes(G4VisAttributes::Invisible);
 
@@ -1110,8 +1125,10 @@ DetectorConstruction::ConstructHodoscope()
   G4Box* paddleBox = new G4Box("Paddle Box", PaddleX/2., PaddleY/2., PaddleZ/2.);
   G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Poly, "Paddle Wrap");
   // then the scintillator
+  //G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Vacuum, "Paddle Wrap");
   G4Box* scintBox = new G4Box("Paddle Scint", fPaddleWidth/2., fPaddleThick/2., fPaddleHeight/2.);
   G4LogicalVolume * scintLogic = new G4LogicalVolume(scintBox, Sci, "Paddle Scintillator");
+  //G4LogicalVolume * scintLogic = new G4LogicalVolume(scintBox, Vacuum, "Paddle Scintillator");
   G4ThreeVector position(0.,0.,0.);
    new G4PVPlacement(0, position, scintLogic, "PaddleScint", paddleLogic, false, 0);  
 
