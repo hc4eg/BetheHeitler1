@@ -312,7 +312,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
 	  particleGun->SetParticleDefinition(P_electron);
 	  
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  targ_in = target_position;
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(KEe);
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
@@ -417,7 +418,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
 	  particleGun->SetParticleDefinition(P_electron);
 	  
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  targ_in = target_position;
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(KEe);
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
