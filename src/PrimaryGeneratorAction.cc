@@ -83,8 +83,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	radius = sqrt(x_in*x_in +y_in*y_in);
       } while (radius > radius_max);
       
-      /*     
-  //Consider artificially generate e+ e- pair with fixed asymmetry in 2D
+      /*
+      //Code Below: fixed asymmetry 2D
+      //Consider artificially generate e+ e- pair with fixed asymmetry in 2D
   
       if (pair_mode)
 	{
@@ -232,14 +233,118 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  if( Ppy > 0.) pOutputFile->Set_phi_i(0, 0.0);
 	  else pOutputFile->Set_phi_i(0, 180.0*deg);
 	}
-      */    
 
-      //Fixed asymmetry 2D
-
-
+      */
+      //Code Above: fixed asymmetry 2D
 
 
-	  // Code above: Generate e+ e- pair with same energy and momentum distribution
+
+       
+      //Code below: Generating Fixed Asymmetry distribution in 3D
+      //Consider artificially generate e+ e- pair
+      if (pair_mode)
+	{
+	  
+	  //Code below: generate e+ e- pair with same energy and theta distribution.
+	  E = 60*MeV;
+	  c = CLHEP::c_light;
+	  Me = CLHEP::electron_mass_c2;
+
+	  G4double A,a, Temp, Randa, ThetaM;
+	  //Assigning Asymmetry
+	  A = 0.5;
+	  a = (1-A)/(1+A);
+
+	  //Compute electron energy, momentum components
+	  // Generating Fixed Asymmetry distritution in 3D
+	  {
+	    do{
+	      Randa = CLHEP::RandFlat::shoot(0.0 , 1+a);
+	      if (Randa <= 1.0){
+		Ee = CLHEP::RandFlat::shoot(15.0*MeV, 30.0*MeV);
+	      }
+	      else{
+		Ee = CLHEP::RandFlat::shoot(30.0*MeV, 45.0*MeV);		  
+	      }
+	      
+		do{
+		  Temp = sqrt(((E-Ee)*(E-Ee)-Me*Me)/(Ee*Ee-Me*Me));	  
+		  if(-1 < Temp && 1 > Temp){
+		    ThetaM = asin(Temp)*rad;
+		    Thetae = CLHEP::RandFlat::shoot(0.0, ThetaM);
+		  }
+		  else
+		    Thetae = CLHEP::RandFlat::shoot(0.0*deg,90.0*deg);
+	    
+		  Phie = CLHEP::RandFlat::shoot(0.0*deg, 360.0*deg);
+
+		  Pe = sqrt(Ee*Ee-Me*Me);
+		  Pex = Pe*cos(Thetae);
+		  Pey = Pe*sin(Thetae)*cos(Phie);
+		  Pez = Pe*sin(Thetae)*sin(Phie);
+		  KEe = Ee - Me;
+	    
+		  Ep = E - Ee;
+		  Ppx = sqrt((E-Ee)*(E-Ee)-(Ee*Ee-Me*Me)*sin(Thetae)*sin(Thetae)-Me*Me);
+		  Ppy = -Pey;
+		  Ppz = -Pez;
+		  KEp = Ep - Me;
+		  
+		  //Note: Thetap here is always in 0 to 90deg
+		  Thetap = atan(+Pe*sin(Thetae)/Ppx);
+		  //Make positron opposite direction than electron, and lies in 0 to 360deg
+		  if (Phie >= 0.*deg && Phie < 180.0*deg)
+		    Phip = Phie + 180.0*deg;
+		  else if ( Phie >= 180.0*deg && Phie < 360.0*deg)
+		    Phip = Phie - 180.0*deg;
+		  
+		}while(Thetae > 20.0*deg || Thetap > 20.0*deg || Thetae < -20.0*deg || Thetap < -20.0*deg);
+
+	      }while (((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0 || Ee < Me);	      
+	    //	cerr << "Thetae = " << Thetae/deg << " deg. Thetap = " << Thetap/deg << " deg." << endl;
+	    //		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
+		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
+	  }
+	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
+	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
+	  G4String ParticleName;
+
+	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
+	  particleGun->SetParticleDefinition(P_electron);
+	  
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEe);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  pOutputFile->Set_energy_i(1,KEe);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(1,x_in);
+	  pOutputFile->Set_y_i(1,y_in);
+	  pOutputFile->Set_theta_i(1,Thetae);
+	  pOutputFile->Set_phi_i(1,Phie);
+
+	  //	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
+
+	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
+	  particleGun->SetParticleDefinition(P_positron);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEp);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, Ppz));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  pOutputFile->Set_energy_i(0,KEp);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(0,x_in);
+	  pOutputFile->Set_y_i(0,y_in);
+	  pOutputFile->Set_theta_i(0,Thetap);
+	  pOutputFile->Set_phi_i(0,Phip);
+	}
+      //Code Above:Fixed Asymmetry 3D */
+
+
+      /*
       //Symmetric energy distribution 3D
       // Code below: Generte e+ e- pair with same energy and momentum distribution in 3D
       if (pair_mode)
@@ -344,7 +449,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
 	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;	
       //Code Above:Symmetric energy distribution 3D
-
+      */
 
 
 
