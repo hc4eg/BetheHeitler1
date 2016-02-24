@@ -149,24 +149,26 @@ if(use_monitor)
   WireChamberHit * aHit;
   G4ThreeVector position[2][2][2]; // position on [package][chamber][layer]
   G4double energyTotal[2][2][2];
-  vector<G4double> kineticenergy[2]; 
+  //vector<G4double> kineticenergy[2]; 
   //vector<G4double> KEavg[2];
-  G4int KENum[2], Num[2][2][2];
-  //G4double kineticenergy[2];
-  //G4double charge[2];
-  //G4String particle[2];
-  //G4double VDC_time[2];
+  //G4int KENum[2];
+  G4int Num[2][2][2];
+  G4double kineticenergy[2];
+  G4double charge[2];
+  G4String particle[2];
+  G4double VDC_time[2];
   G4ThreeVector pos;
   
   for(G4int i = 0; i < 2; i++)
   for(G4int j = 0; j < 2; j++)
   for(G4int k = 0; k < 2; k++)
     { position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.; 
-      kineticenergy[i].clear(); KENum[i] = 0; Num[i][j][k] = 0;
+      //kineticenergy[i].clear(); KENum[i] = 0; 
+      Num[i][j][k] = 0;
       //KEavg[i].clear();
-      //kineticenergy[i] = 0.;
-      //charge[i] = 0.;
-      //VDC_time[i] = 0;
+      kineticenergy[i] = 0.;
+      charge[i] = 0.;
+      VDC_time[i] = 0;
     }
   
   for(G4int jj = 0; jj < totalHits; jj++) //for all hits
@@ -179,6 +181,17 @@ if(use_monitor)
 	  G4double edep = aHit->GetEdep();
 	  //G4double KE[2] = {0.,0.};
 
+	  //Find out Time of Flight and associate KE of 1st hit in time in VDC SD
+	  G4double now = aHit->GetTime();	  
+	  for (G4int n = 0; n < 2 ; n ++){
+	    if (layer == 0 && chamber == 0 && package == n){
+	      if(VDC_time[package] == 0. || VDC_time[package] > now)
+		{ VDC_time[package] = now;  
+		  kineticenergy[package] = aHit->GetKE(); 
+		  particle[package] = aHit->GetParticle();
+		  charge[package] = aHit->GetCharge();
+		}
+		}}
 
 	  if(edep > 0.)
 	  {
@@ -192,15 +205,16 @@ if(use_monitor)
 	    // Sum of position
 	    position[package][chamber][layer] += pos;
 	    
+	    /*
 	    // Storing KE at each step in hit collection of 1st wireplane in each side
 	    if(layer == 0 && chamber== 0 && aHit->GetKE() > 0.){
 	      kineticenergy[package].push_back(aHit->GetKE());
-	      KENum[package] ++;}
+	      KENum[package] ++;}*/
 	  }
-	  //else kineticenergy[package] = 0.;
+	  else kineticenergy[package] = 0.;
 	}
 
-  
+  /*
 	//sort kineticenergy in decrement order:
 	for (G4int m = 0; m < 2; m++)
 	  for (unsigned n = 0; n < kineticenergy[m].size(); n++)
@@ -208,7 +222,8 @@ if(use_monitor)
 	      if(kineticenergy[m].at(l) > kineticenergy[m].at(n) )
 		{ G4double Temp; Temp = kineticenergy[m].at(l); kineticenergy[m].at(l) = kineticenergy[m].at(n); kineticenergy[m].at(n) = Temp;}
 	    }
- 
+  */ 
+
 	/*
 	//find out the largest group of kineticenergy, epsilon = 0.5*MeV
 	for (G4int m = 0; m < 2; m++){
@@ -281,8 +296,18 @@ if(use_monitor)
 		    
 		    if(energyTotal[i][j][k] > 0.2*keV){
 		      
+		      if ( kineticenergy[i] > 0 && j == 0 && k ==0) {
+			pOutputFile->Set_KE_f(i, kineticenergy[i]); 
+			pOutputFile->Set_ToF_f(i, VDC_time[i]);
+			pOutputFile->Set_Charge_f(i, charge[i]);
+			cerr << 			  
+			  "KE[" << i << "] = " << kineticenergy[i] << 
+			  " , and ToF = " << VDC_time[i]/ns << "(ns)."  << 
+			  " Particle is: " <<  particle[i] << " ." << 
+			  " Charge is: " << charge[i] << endl;}
+		      
 		      // Storing largest KE of the event
-		      if ( kineticenergy[i].size() > 0) pOutputFile->Set_KE_f(i, kineticenergy[i].at(0));
+		      //if ( kineticenergy[i].size() > 0) pOutputFile->Set_KE_f(i, kineticenergy[i].at(0));
 		      // Storing largest group KEavg
 		      //if( KEavg[i].size() > 0)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
 
