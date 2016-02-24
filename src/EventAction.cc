@@ -21,6 +21,7 @@ EventAction::EventAction(DetectorConstruction* det)
 	// these may need to be adjusted
   fsigmaLightStatistical = 77.0*keV;
   fsigmaLightNoise = 5.0*keV;
+  //pOutputFile->ClearKE();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -38,8 +39,7 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   G4int event_number = evt->GetEventID();
   // get needed detector info here because it may have changed since constructor
   fVDCSpacing = pDetector->GetVDCSpacing();
-
-
+  pOutputFile->ClearKE();
   if (event_number < 5 || event_number%printModulo == 0)
 	{ 
 	if(event_number >= 10*printModulo && printModulo < 100000) printModulo *= 10;
@@ -226,9 +226,19 @@ if(use_monitor)
 	//G4cout << "Valid Hits = " << valid_hits << G4endl;
 	G4double PadEnergy[2][NUMPADDLES], PadLight[2][NUMPADDLES], PadTime[2][NUMPADDLES];
 	G4bool pad_hit[2][NUMPADDLES], hod_hit[2];
+
+
+
+	//Store paddle KE (PadKE), and counts of paddle KE(PadKENum)
+	G4double PadKE[2], PadKENum[2];
 	for(G4int i = 0; i < 2; i++)
 		{
 		hod_hit[i] = false;
+
+
+
+
+		PadKE[i] = 0.; PadKENum[i] = 0.;
 		for(G4int j = 0; j < NUMPADDLES; j++)
 			{
 			PadEnergy[i][j] = PadLight[i][j] = PadTime[i][j] = 0;
@@ -245,10 +255,21 @@ if(use_monitor)
 		G4int pad = pHit->GetPaddleNB();
 		PadEnergy[hod][pad] += pHit->GetEdep();
 		PadLight[hod][pad] += pHit->GetLight();
+
+
+
+
+		// May change this value: only when KE at each step is bigger than 2MeV, KE of the step will be stored
+		if( (pHit->GetKE()) >= 2.0*MeV){
+		  PadKE[hod] += pHit->GetKE();
+		  PadKENum[hod]++;}
+		
+		// Below invalidate in vacuum
 		if(PadLight[hod][pad] >= fPaddleThreshold && PadTime[hod][pad] == 0.)
+		  //if (pHit->GetKE() >= 2.0*MeV)
 			{
-			PadTime[hod][pad] = pHit->GetTime();
-			pad_hit[hod][pad] = true;
+			  PadTime[hod][pad] = pHit->GetTime();
+			  pad_hit[hod][pad] = true;
 			}
 		}
 	delete[] hit_time;
@@ -259,17 +280,22 @@ if(use_monitor)
   for(G4int hod = 0; hod < 2; hod++)
 	for(G4int pad = 0; pad < NUMPADDLES; pad++)
 		{
-		if(pad_hit[hod][pad])
-			{
-			//Units are carried by sigmaLightStatistical and sigmaLightNoise
-			//Statistical -- proportional to sqrt(light_output)
-  			lightOutSmear = (sqrt(PadLight[hod][pad]/MeV)) * G4RandGauss::shoot(0.0, fsigmaLightStatistical);
-			//Noise -- constant contribution
-			lightOutSmear += G4RandGauss::shoot(0.0, fsigmaLightNoise);
-			PadLight[hod][pad] += lightOutSmear;
-			if(PadLight[hod][pad] < fPaddleThreshold) pad_hit[hod][pad] = false;
-			else hod_hit[hod] = true;
-			}
+		  if(pad_hit[hod][pad])
+		  {
+		    //Units are carried by sigmaLightStatistical and sigmaLightNoise
+		    //Statistical -- proportional to sqrt(light_output)
+		    lightOutSmear = (sqrt(PadLight[hod][pad]/MeV)) * G4RandGauss::shoot(0.0, fsigmaLightStatistical);
+		    //Noise -- constant contribution
+		    lightOutSmear += G4RandGauss::shoot(0.0, fsigmaLightNoise);
+		    PadLight[hod][pad] += lightOutSmear;
+			
+
+		    //use below line when in vacuum
+		    //if( PadTime[hod][pad] == 0.)
+		    if(PadLight[hod][pad] < fPaddleThreshold) 
+		      pad_hit[hod][pad] = false;
+		    else hod_hit[hod] = true;
+		  }
 		}
 
   for(G4int hod = 0; hod < 2; hod++)
@@ -277,6 +303,10 @@ if(use_monitor)
 	pOutputFile->Set_hod_hit(hod, hod_hit[hod]);
 	if(hod_hit[hod])
 		{
+		  if( PadKE[hod]/PadKENum[hod]>2.0*MeV &&  PadKE[hod]/PadKENum[hod] < 60.0*MeV){
+		    pOutputFile->Set_pad_KE(hod, PadKE[hod]/PadKENum[hod]);
+		    //cerr << "Number " << hod << " hit. With KE " <<  PadKE[hod]/PadKENum[hod] << endl;}
+		  }
 		for(G4int pad = 0; pad < NUMPADDLES; pad++)
 			{
 			pOutputFile->Set_pad_hit(hod, pad, pad_hit[hod][pad]);
@@ -411,7 +441,7 @@ if(use_monitor)
   */
   return;
 
-}  
+	}
 
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

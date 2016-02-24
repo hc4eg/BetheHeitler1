@@ -261,6 +261,7 @@ OutputFile::WriteEvent()
 
 
 
+	  // Monitor data
 	if(fUseMonitor)
 		{
 		  //Check if there is single e+ or e- produced, or e+/e- pair produced
@@ -340,11 +341,16 @@ OutputFile::WriteEvent()
 				}
 			}
 		}
-	  
+
+
+
+	// Detector data
 	event->D0.V.clear();
 	event->D1.V.clear();
 	event->D0.P.clear();
 	event->D1.P.clear();
+	event->HKE1.clear();
+	event->HKE0.clear();
 	for(G4int i = 0; i < 2; i++)
 		{
 		if(fdetector_package[i])
@@ -376,12 +382,18 @@ OutputFile::WriteEvent()
 				
 			      }
 
-			  if(i==0) {event->D0.V.push_back(dc);
-			  }
-			  else {event->D1.V.push_back(dc);
-			  }
+			  if(i==0) {event->D0.V.push_back(dc);}
+			  else {event->D1.V.push_back(dc);}
+			}
+
+
+
+		// Hodoscope data
 			if(fHod_hit[i])
 			   {
+			     if (i == 1 && fPadKE[1] > 0.*MeV && fPadKE[1] < 60.0*MeV) {event->HKE1.push_back((Double_t)fPadKE[1]); cerr << "HKE1 = " << event->HKE1.at(0) << endl;}
+			     else if(i == 0 && fPadKE[0] > 0.*MeV && fPadKE[0] < 60.0*MeV) {event->HKE0.push_back((Double_t)fPadKE[0]); cerr << "HKE0 = " << event->HKE0.at(0) << endl;}
+
 			   for(G4int j = 0; j < 29; j++)
 				{
 				if(fPad_hit[i][j])
@@ -402,8 +414,8 @@ OutputFile::WriteEvent()
 					}
 				}
 			   }
-			}
 		}
+	
 	//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
 	//foutput_lines++;
 	tree->Fill();
