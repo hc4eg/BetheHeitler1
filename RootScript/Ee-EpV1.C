@@ -14,6 +14,7 @@
 using namespace std;
 
 //This root script is used for:
+//Root files with old naming system: long names rather than "T.B.*"
 //1.Read Ep, Ee from monitors branch of .root file to make Ee - Ep 1D histogram.
 //2.Read Ep, Ee and calculate Theta(opening angle) from monitors branch of .root file to make Ee Ep vs. Theta 2D histogram.
 
