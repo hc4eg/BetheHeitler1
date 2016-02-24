@@ -31,8 +31,19 @@ void PlotInput(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
-    
+  TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");    
   if (OoN == "N"){
 
     cerr << "OoN is " << OoN << endl;
@@ -86,8 +97,19 @@ void PlotMonitor(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
-    
+  TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");    
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
     TCanvas* CM0 = new TCanvas ("CM0", "Monitor0 data", 1600, 1500);
@@ -124,8 +146,19 @@ void PlotVDC(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
-
+    TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");
 
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
@@ -159,7 +192,19 @@ void PlotPaddle(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
+  TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");
 
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
