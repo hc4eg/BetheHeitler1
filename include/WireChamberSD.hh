@@ -30,6 +30,7 @@ class WireChamberSD : public G4VSensitiveDetector
 
   private:
 	WireChamberHitsCollection* fHitsCollection;
+        G4int fparentageWire;
 	G4int fparentageLayer;
 	G4int fparentageVDC;
 	G4int fparentagePackage;

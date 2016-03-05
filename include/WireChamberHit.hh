@@ -37,6 +37,7 @@ class WireChamberHit : public G4VHit
     // Set methods
     void SetTrackID(G4int track)        { fTrackID = track; };
     void SetVDCnumber(G4int chamb)      { fVDCnumber = chamb; };
+  void SetVDCwire(G4int wire) { fVDCwire = wire; };
     void SetVDClayer(G4int layer)       { fVDClayer = layer; };
     void SetVDCpackage(G4int package)   { fVDCpackage = package; };
     void SetEdep(G4double de)           { fEdep = de; };
@@ -54,6 +55,7 @@ class WireChamberHit : public G4VHit
     // Get methods
     G4int GetTrackID() const     { return fTrackID; };
     G4int GetVDCnumber() const   { return fVDCnumber; };
+  G4int GetVDCwire() const { return fVDCwire; };
     G4int GetVDClayer() const    { return fVDClayer; };
     G4int GetVDCpackage() const  { return fVDCpackage; };
     G4double GetEdep() const     { return fEdep; };
@@ -70,6 +72,7 @@ class WireChamberHit : public G4VHit
   private:
 
       G4int         fTrackID;
+  G4int fVDCwire;
       G4int         fVDCnumber;
       G4int         fVDClayer;
       G4int         fVDCpackage;

@@ -16,9 +16,10 @@ WireChamberSD::WireChamberSD(G4String name, G4String hitsCollectionName)
 {
   collectionName.insert(hitsCollectionName);
   verboseLevel = 0;
-  fparentageLayer = 0;
-  fparentageVDC = 1;
-  fparentagePackage = 2;
+  fparentageWire = 0;
+  fparentageLayer = 1;
+  fparentageVDC = 2;
+  fparentagePackage = 3;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -57,6 +58,7 @@ G4bool WireChamberSD::ProcessHits(G4Step* aStep,
   //G4VPhysicalVolume* thePhysical = theTouchable->GetVolume();
   G4TouchableHandle theTouchHandle = preStepPoint->GetTouchableHandle();
 
+  G4int VDCWire = theTouchHandle->GetReplicaNumber(fparentageWire);
   G4int VDClayer = theTouchHandle->GetReplicaNumber(fparentageLayer);
   G4int VDCnumber = theTouchHandle->GetReplicaNumber(fparentageVDC);
   G4int VDCpackage = theTouchHandle->GetReplicaNumber(fparentagePackage);
@@ -65,7 +67,7 @@ G4bool WireChamberSD::ProcessHits(G4Step* aStep,
 #if 0
 //    This is just for verifying what parentage is appropriate 
   G4cout << "======= Begin Process Hits =========" << G4endl;
-for(G4int fparentage = 0; fparentage < 3; fparentage++)
+for(G4int fparentage = 0; fparentage < 4; fparentage++)
   {
   G4int number = aStep->GetPreStepPoint()->GetTouchable()->GetReplicaNumber(fparentage);
   G4String name = aStep->GetPreStepPoint()->GetTouchable()->GetVolume(fparentage)->GetName();
@@ -91,10 +93,16 @@ for(G4int fparentage = 0; fparentage < 3; fparentage++)
    G4ThreeVector localPostPosition = transformation.TransformPoint(globalPostPosition);
 
    newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
+   //All WireNumber, VDClayer Number, VDC Number, package Number information
+   //New function SetVDCWireNum() function in WireChamberHit classes, so which VDC wireplane volume is hit info retrieved.
+   newHit->SetVDCWireNum(VDCWire);
    newHit->SetVDCnumber(VDCnumber);
    newHit->SetVDClayer(VDClayer);
    newHit->SetVDCpackage(VDCpackage);
+
+   //Total energy deposite of a step
    newHit->SetEdep(edep);
+   //Global time of the step
    newHit->SetTime(time);
    newHit->SetKE(aStep->GetPreStepPoint()->GetKineticEnergy());
    newHit->SetParticle(part);

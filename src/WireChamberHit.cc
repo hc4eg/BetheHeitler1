@@ -14,6 +14,7 @@ G4Allocator<WireChamberHit> WireChamberHitAllocator;
 WireChamberHit::WireChamberHit()
  : G4VHit(),
    fTrackID(-1),
+   fVDCwire(-1),
    fVDCnumber(-1),
    fVDClayer(-1),
    fEdep(0.),
@@ -37,6 +38,7 @@ WireChamberHit::WireChamberHit(const WireChamberHit& right)
   : G4VHit()
 {
   fTrackID   = right.fTrackID;
+  fVDCwire   = right.fVDCwire;
   fVDCnumber = right.fVDCnumber;
   fVDClayer = right.fVDClayer;
   fEdep      = right.fEdep;
@@ -55,6 +57,7 @@ WireChamberHit::WireChamberHit(const WireChamberHit& right)
 const WireChamberHit& WireChamberHit::operator=(const WireChamberHit& right)
 {
   fTrackID   = right.fTrackID;
+  fVDCwire   = right.fVDCwire;
   fVDCnumber = right.fVDCnumber;
   fVDClayer = right.fVDClayer;
   fEdep      = right.fEdep;
@@ -99,7 +102,9 @@ void WireChamberHit::Draw()
 void WireChamberHit::Print()
 {
   G4cout
-     << "  trackID: " << fTrackID << " VDCnumber: " << fVDCnumber
+     << "  trackID: " << fTrackID
+     << " VDC wire number: " << fVDCwire
+     << " VDCnumber: " << fVDCnumber
      << "  layer: " << fVDClayer << G4endl;
   G4cout.precision(4);
   G4cout  << "Edep: "
