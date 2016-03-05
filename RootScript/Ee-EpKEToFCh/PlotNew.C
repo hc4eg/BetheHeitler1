@@ -31,8 +31,19 @@ void PlotInput(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
-    
+  TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");    
   if (OoN == "N"){
 
     cerr << "OoN is " << OoN << endl;
@@ -86,8 +97,19 @@ void PlotMonitor(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
-    
+  TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");    
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
     TCanvas* CM0 = new TCanvas ("CM0", "Monitor0 data", 1600, 1500);
@@ -124,8 +146,19 @@ void PlotVDC(){
   TTree* T = new TTree();
   T = (TTree * ) histofile->Get("T");
 
-  TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
-
+    TString Cut(
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
+	      "B.D0.V.E1u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
+	      "B.D1.V.E0v > 0.0002 && "
+	      "B.D1.V.E1u > 0.0002 && "
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");
 
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
@@ -160,19 +193,18 @@ void PlotPaddle(){
   T = (TTree * ) histofile->Get("T");
 
   TString Cut(
-	      //"B.M1.Charge !=0 &&" 
-	      "(B.D0.V.E0u > 0.0002 && "
-	      "B.D0.V.E0v > 0.0002 && "
+	      "B.M1.Charge !=0 && "
+	      "B.D0.V.E0u > 0.0002 &&" 
+	      "B.D0.V.E0v > 0.0002 &&" 
 	      "B.D0.V.E1u > 0.0002 && "
-	      "B.D0.V.E1v > 0.0002  &&"
-	      "B.D0.P.Edep > 0.02) &&" 
-	      //"B.M0.Charge !=0 && "
-	      "(B.D1.V.E0u > 0.0002 && "
+	      "B.D0.V.E1v > 0.0002 && "
+	      "B.D0.P.Edep > 0.02 && "
+	      "B.M0.Charge !=0 && "
+	      "B.D1.V.E0u > 0.0002 &&" 
 	      "B.D1.V.E0v > 0.0002 && "
 	      "B.D1.V.E1u > 0.0002 && "
-	      "B.D1.V.E1v > 0.0002 &&" 
-	      "B.D1.P.Edep > 0.02)"
-	      );
+	      "B.D1.V.E1v > 0.0002 && "
+	      "B.D1.P.Edep > 0.02");
 
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
@@ -182,23 +214,15 @@ void PlotPaddle(){
     CENum->cd();              T->Draw("B.ENum",Cut);
 
     CD1P->cd(1);              T->Draw("B.D1.P.PNum",Cut);
-    //T->Draw("B.D1.P.PNum >> hd1");
-    //T->Draw("B.D1.P.PNum","B.D0.P.Edep > 0.02 || B.D1.P.Edep > 0.02");
-    //T->Draw("B.D1.P.PNum","B.D0.P.Edep > 0.02 && B.D1.P.Edep > 0.02");
     CD1P->cd(2);              T->Draw("B.D1.P.Edep",Cut);
     CD1P->cd(3);              T->Draw("B.D1.P.Light",Cut);
-    //CD1P->cd(4);              T->Draw("B.D1.P.Time",Cut);
-    CD1P->cd(4);              T->Draw("B.D1.@P.size()",Cut);
+    CD1P->cd(4);              T->Draw("B.D1.P.Time",Cut);
 
     TCanvas* CD0P = new TCanvas("D0P","Detector0 Paddle data",1600,1200);
     CD0P->Divide(2,2);
 
     CD0P->cd(1);              T->Draw("B.D0.P.PNum >> (29,0,29)",Cut);
-    //T->Draw("B.D0.P.PNum >> hd2");
-    //T->Draw("B.D0.P.PNum","B.D0.P.Edep > 0.02 || B.D1.P.Edep > 0.02");
-    //T->Draw("B.D0.P.PNum","B.D0.P.Edep > 0.02 && B.D1.P.Edep > 0.02");
     CD0P->cd(2);              T->Draw("B.D0.P.Edep",Cut);
     CD0P->cd(3);              T->Draw("B.D0.P.Light",Cut);
-    //CD0P->cd(4);              T->Draw("B.D0.P.Time",Cut);
-    CD0P->cd(4);              T->Draw("B.D0.@P.size()",Cut);
+    CD0P->cd(4);              T->Draw("B.D0.P.Time",Cut);
 }

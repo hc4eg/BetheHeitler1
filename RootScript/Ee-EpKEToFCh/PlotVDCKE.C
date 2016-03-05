@@ -9,6 +9,7 @@
 #include "TClonesArray.h"
 #include "Riostream.h"
 #include "TCanvas.h"
+#include "TH1.h"
 #include <cmath>
 
 using namespace std;
@@ -18,6 +19,148 @@ using namespace std;
 // Start to use at Pair.0152.root
 // New Histograms: VDC: KE , ToF, Charge. Hodoscope KE.
 
+//Declare structures used to store data from a single event
+class Monitor: public TObject {
+public:
+  Monitor() {};
+  ~Monitor() {};    
+    Int_t Charge;
+    Float_t Energy;
+    Float_t X;
+    Float_t Y;
+    Float_t Theta;
+    Float_t Phi;
+
+  // Get functions are used for reading data from root tree.
+  inline Float_t GetTheta(){return Theta;}
+  inline Float_t GetPhi(){return Phi;}
+  inline Float_t GetEnergy(){return Energy;}
+  inline void ClearMonitor(){
+    Charge = 0; Energy = 0.; X = 0.; Y = 0.; Theta = 0.; Phi = 0.;
+  }
+protected:
+  ClassDef(Monitor,2);
+  };
+
+class Input: public TObject{
+public:
+  Input() {};
+  ~Input() {};
+  Float_t Energy;
+  Float_t Delta;
+  Float_t X;
+  Float_t Y;
+  Float_t Theta;
+  Float_t Phi;
+
+  inline Float_t GetEnergy(){return Energy;}
+  inline Float_t GetDelta(){return Delta;}
+  inline Float_t GetX(){return X;}
+  inline Float_t GetY(){return Y;}
+  inline Float_t GetTheta(){return Theta;}
+  inline Float_t GetPhi(){return Phi;}
+  
+protected:
+  ClassDef(Input,2);
+};
+
+class VDC: public TObject{
+public:
+  VDC() {};
+  ~VDC() {};
+    Float_t X;
+    Float_t Y;
+    Float_t Theta;
+    Float_t Phi;
+
+  Float_t E0u;
+  Float_t E0v;
+  Float_t E1u;
+  Float_t E1v;
+  Double_t KE;
+  Double_t ToF;
+  Double_t Charge;
+
+  inline Double_t GetKE(){return KE;}
+  inline Double_t GetCharge(){return Charge;}
+
+protected:
+  ClassDef(VDC,2);
+};
+
+class Paddle: public TObject{
+public:
+  Paddle() {};
+  ~Paddle() {};
+  Int_t PNum;
+  Float_t Edep;
+  Float_t Light;
+  Float_t Time;
+  
+  inline Int_t GetPNum(){ return PNum;}
+  inline Float_t GetLight(){ return Light;}
+
+protected:
+  ClassDef(Paddle,2);
+};
+
+//The number of VDC is varying for each Detector package (0 or 1)
+//Also number of paddle hit is varying for each Detector package (0 to 29)
+
+class Detector: public TObject{
+public:
+  //Int_t detector_num;
+
+  Detector() {};
+  ~Detector() {};
+  vector<VDC> V;
+  vector<Paddle> P;
+
+  vector<VDC>* GetVDC(){ return &V;}
+  vector<Paddle>* GetPad(){ return &P;}
+protected:
+  ClassDef(Detector,2);
+};
+
+//The number of monitors are varying (1 to 2), since one of e+ or e- or both is recorded in a single event
+
+class BH_Event: public TObject{
+public:
+  BH_Event() {};
+  ~BH_Event() {};
+  UInt_t ENum;
+  Monitor M0;
+  Monitor M1;
+  Input I0;
+  Input I1;
+  Detector D0;
+  Detector D1;
+  vector<Double_t> HKE0;
+  vector<Double_t> HKE1;
+
+  vector<Double_t>* GetHKE(Int_t i){
+    if(i == 1) return &HKE1;
+    else return &HKE0; }
+
+  Monitor* GetMonitor(Int_t i){
+    if(i == 1) return &M1;
+    else return &M0; }
+  Input* GetInput(Int_t i){
+    if(i == 1) return &I1;
+    else return &I0;}
+  Detector* GetDetector(Int_t i){
+    if(i == 1) return &D1;
+    else return &D0;}
+protected:
+  ClassDef(BH_Event,2);
+};
+
+  ClassImp(BH_Event)
+  ClassImp(Input)
+  ClassImp(VDC)
+  ClassImp(Monitor)
+  ClassImp(Detector)
+  ClassImp(Paddle)
 
 void PlotInput(){
   //Open the root file
@@ -187,32 +330,70 @@ void PlotPaddle(){
   
     TTree* T = new TTree();
     T = (TTree * ) histofile->Get("T");
+  
+    //SetBranchAddress to branch Event
+    BH_Event* E = new BH_Event();
+    T -> SetBranchAddress("B",&E);
+
+    Int_t NumEntry = T -> GetEntries();
+    cerr << "Data entries " << NumEntry << endl;
 
     //TString Cut("B.M1.Charge !=0 && B.D0.V.E0u > 0.0002 && B.D0.V.E0v > 0.0002 && B.D0.V.E1u > 0.0002 && B.D0.V.E1v > 0.0002 && B.D0.P.Edep > 0.02 && B.M0.Charge !=0 && B.D1.V.E0u > 0.0002 && B.D1.V.E0v > 0.0002 && B.D1.V.E1u > 0.0002 && B.D1.V.E1v > 0.0002 && B.D1.P.Edep > 0.02");
     TString Cut(
-      "B.M1.Charge !=0 && "  
-      "B.D0.V.E0u > 0.0002 && "  
-      "B.D0.V.E0v > 0.0002 && "  
-      "B.D0.V.E1u > 0.0002 && "  
-      "B.D0.V.E1v > 0.0002 && "  
-      "B.D0.P.Edep > 0.02 && "  
-      "B.M0.Charge !=0 && "  
-      "B.D1.V.E0u > 0.0002 && "  
-      "B.D1.V.E0v > 0.0002 && "  
-      "B.D1.V.E1u > 0.0002 && "  
-      "B.D1.V.E1v > 0.0002 && "  
-      "B.D1.P.Edep > 0.02"
-    );
+		//"B.M1.Charge !=0 && "  
+		"B.D0.V.E0u > 0.0002 && "  
+		"B.D0.V.E0v > 0.0002 && "  
+		"B.D0.V.E1u > 0.0002 && "  
+		"B.D0.V.E1v > 0.0002 && "  
+		//"B.D0.P.Edep > 0.02 && "
+		"B.D0.P.Light > 0.02 &&"
+		//"B.M0.Charge !=0 && "  
+		"B.D1.V.E0u > 0.0002 && "  
+		"B.D1.V.E0v > 0.0002 && "  
+		"B.D1.V.E1u > 0.0002 && "  
+		"B.D1.V.E1v > 0.0002 && "  
+		//"B.D1.P.Edep > 0.02"
+		"B.D1.P.Light > 0.02"
+		);
 
     TCanvas* CENum = new TCanvas("CEnum", "ENum",800,400);
 
     TCanvas* CD1P = new TCanvas("D1P","Detector1 Paddle data",1600,1200);
     CD1P->Divide(2,2);
 
+    TH1F* H_D1PNum = new TH1F("H_D1PNum", "D1 Paddle Num distribution.", 29,0.0,29.0);
+    H_D1PNum->SetLineColor(kRed);
+    TH1F* H_D0PNum = new TH1F("H_D0PNum", "D0 Paddle Num distribution.", 29,0.0,29.0);
+    H_D0PNum->SetLineColor(kRed);
+
+    for(Int_t i = 0; i < NumEntry; i ++){
+      // This is extremely important!
+      T ->GetEntry(i);
+      cerr << "Entry Num = " << i << "." << endl;
+      cerr << "D0 VDC size = " << E->GetDetector(0)-> GetVDC()->size() << endl;
+      cerr << "D0P size = " << E-> GetDetector(0)-> GetPad()->size() << endl;
+      
+      for(UInt_t j = 0; j <  E-> GetDetector(0)-> GetPad()->size();j++){
+	
+	if(E-> GetDetector(0) -> GetPad() -> size() > 0 &&  
+	   E-> GetDetector(1) -> GetPad() -> size() > 0){
+	  H_D0PNum -> Fill(E->GetDetector(0) -> GetPad() -> at(j).PNum);
+	  cerr << "D0 PNum = " << E->GetDetector(0) -> GetPad() -> at(j).PNum << endl;
+	}}
+     
+      cerr << "D1P size = " << E->GetDetector(1)-> GetPad()->size() << endl;
+      for(UInt_t j = 0; j < E->GetDetector(1)-> GetPad()->size() ;j++){
+	if(E-> GetDetector(0) -> GetPad() -> size() > 0 &&  
+	   E-> GetDetector(1) -> GetPad() -> size() > 0){
+	  H_D1PNum -> Fill(E->GetDetector(1) -> GetPad() -> at(j).PNum);
+	  cerr << "D1 PNum = " << E->GetDetector(1) -> GetPad() -> at(j).PNum<< endl;
+	}}      
+    }
     CENum->cd();              T->Draw("B.ENum",Cut);
 
     CD1P->cd(1);              T->Draw("B.D1.P.PNum>>hd1(28,0,28)",Cut);
-    //CD1P->cd(1);              T->Draw("B.D1.P.PNum",Cut);
+    //CD1P->cd(1);              H_D1PNum->Draw();
+                              T->Draw("B.D1.P.PNum",Cut,"same");
     CD1P->cd(2);              T->Draw("B.D1.P.Edep",Cut);
     CD1P->cd(3);              T->Draw("B.D1.P.Light",Cut);
     CD1P->cd(4);              T->Draw("B.D1.P.Time",Cut);
@@ -221,6 +402,9 @@ void PlotPaddle(){
     CD0P->Divide(2,2);
 
     CD0P->cd(1);              T->Draw("B.D0.P.PNum >> (28,0,28)",Cut);
+    //CD0P->cd(1);              H_D0PNum->Draw();
+                              T->Draw("B.D0.P.PNum",Cut,"same");
+    //CD0P->cd(1);              T->Draw("B.D0.P.PNum >> (28,0,28)",Cut);
     CD0P->cd(2);              T->Draw("B.D0.P.Edep",Cut);
     CD0P->cd(3);              T->Draw("B.D0.P.Light",Cut);
     CD0P->cd(4);              T->Draw("B.D0.P.Time",Cut);

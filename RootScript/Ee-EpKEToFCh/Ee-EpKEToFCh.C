@@ -371,6 +371,7 @@ void HistoKE(void){
     IE[1] = event->GetInput(1)->GetEnergy();
     // Print out total energy and event number from root file 
     //cerr << "Ee- = " << ME[1] << ". " << "Ee+ = " << ME[0] << ". " << "Etot = "<< ME[1]+ME[0] << ". " << "Event number = " << i << endl;
+    cerr << "D0 VDC size = " << event->GetDetector(0)->GetVDC()->size();
     if ( event->GetDetector(0)->GetVDC()->size() == 1 && event->GetDetector(1)->GetVDC()->size() == 1){
       VE[0] = event->GetDetector(0)->GetVDC()->at(0).GetKE(); VE[1] = event->GetDetector(1)->GetVDC()->at(0).GetKE();}
       //cerr << "D0 VDC KE = " << VE[0] << ". D1 VDC KE = " << VE[1] << endl; }
