@@ -177,15 +177,19 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	G4LogicalVolume * fLogicVDCHolder;
 	G4LogicalVolume * fLogicVDCsheet;
 	G4LogicalVolume * fLogicVDCgas1;
-	G4LogicalVolume * fLogicVDCgasSD[2];
+  G4LogicalVolume * fLogicVDCgas2[2];
 	G4LogicalVolume * fLogicVDCBag;
+ 
+
+
+
 
 	//Sensitive Detectors
 	WireChamberSD * fchamberSD;
 	PaddleSD * fPaddleSD;
 	MonitorSD * fMonitorSD;
 
-	G4VPhysicalVolume * fPhysVDCGasSD[2];
+  //  G4VPhysicalVolume * fPhysVDCGasSD[2];
 	G4VPhysicalVolume * fPhysVDCpackage[2];
 
 	G4Material * fChamberGasMaterial;
@@ -193,6 +197,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	//G4Material * fWireMaterial;
 
 	// dimensions
+        // VDC dimensions
 	G4double fVDCSizeX, fVDCSizeY, fVDCSizeZ ;
 	G4double fVDCSideWidth, fVDCTopWidth;
 	G4double fVDCSpacing;
@@ -205,6 +210,16 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 
 	G4double fVDCDistance1; // dist from magnet center to center of first VDC
 
+  //New Data Constructed Wires for WirePlane
+  static const G4int fWireNum = 200;
+  G4double fWireX; 
+  G4double fWireAngle; // = 45*deg;
+  G4double fWireWidth, fWireThick, fWireLength;
+  //Volumes related to WireNum
+  G4VSolid * fWire[fWireNum];
+  G4LogicalVolume * fLogicWireSD[fWireNum];
+  G4VPhysicalVolume * fPhysWireSD[fWireNum];   //Or just add G4PVPlacement in DetectorConstruction.cc?
+  
 	// Hodoscope
 	G4double fPaddleHeight, fPaddleWidth, fPaddleThick;
 	G4int fNumPaddles;
