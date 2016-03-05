@@ -394,8 +394,14 @@ OutputFile::WriteEvent()
 		// Hodoscope data
 			if(fHod_hit[i])
 			   {
-			     if (i == 1 && fPadKE[1] > 0.*MeV && fPadKE[1] < 60.0*MeV) {event->HKE1.push_back((Double_t)fPadKE[1]); cerr << "HKE1 = " << event->HKE1.at(0) << endl;}
-			     else if(i == 0 && fPadKE[0] > 0.*MeV && fPadKE[0] < 60.0*MeV) {event->HKE0.push_back((Double_t)fPadKE[0]); cerr << "HKE0 = " << event->HKE0.at(0) << endl;}
+			     if (i == 1 && fPadKE[1] > 0.*MeV && fPadKE[1] < 60.0*MeV) {
+			       event->HKE1.push_back((Double_t)fPadKE[1]); 
+			       // cerr << "HKE1 = " << event->HKE1.at(0) << endl;
+			     }
+			     else if(i == 0 && fPadKE[0] > 0.*MeV && fPadKE[0] < 60.0*MeV) {
+			       event->HKE0.push_back((Double_t)fPadKE[0]); 
+			       //  cerr << "HKE0 = " << event->HKE0.at(0) << endl;
+			     }
 
 			   for(G4int j = 0; j < 29; j++)
 				{
@@ -408,6 +414,7 @@ OutputFile::WriteEvent()
 					  paddle.Edep = (Float_t)(fPadEnergy[i][j]/MeV);
 					  //fprintf(fd," %13.4g",fPadLight[i][j]/MeV);
 					  paddle.Light = (Float_t)(fPadLight[i][j]/MeV);
+					  cerr << "paddle.Light[" << i << "][" << j << "] =" << fPadLight[i][j]/MeV << endl;
 					  //fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
 					  paddle.Time = (Float_t)(fPadTime[i][j]/ns);
 					  //fprintf(fd,"\n");

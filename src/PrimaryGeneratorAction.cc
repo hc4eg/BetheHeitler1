@@ -254,7 +254,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 	  G4double A,a, Temp, Randa, ThetaM;
 	  //Assigning Asymmetry
-	  A = 0.5;
+	  A = 0.0;
 	  a = (1-A)/(1+A);
 
 	  //Compute electron energy, momentum components
@@ -328,7 +328,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  pOutputFile->Set_theta_i(1,Thetae);
 	  pOutputFile->Set_phi_i(1,Phie);
 
-      	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
+      	  //cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
 
 	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
 	  particleGun->SetParticleDefinition(P_positron);

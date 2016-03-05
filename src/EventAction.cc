@@ -301,11 +301,12 @@ if(use_monitor)
 			pOutputFile->Set_KE_f(i, kineticenergy[i]); 
 			pOutputFile->Set_ToF_f(i, VDC_time[i]);
 			pOutputFile->Set_Charge_f(i, charge[i]);
-			cerr << 			  
-			  "KE[" << i << "] = " << kineticenergy[i] << 
-			  " , and ToF = " << VDC_time[i]/ns << "(ns)."  << 
-			  " Particle is: " <<  particle[i] << " ." << 
-			  " Charge is: " << charge[i] << endl;}
+			//cerr << 			  
+			//  "KE[" << i << "] = " << kineticenergy[i] << 
+			//  " , and ToF = " << VDC_time[i]/ns << "(ns)."  << 
+			//  " Particle is: " <<  particle[i] << " ." << 
+			//  " Charge is: " << charge[i] << endl;
+		      }
 		      
 		      // Storing largest KE of the event
 		      //if ( kineticenergy[i].size() > 0) pOutputFile->Set_KE_f(i, kineticenergy[i].at(0));
@@ -423,11 +424,11 @@ if(use_monitor)
 		    //Noise -- constant contribution
 		    lightOutSmear += G4RandGauss::shoot(0.0, fsigmaLightNoise);
 		    PadLight[hod][pad] += lightOutSmear;
-			
+
 
 		    //use below line when in vacuum
 		    //if( PadTime[hod][pad] == 0.)
-		    if(PadLight[hod][pad] < fPaddleThreshold) 
+		    if(PadLight[hod][pad] < fPaddleThreshold)
 		      pad_hit[hod][pad] = false;
 		    else hod_hit[hod] = true;
 		  }
@@ -440,7 +441,7 @@ if(use_monitor)
 		{
 		  if( PadKE[hod]/PadKENum[hod]>2.0*MeV &&  PadKE[hod]/PadKENum[hod] < 60.0*MeV){
 		    pOutputFile->Set_pad_KE(hod, PadKE[hod]/PadKENum[hod]);
-		    //cerr << "Number " << hod << " hit. With KE " <<  PadKE[hod]/PadKENum[hod] << endl;}
+		    //cerr << "Number " << hod << " hit. With KE " <<  PadKE[hod]/PadKENum[hod] << endl;
 		  }
 		for(G4int pad = 0; pad < NUMPADDLES; pad++)
 			{
@@ -449,6 +450,7 @@ if(use_monitor)
 				{
 				pOutputFile->Set_pad_energy(hod, pad, PadEnergy[hod][pad]);
 				pOutputFile->Set_pad_light(hod, pad, PadLight[hod][pad]);
+				cerr << "PadLight[" << hod << "][" << pad << "] = " << PadLight[hod][pad]/MeV << endl;
 				pOutputFile->Set_pad_time(hod, pad, PadTime[hod][pad]);
 				}
 			}
@@ -527,7 +529,7 @@ if(use_monitor)
       */
       //If following lines are used, such data will be stored if at least one of the SD is hit.
       //if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
-      if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
+	if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
 	{
 	  cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
 	  pOutputFile->WriteEvent();
