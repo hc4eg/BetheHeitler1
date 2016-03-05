@@ -138,17 +138,27 @@ fChamberSheetMaterial = Mylar;
 fChamberGasMaterial = Ethane_Argon;
 // fChamberSheetMaterial = Vacuum;
 // fChamberGasMaterial = Vacuum;
+//VDC Wires
+
 
 
 fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
 
 // Hodoscope
 fPaddleHeight = 35.*cm;
-fPaddleWidth = 5.*cm;
+//fPaddleWidth = 5.*cm;
+// Make front paddles almost in touch each other, same as rear paddles
+//fPaddleWidth = 7.80*cm;
+// Make front and rear paddles no overlap
+fPaddleWidth = 4.03*cm;
 fPaddleThick = 1.*cm;
 fNumPaddles = 29;
-fHodoscopeWidth = 118.*cm;
-fPaddleWrapThick = 1.0*mm;
+//seems miscalculation of 118cm, should be 117cm
+//fHodoscopeWidth = 118.*cm;
+fHodoscopeWidth = 117.*cm;
+//fPaddleWrapThick = 1.0*mm;
+fPaddleWrapThick = 0.0*mm;
+fPaddleWrapThick = 0.0*mm;
 fHodoscopeDistance = 185.*cm; // distance of Hodoscope centre from magnet centre
 fHodoscopeOffset = 0.*cm; // offset of Hodoscope forward (+ = beam direction)
 
