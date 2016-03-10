@@ -20,7 +20,7 @@ WireChamberHit::WireChamberHit()
    fEdep(0.),
    fTime(0.),
    fKE(0.),
-   fParticle(""),
+   fParticle(0),
    fCharge(0.),
    fGlobalPrePosition(G4ThreeVector()),
    fLocalPrePosition(G4ThreeVector()),

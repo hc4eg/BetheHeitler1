@@ -84,7 +84,7 @@ for(G4int fparentage = 0; fparentage < 4; fparentage++)
   G4double time = preStepPoint->GetGlobalTime();
   G4Track* aTrack = aStep->GetTrack();
   G4ParticleDefinition * aParticle = aTrack->GetDefinition();
-  G4String part = aParticle->GetParticleName();
+  G4int part = aParticle->GetPDGEncoding();
   G4double charge = aParticle->GetPDGCharge();
   const G4AffineTransform transformation = preStepPoint->GetTouchable()->GetHistory()->GetTopTransform();
    G4ThreeVector globalPrePosition = preStepPoint->GetPosition();
@@ -95,7 +95,7 @@ for(G4int fparentage = 0; fparentage < 4; fparentage++)
    newHit->SetTrackID  (aStep->GetTrack()->GetTrackID());
    //All WireNumber, VDClayer Number, VDC Number, package Number information
    //New function SetVDCWireNum() function in WireChamberHit classes, so which VDC wireplane volume is hit info retrieved.
-   newHit->SetVDCWireNum(VDCWire);
+   newHit->SetVDCwire(VDCWire);
    newHit->SetVDCnumber(VDCnumber);
    newHit->SetVDClayer(VDClayer);
    newHit->SetVDCpackage(VDCpackage);
