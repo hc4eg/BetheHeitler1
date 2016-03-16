@@ -120,7 +120,6 @@ fTargetHeight = 4.0*cm;
 fTargetToBagMaterial = Air;
 //fTargetToBagMaterial = Vacuum;
 //fTargetToBagMaterial = Helium;
-
 // Target material and thickness can be changed through messenger
 fTargetThick = 0.025*mm; // Thickness of Uranium target
 fTargetMaterial = Uranium;  // Target material
@@ -142,9 +141,10 @@ fChamberGasMaterial = Ethane_Argon;
 // fChamberGasMaterial = Vacuum;
 //VDC Wires
 fWireAngle = 45*deg;
-
-
 fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
+//Al sheet
+fAlThick = 0.75*inch;
+fGapThick = 0.5*inch;
 
 // Hodoscope
 fPaddleHeight = 35.*cm;
@@ -840,9 +840,10 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   // Chamber Construction
 
   // Chamber package Holder for the two VDCs
-
   fVDCChamberHolderX = fVDCSizeX;
   fVDCChamberHolderY = fVDCSpacing + fVDCSizeY + 2.*fBagThick;
+  // Add Al Sheet in front/back of Chambers
+  //fVDCChamberHolderY = fVDCSpacing + fVDCSizeY + 2*fAlThick + 2*fGapThick;
   fVDCChamberHolderZ = fVDCSpacing + fVDCSizeZ;
 
   G4Box* chamberHolderBox =
@@ -859,6 +860,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   // A single VDC
   G4Box* VDCBox = 
     new G4Box("VDC Box", fVDCSizeX/2., fVDCSizeY/2. + fBagThick, fVDCSizeZ/2.);
+    // Add Al Sheet in front/back of Chambers  
+    //new G4Box("VDC Box", fVDCSizeX/2., fVDCSizeY/2. + fAlThick + fGapThick, fVDCSizeZ/2.);
   fLogicVDCHolder = 0;
 
   // Careful if you want to make all Vaccum
@@ -990,6 +993,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   // It consists of finding a single wire dimensions, and finding the G4PVPlacements of all IntersectionSolid Logic volumes.
 
 
+  //Note: Real wire tile angle is 26.5deg, number of wires on each plane is 279.
+  //However, gas2X = 204.47cm/80.5inch, gas2Z = 53.34cm/21.0inch, is inconsistent with wire spacing 1.112cm 
   // Dimensions for a single wire: Wirelength, Width and Thickness for each wire
   fWireLength = fWireX*sin(fWireAngle)+gas2Z/cos(fWireAngle);
   fWireWidth = fWireX*cos(fWireAngle);
@@ -1048,7 +1053,7 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
      // |//////////////////////////////////////////|   Lower right: Wire 0.
      // |//////////////////////////////////////////|   Upper left: last wire.
      // |//////////////////////////////////////////|   Plane center is local origin.
-     // |//////////////////////////////////////////|
+     // |//////////////////////////////////////////|   fWireAngle is the wire angle diviate from Z-axis
      // --------------------------------------------
 
 
@@ -1165,6 +1170,7 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   //G4VPhysicalVolume * PhysSheet6 =
   new G4PVPlacement(0, position, fLogicVDCsheet, "VDC Sheet 6",
 						fLogicVDCHolder, false, 6);
+  
   // Now add helium bag windows outside the Al Frame
   sheetX = fVDCSizeX; sheetY = fBagThick; sheetZ = fVDCSizeZ;
   G4Box * BagBox = new G4Box("Bag Box", sheetX/2., sheetY/2., sheetZ/2.);
@@ -1180,6 +1186,25 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   new G4PVPlacement(0, position, fLogicVDCBag, "VDC Bag 1",
 						fLogicVDCHolder, false, 1);
 	fLogicVDCBag->SetVisAttributes(VDCLayerVisAtt);	
+	
+	/*
+  // Now add Al sheet outside chamber
+  sheetX = fVDCSizeX; sheetY = fAlThick; sheetZ = fVDCSizeZ;
+  G4Box * AlBox = new G4Box("Al Box", sheetX/2., sheetY/2., sheetZ/2.);
+  fLogicVDCAl = 0;
+  fLogicVDCAl = new G4LogicalVolume( AlBox, Aluminum, "VDC Al Sheet");
+  // two copies - one on each side
+  position.setX(0.);
+  position.setY(fVDCSizeY/2. + fAlThick/2. + fGapThick);
+  position.setZ(0.);
+  new G4PVPlacement(0, position, fLogicVDCAl, "VDC Al Sheet 0",
+						fLogicVDCHolder, false, 0);
+  position.setY(-(fVDCSizeY/2. + fAlThick/2. + fGapThick));
+  new G4PVPlacement(0, position, fLogicVDCAl, "VDC Al Sheet 1",
+						fLogicVDCHolder, false, 1);
+	fLogicVDCAl->SetVisAttributes(VDCLayerVisAtt);	
+	*/
+ 
   // ======================================================
   // One VDC is now constructed.
   // Place two copies in the Chamber holder
@@ -1187,6 +1212,10 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   position.setX(0.);
   position.setY(+fVDCChamberHolderY/2.-fVDCSizeY/2.-fBagThick/2.);
   position.setZ(-fVDCChamberHolderZ/2.+fVDCSizeZ/2.+fBagThick/2.);
+  // Add Al sheet in front/back of Chambers
+  //position.setY(+fVDCChamberHolderY/2.-fVDCSizeY/2.-fAlThick-fGapThick);
+  //position.setZ(-fVDCChamberHolderZ/2.+fVDCSizeZ/2.);
+  
 
   new G4PVPlacement(	0,  // no rotation
 			position,
@@ -1200,6 +1229,9 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
 
   position.setY(-fVDCChamberHolderY/2.+fVDCSizeY/2.+fBagThick/2.);
   position.setZ(+fVDCChamberHolderZ/2.-fVDCSizeZ/2.-fBagThick/2.);
+  // Add Al sheet in front/back of Chambers
+  //position.setY(-fVDCChamberHolderY/2.+fVDCSizeY/2.+fAlThick+fGapThick);
+  //position.setZ(+fVDCChamberHolderZ/2.-fVDCSizeZ/2.);
 
   new G4PVPlacement(	0,  // no rotation
 			position,

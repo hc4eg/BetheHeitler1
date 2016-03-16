@@ -178,7 +178,9 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	G4LogicalVolume * fLogicVDCsheet;
 	G4LogicalVolume * fLogicVDCgas1;
   G4LogicalVolume * fLogicVDCgas2[2];
-	G4LogicalVolume * fLogicVDCBag;
+  G4LogicalVolume * fLogicVDCBag;
+  // Al sheet in front/back of VDC Chambers
+  //G4LogicalVolume * fLogicVDCAl;
  
 
 
@@ -209,6 +211,10 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	G4double fVDCChamberHolderZ;
 
 	G4double fVDCDistance1; // dist from magnet center to center of first VDC
+
+  //New dimensions for Al sheet
+  G4double fAlThick;
+  G4double fGapThick;
 
   //New Data Constructed Wires for WirePlane
   static const G4int fWireNum = 200;
