@@ -341,20 +341,25 @@ OutputFile::WriteEvent()
 
 
 	// Detector data
-	event->D0.V.clear();
-	event->D1.V.clear();
+	event->D0.V0U.clear();
+	event->D0.V0V.clear();
+	event->D0.V1U.clear();
+	event->D0.V1V.clear();
+	event->D1.V0U.clear();
+	event->D1.V0V.clear();
+	event->D1.V1U.clear();
+	event->D1.V1V.clear();	
 	event->D0.P.clear();
 	event->D1.P.clear();
 	event->HKE1.clear();
 	event->HKE0.clear();
 	for(G4int i = 0; i < 2; i++)
 		{
-		if(fdetector_package[i])
-			{
-			  Detector detector;
+		  /*
+		  if(fdetector_package[i])
+		    {
+		      Detector detector;
 			  //fprintf(fd,"Detector: %d\n",i);//if (i==0) to detector0
-
-
 
 			  //VDC data
 			  VDC dc;
@@ -388,8 +393,37 @@ OutputFile::WriteEvent()
 			  if(i==0) {event->D0.V.push_back(dc);}
 			  else {event->D1.V.push_back(dc);}
 			}
-
-
+			  */
+		  //Wire Hit data
+		  //cerr << "Event Number" << event->ENum << endl;
+		  if(fdetector_package[i]){
+		    for(G4int j = 0; j < 2; j++)
+		      for(G4int k = 0; k < 2; k++){
+			for(G4int l = 0; l < Get_NumHit_f(i,j,k); l++){
+			  OutputWire OutWire = Get_Wire_f(i,j,k,l);
+			  Wire Wire;
+			  // Wire hit data for a single hit wire.
+			  Wire.WireNum = (Int_t)OutWire.Get_WireNum_f();
+			  Wire.X = (Float_t)(OutWire.Get_X_f()/cm);
+			  Wire.Y = (Float_t)(OutWire.Get_Y_f()/cm);
+			  Wire.KE = (Float_t)(OutWire.Get_KE_f()/MeV);
+			  Wire.Edep = (Float_t)(OutWire.Get_Edep_f()/MeV);
+			  Wire.ToF = (Float_t)(OutWire.Get_ToF_f()/ns);
+			  Wire.Charge = (Float_t)OutWire.Get_Charge_f();
+			  Wire.Particle = (Int_t)OutWire.Get_Particle_f();
+			  //cerr << "[" << i << "][" << j << "][" << k << "] have " << Get_NumHit_f(i,j,k) << " hits." << endl;
+			  
+			  // Assign wire to corresponding wireplane in root file
+			  if( i == 0 && j == 0 && k == 0)event->D0.V0U.push_back(Wire);
+			  else if( i == 0 && j == 0 && k == 1)  event->D0.V0V.push_back(Wire);
+			  else if( i == 0 && j == 1 && k == 0)  event->D0.V1U.push_back(Wire);
+			  else if( i == 0 && j == 1 && k == 1)  event->D0.V1V.push_back(Wire);
+			  else if( i == 1 && j == 0 && k == 0)  event->D1.V0U.push_back(Wire);
+			  else if( i == 1 && j == 0 && k == 1)  event->D1.V0V.push_back(Wire);
+			  else if( i == 1 && j == 1 && k == 0)  event->D1.V1U.push_back(Wire);
+			  else if( i == 1 && j == 0 && k == 1)  event->D1.V1V.push_back(Wire);
+			  }
+		      }}
 
 		// Hodoscope data
 			if(fHod_hit[i])
@@ -420,16 +454,17 @@ OutputFile::WriteEvent()
 					  //fprintf(fd,"\n");
 					  if(i==0) event->D0.P.push_back(paddle);
 					  else event->D1.P.push_back(paddle);
-					  //else D1->P->push_back(paddle);
 					}
 				}
 			   }
 		}
+
+			//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
+			//foutput_lines++;
+			tree->Fill();
+	}
 	
-	//G4cout << "OutputFile::WriteEvent(): done." << G4endl;
-	//foutput_lines++;
-	tree->Fill();
-     	}
+
 
 void
 OutputFile::WriteComment(G4String line)

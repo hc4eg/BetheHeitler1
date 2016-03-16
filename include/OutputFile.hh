@@ -44,18 +44,15 @@ struct Input{
     Y = I->Y; Theta = I->Theta; Phi = I->Phi;};
 };
 
-struct VDC{
+struct Wire{
+  Int_t   WireNum;
   Float_t X;
   Float_t Y;
-  Float_t Theta;
-  Float_t Phi;
-  Float_t E0u;
-  Float_t E0v;
-  Float_t E1u;
-  Float_t E1v;
+  Float_t Edep;
   Float_t KE;
   Float_t ToF;
   Float_t Charge;
+  Int_t   Particle;
 };
 
 struct Paddle{
@@ -67,12 +64,13 @@ struct Paddle{
 };
 
 struct Detector{
-  vector<VDC> V;
+  //vector<Wire> V;
+  // Now assign 4 wireplanes on each side detector.
+  vector<Wire> V0U, V0V, V1U, V1V;
   vector<Paddle> P;
 };
 
 class BH_Event : public TObject{
-//class BH_Event{
 public:
   Int_t ENum;
   Monitor M0;
@@ -87,6 +85,44 @@ public:
   private:
     ClassDef(BH_Event,1)
 };
+
+class OutputWire{
+public:
+  inline void Clear_Wire () {
+    WireNum = 0;
+    X = 0.;
+    Y = 0.;
+    Edep = 0.;
+    KE = 0.;
+    ToF = 0.;
+    Charge = 0.;
+    Particle = 0;
+  };
+  inline void Set_WireNum_f (G4int val) { WireNum = val; };
+  inline void Set_X_f (G4double val) { X = val; };
+  inline void Set_Y_f (G4double val) { Y = val; };
+  inline void Set_Edep_f (G4double val) { Edep = val; };
+  inline void Set_KE_f (G4double val) { KE = val; };
+  inline void Set_ToF_f (G4double val) { ToF = val; };
+  inline void Set_Charge_f (G4double val) { Charge = val; };
+  inline void Set_Particle_f (G4int val) { Particle = val; };
+  G4int Get_WireNum_f() { return WireNum; };
+  G4double Get_X_f() { return X;};
+  G4double Get_Y_f() { return Y;};
+  G4double Get_Edep_f() { return Edep;};
+  G4double Get_KE_f() { return KE;};
+  G4double Get_ToF_f() { return ToF;};
+  G4double Get_Charge_f() { return Charge;};
+  G4int Get_Particle_f() { return Particle;};
+
+private:
+  G4int WireNum;
+  G4double Edep;
+  G4double X,Y;
+  G4double KE, ToF, Charge;
+  G4int Particle;
+};
+
 
 class OutputFile {
 	public:
@@ -111,16 +147,56 @@ class OutputFile {
         inline void Set_phi_i(G4int n,G4double val) {fphi_i[n] = val;};
   //vdc
 	inline void Set_detector_package(G4int i, G4bool val) {fdetector_package[i] = val;};
-	inline void Set_x_f(G4int i, G4double val) {fx_f[i] = val;};
+	/*	inline void Set_x_f(G4int i, G4double val) {fx_f[i] = val;};
 	inline void Set_y_f(G4int i, G4double val) {fy_f[i] = val;};
-	inline void Set_theta_f(G4int i, G4double val) {ftheta_f[i] = val;};
-	inline void Set_phi_f(G4int i, G4double val) {fphi_f[i] = val;};
+  //inline void Set_theta_f(G4int i, G4double val) {ftheta_f[i] = val;};
+  //inline void Set_phi_f(G4int i, G4double val) {fphi_f[i] = val;};
 
         inline void Set_KE_f(G4int i, G4double val) {fKE_f[i] = val;};
   inline void Set_ToF_f(G4int i, G4double val) { fToF_f[i] = val;};
   inline void Set_Charge_f(G4int i, G4double val) {fCharge_f[i] = val;};
-        //Add edep for vdc
-        inline void Set_edep_f(G4int i, G4int j, G4int k, G4double val){fedep_f[i][j][k] = val;};
+  */
+
+  //Now introducing wires for each wireplane
+  // Before storing new data in fVDC_f, Clear_Wire is needed
+  /*
+  inline void Clear_Wire () {
+    fWireHit_f.WireNum = 0;
+    fWireHit_f.X = 0.;
+    fWireHit_f.Y = 0.;
+    fWireHit_f.Edep = 0.;
+    fWireHit_f.KE = 0.;
+    fWireHit_f.ToF = 0.;
+    fWireHit_f.Charge = 0.;
+    //fWireHit_f.Particle = 0;
+  };
+  inline void Set_WireNum_f (G4int WireNum) { fWireHit_f.WireNum = WireNum; };
+  inline void Set_X_f (G4double X) { fWireHit_f.X = X; };
+  inline void Set_Y_f (G4double Y) { fWireHit_f.Y = Y; };
+  inline void Set_Edep_f (G4double Edep) { fWireHit_f.Edep = Edep; };
+  inline void Set_KE_f (G4double KE) { fWireHit_f.KE = KE; };
+  inline void Set_ToF_f (G4double ToF) { fWireHit_f.ToF = ToF; };
+  inline void Set_Charge_f (G4double Charge) { fWireHit_f.Charge = Charge; };
+  //inline void Set_Particle_f (G4int Particle) { fWireHit_f.Particle = Particle; };
+  */
+
+  // Use fVDC_f objects to store temporary hit data extract from EventAction.cc on each of 4 wireplanes in a detector package
+  // Clear fVDC_f objects
+  inline void Clear_VDC_f(){
+    	  for(G4int i = 0; i < 2; i++)
+	    for(G4int j = 0; j < 2; j++)
+	      for(G4int k = 0; k < 2; k++)
+		fVDC_f[i][j][k].clear();}
+  
+  // Set a wire hit in fVDC_f, then move it to root file.
+  inline void Set_VDC_f (G4int i, G4int j, G4int k, OutputWire Wire) {fVDC_f[i][j][k].push_back(Wire);}
+
+  // Use Get_Wire_f to get Wire object from fVDC_f, used it to store data in root file 
+  inline OutputWire Get_Wire_f (G4int i, G4int j, G4int k, G4int l) { return fVDC_f[i][j][k].at(l); };
+  // Use this to get number of iteration when put fVDC_f[] data into root file
+  inline G4int Get_NumHit_f (G4int i, G4int j, G4int k) { return fVDC_f[i][j][k].size(); };
+
+
   //Paddle
 	inline void Set_pad_hit(G4int hod, G4int pad, G4bool val) { fPad_hit[hod][pad] = val;};
 	inline void Set_hod_hit(G4int hod, G4bool val) { fHod_hit[hod] = val;};
@@ -168,12 +244,21 @@ class OutputFile {
 	// input data
 	G4double fx_i[2], fy_i[2], ftheta_i[2], fphi_i[2];
 	G4double fenergy_i[2], fdelta_i[2];
-	// which detector package got a hit
+	
+
+  // which detector package got a hit
 	G4bool fdetector_package[2];
-	G4double fx_f[2], fy_f[2], ftheta_f[2], fphi_f[2];
+	/*       G4int  fWire_f;
+        G4double fx_f[2], fy_f[2];
         G4double fedep_f[2][2][2];
         G4double fKE_f[2], fToF_f[2], fCharge_f[2];
-        // which hodoscope and paddles got hit
+  */
+  // Newly defined data structure including wirehit
+  vector<OutputWire> fVDC_f[2][2][2];
+  //OutputWire fWireHit_f;
+
+
+  // which hodoscope and paddles got hit
 	G4bool fHod_hit[2];
 	G4bool fPad_hit[2][29];
 	G4double fPadEnergy[2][29];

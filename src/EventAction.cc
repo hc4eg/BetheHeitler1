@@ -395,8 +395,7 @@ if(use_monitor)
 	  //     SWH.at(1) KE = 0.6 MeV, with...
 
 
-	  //////////////////////////////////////////////////////////////////
-	  /*
+
 	  //If Edep of the wire is bigger than threshold:
 	  //Find out MAX KE hit for the wire and associate X, Y, ToF, Edep, Charge, particle type
 	  //Now check if total energy deposite > threshold for the wire:
@@ -444,8 +443,6 @@ if(use_monitor)
 		//Now put flag det_hit[i] into and fdetector_package[i], as a flag to write VDC hit data to root file in OutputFile.cc
 		pOutputFile->Set_detector_package(i, det_hit[i]);		
 	      }
-	  */
-	  ////////////////////////////////////////////////////////////////////////////
 	  // Till now the final data before they're put into root file in OutputFile.cc
 	  // The data vector<OutputWire> fVDC_f[package][chamber][layer]may look like:
 	  // at(0): WireNum = 100, Edep = 10keV, (X,Y) = (1,3),
@@ -760,9 +757,9 @@ if(use_monitor)
       */
       //If following lines are used, such data will be stored if at least one of the SD is hit.
       //if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
-      //if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
+      if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
 	//Below is cut closer to real experiment, only trigger data acquisition by scintillater signal
-	if(hod_hit[0] || hod_hit[1])
+	//if(hod_hit[0] || hod_hit[1])
 	{
 	  //cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
 	  cerr << hod_hit[0] << hod_hit[1] << endl;
