@@ -8,7 +8,8 @@
 #pragma link C++ class BH_Event+;
 #pragma link C++ class Input+;
 #pragma link C++ class Detector+;
-#pragma link C++ class Wire+;
+#pragma link C++ class VDC+;
+//#pragma link C++ class Wire+;
 #pragma link C++ class Paddle+;
 #pragma link C++ class Monitor+;
 

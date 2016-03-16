@@ -4,7 +4,11 @@
 #include "G4UnitsTable.hh"
 #include "Randomize.hh"
 #include <iomanip>
+#include "OutputFile.hh"
 
+class OutputWire;
+class SingleWireHit;
+class WireHit;
 #define PI 3.14159265
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -18,6 +22,7 @@ EventAction::EventAction(DetectorConstruction* det)
   fVDCSigma = 0.1*mm; //std. dev. of position resolution.
   fRequireHodoscopeHit = true;
   fPaddleThreshold = 20.*keV;
+  fWireThreshold = 0.2*keV;
 	// these may need to be adjusted
   fsigmaLightStatistical = 77.0*keV;
   fsigmaLightNoise = 5.0*keV;
@@ -148,57 +153,324 @@ if(use_monitor)
   //G4cout << " Event " << event_number << ": Number of chamber hits = " << totalHits  << G4endl;//debug
   
   WireChamberHit * aHit;
-  G4ThreeVector position[2][2][2]; // position on [package][chamber][layer]
-  G4double energyTotal[2][2][2];
+  // Temporary hit data
+  vector<G4ThreeVector> position[2][2][2]; // position on [package][chamber][layer] and wire
+  vector<G4double> energyTotal[2][2][2];
+  //(unique) hit wire number in this event
+  vector<G4int> WireNum[2][2][2];
+  vector<G4double> kineticenergy[2][2][2];
+  vector<G4double> charge[2][2][2];
+  //vector<G4double> particle[2][2][2];
+  vector<G4double> VDC_time[2][2][2];
   //vector<G4double> kineticenergy[2]; 
   //vector<G4double> KEavg[2];
   //G4int KENum[2];
+  vector<WireHit> VDCWireHit[2][2][2];
+  
+  // Number of hits for each hit wire in this event:
+  vector<G4int> WireHitCount[2][2][2];
+  // Temporary: position of each step
+  G4ThreeVector pos;  
+  // Temporary: Number of steps in a wire hit
   G4int Num[2][2][2];
-  G4double kineticenergy[2];
-  G4double charge[2];
-  G4String particle[2];
-  G4double VDC_time[2];
-  G4ThreeVector pos;
-  
+
+  // Initialize all data needed to be stored
   for(G4int i = 0; i < 2; i++)
-  for(G4int j = 0; j < 2; j++)
-  for(G4int k = 0; k < 2; k++)
-    { position[i][j][k] = G4ThreeVector(0.,0.,0.); energyTotal[i][j][k] = 0.; 
-      //kineticenergy[i].clear(); KENum[i] = 0; 
-      Num[i][j][k] = 0;
-      //KEavg[i].clear();
-      kineticenergy[i] = 0.;
-      charge[i] = 0.;
-      VDC_time[i] = 0;
-    }
+    for(G4int j = 0; j < 2; j++)
+      for(G4int k = 0; k < 2; k++) {
+	position[i][j][k].clear();
+	energyTotal[i][j][k].clear();
+	WireNum[i][j][k].clear();
+	kineticenergy[i][j][k].clear();
+	charge[i][j][k].clear();
+	//particle[i][j][k].clear();
+	VDC_time[i][j][k].clear();
+	WireHitCount[i][j][k].clear();
+	//VDCWireHit[i][j][k].clear();
+      }
   
+  //Find out how many individual wires hit on each wire plane in this event:
+  vector<G4int> wirehit[2][2][2];
+  for(G4int jj = 0; jj < totalHits; jj++){
+    aHit = (*chamberHC)[jj];
+    G4int wire = aHit->GetVDCwire();
+    G4int chamber = aHit->GetVDCnumber();
+    G4int layer = aHit->GetVDClayer();
+    G4int package = aHit->GetVDCpackage();
+
+    //Attempt to generate wirehit object with unique hit wire number
+    /*
+    if(wirehit[package][chamber][layer].size() == 0) wirehit[package][chamber][layer].push_back(wire);
+    else{
+    
+      for(unsigned int i = 0; i < wirehit[package][chamber][layer].size(); i++){
+	G4int Temp = wirehit[package][chamber][layer].at(i);
+	if( wire == Temp ) continue;
+	else { if(i == (wirehit[package][chamber][layer].size()-1)) wirehit[package][chamber][layer].push_back(wire);
+	  else continue;}
+	  }}*/
+    wirehit[package][chamber][layer].push_back(wire);
+  }
+  //Till now for a certain [package][chamber][layer] each vector element of wirehit will look like:
+  // 100, 50, 51, 51, 51, 50
+
+
+
+
+  // Sort wirehit[i][j][k] in decrement order:
+  for(G4int i = 0; i < 2; i++)
+      for(G4int j = 0; j < 2; j++)
+	for(G4int k = 0; k < 2; k++){
+	  if(wirehit[i][j][k].size() >= 2){
+	  for(unsigned int l = 1; l < wirehit[i][j][k].size(); l++){
+	    for(unsigned int m = 0; m < l; m++){ 
+	      G4int TEMP =  wirehit[i][j][k].at(l); 
+	      if( wirehit[i][j][k].at(m) < wirehit[i][j][k].at(l)){ 
+		wirehit[i][j][k].at(l) =  wirehit[i][j][k].at(m);
+		wirehit[i][j][k].at(m) =  TEMP;}
+	    }}}
+	}
+
+  /*// Print out number of hits on each wire plane:
+  for(G4int i = 0; i < 2; i++)
+    for(G4int j = 0; j < 2; j++)
+      for(G4int k = 0; k < 2; k++){
+	cerr << "Detector[" << i << "] Chamber[" << j << "] Layer[" << k << "] has " << wirehit[i][j][k].size() << " hits" << endl;
+	for (unsigned int l = 0; l < wirehit[i][j][k].size(); l++)
+	  cerr << "    Wire number " << wirehit[i][j][k].at(l) << " hit." << endl;
+	  }*/
+  //Till now the reordered wirehit for the [package][chamber][layer] will look like:
+  //100, 51, 51, 51, 50, 50
+
+
+
+
+
+
+  //Find unique hit wire numbers, and associate number of hits in the wire
+  for(G4int i = 0; i < 2; i++)
+    for(G4int j = 0; j < 2; j++)
+      for(G4int k = 0; k < 2; k++){
+	//Find number of same hit wire number, store this number as number of hits in the wire, 
+	//and store wire number in WireNum object
+	while(wirehit[i][j][k].size() != 0){
+	  // Find same hit wire number, count it and associate number of hits in the wire.
+	  unsigned int Count = 0;
+	  // Store the unique distinct hit wire number.
+	  WireNum[i][j][k].push_back(wirehit[i][j][k].at(0));
+	  // Find how many hits in this wire, store it in WireHitCount
+	  for(unsigned int l = 0; l < wirehit[i][j][k].size(); l++){
+	    G4int TEMP = wirehit[i][j][k].at(0);
+	      if(wirehit[i][j][k].at(l) == TEMP) Count++;
+	      else break;}
+	  WireHitCount[i][j][k].push_back(Count);
+
+	  // Remove these hit wire numbers in wirehit object, till it's empty
+	  for(unsigned int l = Count; l < wirehit[i][j][k].size(); l++){
+	    wirehit[i][j][k].at(l-Count) =  wirehit[i][j][k].at(l);}
+	  for(unsigned int l = 0; l < Count; l++){ wirehit[i][j][k].pop_back(); }}
+      }
+
+   //Print WireNum and WireHitCount:
+  for(G4int i = 0; i < 2; i++)
+    for(G4int j = 0; j < 2; j++)
+      for(G4int k = 0; k < 2; k++){
+	cerr << "VDClayer: ["<<i<<"]["<<j<<"]["<<k<<"]" << endl;
+	for(unsigned int l = 0; l < WireNum[i][j][k].size(); l++)
+	  {cerr <<
+	      " Wire [" << WireNum[i][j][k].at(l) <<"] hit, and number of hits is: " 
+		<< WireHitCount[i][j][k].at(l) <<"." << endl;
+	  }}
+  //Till now, for the [package][chamber][layer],
+  //WireNum[package][chamber][layer].at(0), at(1), at(2) will be: 100, 51, 50
+  //Corresponding WireHitCount[package][chamber][layer].at(0), at(1), at(2) will be: 1,3,2
+
+
+
+
+
+
+
+  //Set WireHit object has same number of entries as WireNum for SWH
+  cerr << "VDCWireHit object:" << endl;  
+  for(G4int i = 0; i < 2; i++)
+    for(G4int j = 0; j < 2; j++)
+      for(G4int k = 0; k < 2; k++){
+	VDCWireHit[i][j][k].clear();
+	for(unsigned int l = 0; l < WireNum[i][j][k].size(); l++){
+	  WireHit NullWire;
+	  NullWire.Set_WireNum(-1);
+	  NullWire.Set_Edep(0.);
+	  NullWire.Set_Position(G4ThreeVector(0.,0.,0.));
+	  VDCWireHit[i][j][k].push_back(NullWire);
+	}
+	cerr << "[" << i << "][" << j << "][" << k << "] have "<< VDCWireHit[i][j][k].size() << " different hit wire" << endl;
+      }
+  // Till now VDCWireHit[package][chamber][layer].at(0),(1),(2) will be NullWire (a WireHit object, store hit data for a single wire):
+  // 3 elements for the vector here since 3 individual wire hit(Num 100, 51, 50 )
+  // NullWire.WireNum = -1 (since the WireNum indexing is from 0 to MaxWireNum-1, so -1 means WireNum not valid)
+  // NullWire.Edep = 0.; (will store total Edep in the wire)
+  // NullWire.Position = (0.,0.,0); (will store avg. hit position of all hitcollection steps in the wire)
+  // NullWire.SWH (vector<SingleWireHit> object), will be empty (will store all individual hitcollection steps in a certain wire)
+  // In a SingleWireHit will have following data: KE, ToF, Particle(PDGEncoding) , Charge
+
+
+
+
+  // Iterate of each hit in hit collection and then hit wires, from 0 to WireHitCount - 1 of the hit wire. 
+  // Store following data in each non-empty WireHit type object in VDCWireHit[package][chamber][layer]:
   for(G4int jj = 0; jj < totalHits; jj++) //for all hits
 	{
 	  aHit = (*chamberHC)[jj];
 	  //	aHit->Print();
+	  // Get all indexing (copy number) of wire, layer, chamber, and package
+	  G4int wire = aHit->GetVDCwire();
 	  G4int chamber = aHit->GetVDCnumber();
 	  G4int layer = aHit->GetVDClayer();
 	  G4int package = aHit->GetVDCpackage();
+	  // edep from each step
 	  G4double edep = aHit->GetEdep();
-	  //G4double KE[2] = {0.,0.};
+	  // Time of Flight, KineticEnergy, Charge, Particle Type and Position of the step
+	  G4double time = aHit->GetTime();
+	  G4double KE = aHit->GetKE();
+	  G4double Charge = aHit->GetCharge();
+	  G4int Particle = aHit->GetParticle();
+	  G4ThreeVector pos = ( aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
+	  
+	  // Compare hit wire number, pacakge, chamber, layer, and
+	  // store associate  WireNumber, Position, Edep, Kineticenergy, Charge, ToF in VDCWireHit[package][chamber][layer]
+	  for (unsigned int i = 0; i < WireNum[package][chamber][layer].size(); i++){
+	    // Compare WireNum from this hit collection step to data in WireNum[package][chamber][layer].at()
+	    // Till now at(0),(1),(2) are 100, 51, 50 respectively
+	    if(wire ==  WireNum[package][chamber][layer].at(i)){
+	      // Store WireNum the same index as WireNum[package][chamber][layer]
+	      VDCWireHit[package][chamber][layer].at(i).WireNum = wire;
+	      // Add edep from the step to total Edep for the wire
+	      VDCWireHit[package][chamber][layer].at(i).Edep += edep;
+	      // Add avg portion of Position of the step for the wire
+	      VDCWireHit[package][chamber][layer].at(i).Position += pos/(WireHitCount[package][chamber][layer].at(i));
 
-	  //Find out Time of Flight and associate KE of 1st hit in time in VDC SD
-	  G4double now = aHit->GetTime();	  
-	  for (G4int n = 0; n < 2 ; n ++){
-	    if (layer == 0 && chamber == 0 && package == n){
-	      if(VDC_time[package] == 0. || VDC_time[package] > now)
-		{ VDC_time[package] = now;  
-		  kineticenergy[package] = aHit->GetKE(); 
-		  particle[package] = aHit->GetParticle();
-		  charge[package] = aHit->GetCharge();
-		}
-		}}
+	      cerr << "Layer [" << package << "][" << chamber << "][" << layer << "]"; cerr<< "Wire " << wire << " hit. ";
+	      cerr<< "Edep = "  << VDCWireHit[package][chamber][layer].at(i).Edep << endl;
+	      
+	      {
+		// The KE, ToF, Charge, Particle info will be stored as a SingleWireHit object as a vector element of the wire
+		// Thus when MAX KE is found, coresponding ToF, Charge, Particle of the hitcollection step can be found easily.
+		SingleWireHit SingleHit;
+		SingleHit.Set_KE(KE);
+		SingleHit.Set_ToF(time);
+		SingleHit.Set_Charge(Charge);
+		SingleHit.Set_Particle(Particle);
+		VDCWireHit[package][chamber][layer].at(i).SWH.push_back(SingleHit);}
+	      break;
+	    }} 
+	}
 
+  //Print WireHit objects:
+	  for(G4int i = 0; i < 2; i++)
+	    for(G4int j = 0; j < 2; j++)
+	      for(G4int k = 0; k < 2; k++){
+		for(unsigned int l = 0; l < VDCWireHit[i][j][k].size(); l++){
+		  cerr << "Wire[" << i << "][" << j << "][" << k <<"] number [" << VDCWireHit[i][j][k].at(l).WireNum <<"]:"<<endl;
+		  cerr << "Total Edep:" << VDCWireHit[i][j][k].at(l).Edep << "." << endl;
+		  for(unsigned int m = 0; m < VDCWireHit[i][j][k].at(l).SWH.size(); m++){
+		    cerr << "The " << m <<"th hit has KE: " << VDCWireHit[i][j][k].at(l).SWH.at(m).Get_KE()
+			 << ". ToF: " << VDCWireHit[i][j][k].at(l).SWH.at(m).Get_ToF()
+			 << ". Charge: " << VDCWireHit[i][j][k].at(l).SWH.at(m).Get_Charge()
+			 << "." << endl;}}
+	      }
+	  //Till Now the VDCWireHit[package][chamber][layer] may look like:
+	  // VDCWireHit[package][chamber][layer] (vector of WireHit objects) have:
+	  
+	  // at(0): WireNum = 100, Edep = 10keV, Position = (1,2,3), 
+	  // and SWH.at(0) have KE = 40 (MeV), with cooresponding ToF, Charge, Particle.
+	   
+	  // at(1): WireNum = 51, Edep = 4+3.5+2 = 9.5keV, Position = (()+()+())/3 .
+	  // and SWH.at(0) KE = 0.6 MeV, with corresponding ToF, Charge, Particle
+	  //     SWH.at(1) KE = 0.8 MeV, with....
+	  //     SWH.at(2) KE = 0.75 MeV, with...
+	  
+	  // at(2): WireNum = 50, Edep = 3+ 4 = 7 keV, Position = (()+())/2 .
+	  // and SWH.at(0) KE = 0.5 MeV, with coresponding ToF, Charge, Particle
+	  //     SWH.at(1) KE = 0.6 MeV, with...
+
+
+	  //////////////////////////////////////////////////////////////////
+	  /*
+	  //If Edep of the wire is bigger than threshold:
+	  //Find out MAX KE hit for the wire and associate X, Y, ToF, Edep, Charge, particle type
+	  //Now check if total energy deposite > threshold for the wire:
+	  //if is, find out largest KE of the hit, and move data to pOutputFile
+	  G4bool det_hit[2] = {false, false};
+	  // clear fVDC_f[i][j][k] objects before storing data:
+	  pOutputFile->Clear_VDC_f();
+	  for(G4int i = 0; i < 2; i++)
+	    for(G4int j = 0; j < 2; j++)
+	      for(G4int k = 0; k < 2; k++){
+		for(unsigned int l = 0; l < VDCWireHit[i][j][k].size(); l++){
+		  
+		  
+		  // Only when the wire edep exceed threshold (Now 0.2keV), data will be stored
+		  if( VDCWireHit[i][j][k].at(l).Edep > fWireThreshold){
+		    det_hit[i] = true;
+
+		    
+		    //Find out highest KE at Wire VDCWireHit[i][j][k].at(l), and its index
+		    G4double TEMPKE = 0.;
+		    G4int TEMP = -1, TEMPPart = 0;
+		    for(unsigned int m = 0; m < VDCWireHit[i][j][k].at(l).SWH.size(); m++){
+		      if (VDCWireHit[i][j][k].at(l).SWH.at(m).Get_KE() > TEMPKE){
+			TEMPKE = VDCWireHit[i][j][k].at(l).SWH.at(m).Get_KE();
+			TEMP = m;
+		      }}
+
+		    //Put highest KE and related data into fVDC_f in output.
+		      OutputWire TEMPWire;
+		      TEMPWire.Set_WireNum_f(VDCWireHit[i][j][k].at(l).WireNum);
+		      TEMPWire.Set_X_f(VDCWireHit[i][j][k].at(l).Position.getX());
+		      TEMPWire.Set_Y_f(VDCWireHit[i][j][k].at(l).Position.getZ());
+		      TEMPWire.Set_Edep_f(VDCWireHit[i][j][k].at(l).Edep);
+		      TEMPWire.Set_KE_f(TEMPKE);
+		      TEMPWire.Set_ToF_f(VDCWireHit[i][j][k].at(l).SWH.at(TEMP).Get_ToF());
+		      TEMPWire.Set_Charge_f(VDCWireHit[i][j][k].at(l).SWH.at(TEMP).Get_Charge());
+		      TEMPWire.Set_Particle_f(VDCWireHit[i][j][k].at(l).SWH.at(TEMP).Get_Particle());
+
+		      // A particle check condition to store data if needed.
+		      TEMPPart = VDCWireHit[i][j][k].at(l).SWH.at(TEMP).Get_Particle();
+		      // Store data of each wire in fVDC_f[i][j][k] object when e+ at left, or e- at right
+		      //if((i == 0 && TEMPPart == -11) || (i == 1 && TEMPPart == 11))
+		      pOutputFile->Set_VDC_f(i,j,k,TEMPWire);
+		  }}
+		//Now put flag det_hit[i] into and fdetector_package[i], as a flag to write VDC hit data to root file in OutputFile.cc
+		pOutputFile->Set_detector_package(i, det_hit[i]);		
+	      }
+	  */
+	  ////////////////////////////////////////////////////////////////////////////
+	  // Till now the final data before they're put into root file in OutputFile.cc
+	  // The data vector<OutputWire> fVDC_f[package][chamber][layer]may look like:
+	  // at(0): WireNum = 100, Edep = 10keV, (X,Y) = (1,3),
+	  // KE = 40 (MeV), with cooresponding ToF, Charge, Particle.
+	   
+	  // at(1): WireNum = 51, Edep = 4+3.5+2 = 9.5keV, (X,Y) = (()+()+())/3 .
+	  // KE = 0.8 MeV, with corresponding ToF, Charge, Particle
+	  // 2 lower KE steps data are discarded
+	  
+	  // at(2): WireNum = 50, Edep = 3+ 4 = 7 keV, (X,Y) = (()+())/2 .
+	  // KE = 0.6 MeV, with coresponding ToF, Charge, Particle
+	  // 1 lower KE step data is discarded
+
+	  // If there is a wire with total Edep less than 0.2 keV, it will not be stored in fVDC_f.
+
+
+
+
+	  // Below: old code without wires in wireplane
+	    /*
 	  if(edep > 0.)
 	  {
 	    // Storing edep for each wireplane
 	    energyTotal[package][chamber][layer] += edep;
-	    pos = (aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
+	    pos = ( aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
 	    // Storing number of hit for each wireplane
 	    Num[package][chamber][layer] ++;
 	    // Edep weighted sum of position
@@ -206,77 +478,29 @@ if(use_monitor)
 	    // Sum of position
 	    position[package][chamber][layer] += pos;
 	    
-	    /*
+	    //////////////////////////*
 	    // Storing KE at each step in hit collection of 1st wireplane in each side
 	    if(layer == 0 && chamber== 0 && aHit->GetKE() > 0.){
 	      kineticenergy[package].push_back(aHit->GetKE());
-	      KENum[package] ++;}*/
+	      KENum[package] ++;} 
+	    ////////////////////////////////////////////////
 	  }
 	  else kineticenergy[package] = 0.;
 	}
 
-  /*
-	//sort kineticenergy in decrement order:
+  
+	//Sort kineticenergy in decrement order in each hit wire. While find out the associate ToF, Charge, Particle.
 	for (G4int m = 0; m < 2; m++)
 	  for (unsigned n = 0; n < kineticenergy[m].size(); n++)
 	    for (unsigned l = n; l < kineticenergy[m].size() ; l++ ){
 	      if(kineticenergy[m].at(l) > kineticenergy[m].at(n) )
 		{ G4double Temp; Temp = kineticenergy[m].at(l); kineticenergy[m].at(l) = kineticenergy[m].at(n); kineticenergy[m].at(n) = Temp;}
 	    }
-  */ 
+*/
+
 
 	/*
-	//find out the largest group of kineticenergy, epsilon = 0.5*MeV
-	for (G4int m = 0; m < 2; m++){
-	  G4double avg = 0., epsilon = 0.5*MeV, num = 0.;
-	  
-	  if ( kineticenergy[m].size() > 0){
-	    avg = kineticenergy[m].at(0), num = 0.;
-	    if ( kineticenergy[m].size() > 1){
-	      for(unsigned n = 1; n < kineticenergy[m].size() ; n++){
-		if ( abs( kineticenergy[m].at(n) - avg ) < epsilon ){num ++;avg = ( avg * num + kineticenergy[m].at(n) )/( num + 1.0 );}}}}
-	  
-	  KEavg[m] = avg;
-	  if ( m == 1 && KEavg[1] != 0.) cerr << "D1.V.KE is " << KEavg[1] << " Step Count " << num+1 << ". Out of " << kineticenergy[1].size() << endl; 
-	}
-	*/
-	
-	/*
-	//Sort kineticenergy in each detector in groups, every energy difference in members of group < epsilon = 0.5MeV. Keep avg KE for each group.
-	//Group avg KEs are stored in decreasing order
-	for (G4int m = 0; m < 2; m++){
-	  
-	  G4int l = 0;
-	  cerr << "D" << m << ".V's total KE counts is " << kineticenergy[m].size() << endl;
-	  while ( kineticenergy[m].size() > 0 ){
-	    
-	    G4double avg = 0., epsilon = 0.5*MeV, num = 0.; 
-	    
-	    for( unsigned n = 0; n < kineticenergy[m].size(); n++){
-	      if ( kineticenergy[m].at(n) > (kineticenergy[m].at(0) - epsilon) ) num ++;
-	      else break;}
-	    
-	    for (G4int n = 0; n < num; n++)
-	      avg += kineticenergy[m].at(n);
-	    
-	    avg /= num;
-	    KEavg[m].push_back(avg);
-	    
-	    if (kineticenergy[m].size() > num){
-	      for ( unsigned n = num; n < kineticenergy[m].size(); n++) kineticenergy[m].at(n-num) = kineticenergy[m].at(n);}
-
-	    for (unsigned n = 0; n < num; n++) kineticenergy[m].pop_back();
-
-	    cerr <<"D" << m <<  ".V's group energy is " << KEavg[m].at(l) << " MeV. With " << num << " counts." << endl;
-	    l++;
-	  }
-	  
-	}
-	*/
-
-
-
-
+	// Storing data in OutPutFile object
   G4bool det_hit[2];
   for(G4int i = 0; i < 2; i++)
 	{
@@ -286,7 +510,7 @@ if(use_monitor)
   	for(G4int k = 0; k < 2; k++)
 	  {
 	    //change following line to deal with vacuum setting.
-	    if(energyTotal[i][j][k] < 0.2*keV)
+	    if(energyTotal[i][j][k] < fWireThreshold)
 	    //if (kineticenergy[i]/KENum[i] < 2.0*MeV)
 	    //if (position[i][j][k].getX() == 0. && position[i][j][k].getY() == 0. && position[i][j][k].getZ() == 0.)
 	      { det_hit[i] = false;}
@@ -295,7 +519,7 @@ if(use_monitor)
 		// Storing largest group KEavg
 		//if( KEavg[i].size() > 0 && KEavg[i].at(0) >= 2.*MeV)  pOutputFile->Set_KE_f(i,KEavg[i].at(0));
 		    
-		    if(energyTotal[i][j][k] > 0.2*keV){
+		    if(energyTotal[i][j][k] > fWireThreshold){
 		      
 		      if ( kineticenergy[i] > 0 && j == 0 && k ==0) {
 			pOutputFile->Set_KE_f(i, kineticenergy[i]); 
@@ -323,6 +547,7 @@ if(use_monitor)
 	      }	
 	  }
 	}
+	*/
 
   // ----------------- Hodoscope -----------------------
 
@@ -457,8 +682,14 @@ if(use_monitor)
 		}
 	}
 
+  
+
   // ----------------------------------------------------------
+  // VDC position, angle information
+  // Now since all 4 wire plane may have multiple wire hit data
+  // x,y in each wire plane now is ambiguous, temporary commented
   pOutputFile->Set_event_number(event_number);
+  /*
   for(G4int det = 0; det < 2; det++)
 	{
   	pOutputFile->Set_detector_package(det, det_hit[det]);
@@ -487,7 +718,7 @@ if(use_monitor)
 	  	//G4cout << "phi_out = " << phi_out/mrad << " mrad" << G4endl;
 		
 
-/*
+		///////////////////////////////////////
 
                 // new choose for data coordinate for output.
                 // theta and phi are angle between trajectory of electrons (positrons) and global coordinate system 
@@ -502,7 +733,7 @@ if(use_monitor)
 					 y_out = y_f;
 					 theta_out = theta_f;
 					 phi_out = phi_f;
-*/
+					 //////////////////////
 
 					 pOutputFile->Set_x_f(det, x_out);
 					 pOutputFile->Set_y_f(det, y_out);
@@ -510,7 +741,7 @@ if(use_monitor)
 					 pOutputFile->Set_phi_f(det, phi_out);
 					 
 		}
-	}
+	}*/
 
   
   // If we are using the monitor - always write event
@@ -529,9 +760,12 @@ if(use_monitor)
       */
       //If following lines are used, such data will be stored if at least one of the SD is hit.
       //if(det_hit[0] && hod_hit[0] && det_hit[1] && hod_hit[1])
-	if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
+      //if(det_hit[0] || hod_hit[0] || det_hit[1] || hod_hit[1])
+	//Below is cut closer to real experiment, only trigger data acquisition by scintillater signal
+	if(hod_hit[0] || hod_hit[1])
 	{
-	  cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
+	  //cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
+	  cerr << hod_hit[0] << hod_hit[1] << endl;
 	  pOutputFile->WriteEvent();
 	}
     }

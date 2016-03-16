@@ -18,6 +18,51 @@ using namespace std;
 
 #define NUMPADDLES 29
 
+// New class representing hit data of a single wire hit collection step used in EventAction.cc
+class SingleWireHit{
+public:
+  G4double Get_KE() {return KE;}
+  G4double Get_ToF() {return ToF;}
+  G4double Get_Charge() {return Charge;}
+  G4int    Get_Particle() {return Particle;}
+  void Clear() { KE = 0.; ToF = 0.; Charge = 0.;}
+  void Set_KE(G4double val) { KE = val;}
+  void Set_ToF(G4double val) { ToF = val;}
+  void Set_Charge(G4double val) { Charge = val;}
+  void Set_Particle(G4int val) { Particle = val;}
+private:
+  G4double KE;
+  G4double ToF;
+  G4int Particle;
+  G4double Charge;
+};
+
+// New class representing hit data of a single wire used in EventAction.cc
+class WireHit{
+public:
+  //G4double* Get_Edep() {return &Edep;}
+  //G4ThreeVector* Get_Position() {return &Position;}
+  
+  void Clear() { 
+    WireNum = -1; // The lowest indexed wire WireNum = 0;
+    Edep = 0.;
+    Position = G4ThreeVector(0.,0.,0.); 
+    //if(SWH.size()>0) SWH.clear();
+  }
+  
+  void Set_WireNum(G4int val) { WireNum = val;}
+  void Set_Edep(G4double val) { Edep = val;}
+  void Set_Position(G4ThreeVector val) { 
+    Position.setX(val.getX()); 
+    Position.setY(val.getY());
+    Position.setZ(val.getZ());}
+
+  //Temporary as public data for easy access.
+  vector<SingleWireHit> SWH;
+  G4int WireNum;
+  G4double Edep;
+  G4ThreeVector Position;
+};
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -42,9 +87,10 @@ private:
    G4double fVDCSigma; // std. dev. of position resolution
    G4bool fRequireHodoscopeHit;
    G4double fPaddleThreshold;
+  // New member, assigning threshold of energy deposite of VDC wires.
+   G4double fWireThreshold;
    G4double fsigmaLightStatistical;
    G4double fsigmaLightNoise;
-   
 
 };
 
