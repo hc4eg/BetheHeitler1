@@ -148,19 +148,20 @@ fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
 
 // Hodoscope
 fPaddleHeight = 35.*cm;
-//fPaddleWidth = 5.*cm;
+// Experiment set up.
+fPaddleWidth = 5.*cm;
 // Make front paddles almost in touch each other, same as rear paddles
 //fPaddleWidth = 7.80*cm;
 // Make front and rear paddles no overlap
-fPaddleWidth = 4.03*cm;
+//fPaddleWidth = 4.03*cm;
 fPaddleThick = 1.*cm;
 fNumPaddles = 29;
-//seems miscalculation of 118cm, should be 117cm
+//seems miscalculation of 118cm, should be 117cm, so front/back paddle overlaps will be 1.0 cm.
 //fHodoscopeWidth = 118.*cm;
 fHodoscopeWidth = 117.*cm;
-//fPaddleWrapThick = 1.0*mm;
-fPaddleWrapThick = 0.0*mm;
-fPaddleWrapThick = 0.0*mm;
+//Change fPadleWrapThick to 0.0*mm when checking paddle overlap (using fPaddleWidth different than 5cm)
+fPaddleWrapThick = 1.0*mm;
+//fPaddleWrapThick = 0.0*mm;
 fHodoscopeDistance = 185.*cm; // distance of Hodoscope centre from magnet centre
 fHodoscopeOffset = 0.*cm; // offset of Hodoscope forward (+ = beam direction)
 
@@ -707,12 +708,12 @@ void DetectorConstruction::SetMagField(G4LogicalVolume * logicalMag, G4double Bc
 
   //steppers: http://geant4.web.cern.ch/geant4/G4UsersDocuments/UsersGuides/ForApplicationDeveloper/html/Detector/electroMagneticField.html
 /*
-   fLocalStepper = new G4SimpleHeum( fEquation, nvar );         
+   fLocalStepper = new G4SimpleHeum( fEquation, nvar );
             //  3rd  order, a good alternative to ClassicalRK
-   fLocalStepper = new G4SimpleRunge( fEquation, nvar ); 
+   fLocalStepper = new G4SimpleRunge( fEquation, nvar );
             //  2nd  order, for less smooth fields
-   fLocalStepper = new G4CashKarpRKF45( fEquation );     
-            // 4/5th order for very smooth fields 
+   fLocalStepper = new G4CashKarpRKF45( fEquation );
+            // 4/5th order for very smooth fields
 */
 
   G4int nvar = 8; //12 for spin tracking, 8 if no spin tracking
@@ -871,8 +872,9 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
 
   // =================================================================================
 
-  //Below is Wrong Al frame dispalcement
-  
+  //Below is Wrong Al frame palcement
+  //Need to add thin Al layer in the front and back of the gas volumes rather than Al frame around gas volumes.
+
   //aluminum frame for a single VDC:
   /*
   G4double	al_layer_X = fVDCSideWidth;
@@ -983,10 +985,12 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   fWireX = (gas2X + gas2Z*tan(fWireAngle))/((G4double)fWireNum);
   
 
+  // Below is the geometry of wires as sensitive detector in wire plane: 
+  // places total fWireNum wires with fWireAngle to cover the whole wire plane using G4IntersectionSolid.
+  // It consists of finding a single wire dimensions, and finding the G4PVPlacements of all IntersectionSolid Logic volumes.
 
-  // Computing Wirelength for each wire and its center position
-  //G4ThreeVector WireCenter[fWireNum];
-  //dimensions for a single wire:
+
+  // Dimensions for a single wire: Wirelength, Width and Thickness for each wire
   fWireLength = fWireX*sin(fWireAngle)+gas2Z/cos(fWireAngle);
   fWireWidth = fWireX*cos(fWireAngle);
   fWireThick = gas2Y;
@@ -1001,34 +1005,56 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
    fLogicVDCsheet = new G4LogicalVolume( sheetBox, fChamberSheetMaterial, "Sheet");
    fLogicVDCgas1 = new G4LogicalVolume( gas1Box, fChamberGasMaterial, "Gas 1");
 
-   //Constructing wires in VDC wireplanes, maximum cover for the wire plane with no overlap with mother volume
-   //
+   // Constructing wires in VDC wireplanes, maximum cover for the wire plane with no overlap with mother volume
+   // fLogicVDCgas2 are the logic volumes containing all wires.
    fLogicVDCgas2[0] = new G4LogicalVolume( gas2Box, fChamberGasMaterial, "Gas SD Plane 0");
    fLogicVDCgas2[1] = new G4LogicalVolume( gas2Box, fChamberGasMaterial, "Gas SD Plane 1");
 
    //Construct Individual Wire in WirePlane
-   //Right Now only wires for 1st planes are constructed
    G4VSolid * fWire[fWireNum];
    G4VSolid * WirePlane = new G4Box("WirePlane Box", gas2X, gas2Y, gas2Z);
    G4VSolid * WireBox = new G4Box("Wire Box", fWireWidth, fWireThick, fWireLength);
    for(G4int i = 0; i < fWireNum; i++){
-     //Construct G4IntersectionSolid for individual wire, and put all wires into the wireplane 
+     // Construct G4IntersectionSolid for individual wire, and put all wires into the wireplane 
+     // Rotation RotWire makes all wires tilt fWireAngle in wireplane
      G4RotationMatrix RotWire;
      RotWire.rotateY(-fWireAngle);
+
+     // Using SWireNum on naming the indices of wires
      string SWireNum;
      ostringstream convert;
      convert << i;
      SWireNum = convert.str();
-     fWire[i] = new G4IntersectionSolid( "Wire Solid" + SWireNum , WirePlane, WireBox, 
+
+     // Intersection of wire (WireBox) and wireplane (WirePlane),
+     // Make 1st volume in constructor WirePlane, then the fWire[i] (IntersectionSolid) will use coordinate relative to WirePlane, which makes coordinate conversion easy.
+     // G4Transform3D here rotate then translate the WireBox relative to WirePlane. 
+     // Notice the translation places all wire along X axis in wireplane, and there will be no translation in G4PVPlacement below.
+     fWire[i] = new G4IntersectionSolid( "Wire Solid" + SWireNum , WirePlane, WireBox,
 				       G4Transform3D(RotWire, G4ThreeVector(-gas2X/2.-gas2Z*tan(fWireAngle)/2.+(i+0.5)*fWireX, 0., 0.)));
 
 
      // For the 1st (U) wireplane all wires placed inside VDCgas2[0]
      fLogicWireSD[i] = new G4LogicalVolume( fWire[i], fChamberGasMaterial, "Wire SD " + SWireNum);
+     // Copy number i makes seen in local and global coordinate system: wire indices increasing in X direction (Beam direction)
      new G4PVPlacement(0 ,G4ThreeVector(0., 0., 0.), fLogicWireSD[i], "Wire Phys " + SWireNum, fLogicVDCgas2[0], false, i);
 
+     // U WirePlane
+     // --------------------------------------------        Z
+     // |//////////////////////////////////////////|        ^
+     // |//////////////////////////////////////////|        |
+     // |//////////////////////////////////////////|        |
+     // |//////////////////////////////////////////|   X<----
+     // |//////////////////////////////////////////|   Lower right: Wire 0.
+     // |//////////////////////////////////////////|   Upper left: last wire.
+     // |//////////////////////////////////////////|   Plane center is local origin.
+     // |//////////////////////////////////////////|
+     // --------------------------------------------
+
+
+
      // For the 2nd (V) wireplane all wires placed inside VDCgas2[1], using the same fLogicWireSD,
-     // Note: it can be generated by rotate 180 along X-axis for fLogicVDCgas2[1] in fLogicVDCHolder volume
+     // Note: it will be correctly placed after rotating Logic Volume for wireplane fLogicVDCgas2[1] 180 degrees along X-axis in fLogicVDCHolder volume
      new G4PVPlacement(0 ,G4ThreeVector(0., 0., 0.), fLogicWireSD[i], "Wire Phys " + SWireNum, fLogicVDCgas2[1], false, i);
    }
    
@@ -1093,6 +1119,7 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   // gas 2 layer 0 SD
   position.setY(position.getY() - (sheetY/2. + gas2Y/2.) );
   //		   fPhysVDCGasSD[0] =
+  // U WirePlane
   new G4PVPlacement(0, position, fLogicVDCgas2[0], "VDC Gas SD 0",
   						fLogicVDCHolder, false, 0);
 
@@ -1105,7 +1132,7 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   // gas 2 layer 1 SD
   position.setY(position.getY() - (sheetY/2. + gas2Y/2.) );
   //		   fPhysVDCGasSD[1] =
-  // Rotate 180 deg along X-Axis to get wires aligning in +fWireAngle direction
+  // V WirePlane Rotate 180 deg along X-Axis to get wires aligning in +fWireAngle direction
   G4RotationMatrix RotSD;
   RotSD.rotateX(180.0*deg); 
   new G4PVPlacement(G4Transform3D(RotSD, position), fLogicVDCgas2[1], "VDC Gas SD 1",
