@@ -120,6 +120,9 @@ private:
   G4double Edep;
   G4double X,Y;
   G4double KE, ToF, Charge;
+  //PDGEncoding to specify particle type
+  //See pdg.lbl.gov/2007/reviews/montecarlorpp.pdf
+  //For reference: e+ -11, e- +11, gamma +22.
   G4int Particle;
 };
 
