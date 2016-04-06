@@ -202,30 +202,6 @@ OutputFile::WriteEvent()
 	  //Input data
 	  //After Input change to vector to store e-,e+ data for pair_mode
 	  if (out_pair_mode){
-	    
-	    /*
-		Input* In0;
-		In0->Energy = (Float_t)(fenergy_i[0]/MeV);  
-		In0->Delta = (Float_t)(fdelta_i[0]);
-		In0->X = (Float_t)(fx_i[0]/cm);
-		In0->Y = (Float_t)(fy_i[0]/cm);
-		In0->Theta = (Float_t)(ftheta_i[0]/mrad);
-		In0->Phi = (Float_t)(fphi_i[0]/mrad);
-		event->I0.SetInput(In0);
-
-		delete In0;
-
-		Input *In1;
-		In1->Energy = (Float_t)(fenergy_i[1]/MeV);  
-		In1->Delta = (Float_t)(fdelta_i[1]);
-		In1->X = (Float_t)(fx_i[1]/cm);
-		In1->Y = (Float_t)(fy_i[1]/cm);
-		In1->Theta = (Float_t)(ftheta_i[1]/mrad);
-		In1->Phi = (Float_t)(fphi_i[1]/mrad);
-		event->I1.SetInput(In1);
-
-		delete In1;
-	    */
 	        
 		event->I0.Energy = (Float_t)(fenergy_i[0]/MeV);  
 		event->I0.Delta = (Float_t)(fdelta_i[0]);
@@ -341,6 +317,7 @@ OutputFile::WriteEvent()
 
 
 	// Detector data
+	/*
 	event->D0.V0U.clear();
 	event->D0.V0V.clear();
 	event->D0.V1U.clear();
@@ -348,52 +325,21 @@ OutputFile::WriteEvent()
 	event->D1.V0U.clear();
 	event->D1.V0V.clear();
 	event->D1.V1U.clear();
-	event->D1.V1V.clear();	
+	event->D1.V1V.clear();*/
+	/*
+	for(G4int n = 0; n < 4; n++){
+	  event->D0.WP[n].clear();
+	  event->D1.WP[n].clear();}*/
+
+	event->D0.W.clear();
+	event->D1.W.clear();
 	event->D0.P.clear();
 	event->D1.P.clear();
 	event->HKE1.clear();
 	event->HKE0.clear();
 	for(G4int i = 0; i < 2; i++)
 		{
-		  /*
-		  if(fdetector_package[i])
-		    {
-		      Detector detector;
-			  //fprintf(fd,"Detector: %d\n",i);//if (i==0) to detector0
 
-			  //VDC data
-			  VDC dc;
-			  //fprintf(fd,"VDC:");
-			  //fprintf(fd," %13.4g",fx_f[i]/cm);
-			  dc.X = (Float_t)(fx_f[i]/cm);
-			  //fprintf(fd," %13.4g",fy_f[i]/cm);
-			  dc.Y = (Float_t)(fy_f[i]/cm);
-			  //fprintf(fd," %13.4g",ftheta_f[i]/mrad);
-			  dc.Theta = (Float_t)(ftheta_f[i]/mrad);
-			  //fprintf(fd," %13.4g",fphi_f[i]/mrad);  
-			  dc.Phi = (Float_t)(fphi_f[i]/mrad);
-			  dc.KE = (Float_t)(fKE_f[i]/MeV);
-			  dc.ToF = (Float_t)(fToF_f[i]/ns);
-			  dc.Charge = (Float_t)(fCharge_f[i]/eplus);
-
-			  for(G4int j = 0; j < 2; j++)
-			    for(G4int k = 0; k < 2; k++)
-			      {
-				if(j == 0 && k == 0)
-				  dc.E0u = (Float_t)(fedep_f[i][0][0]/MeV);
-				if(j == 0 && k == 1)
-				  dc.E0v = (Float_t)(fedep_f[i][0][1]/MeV);
-				if(j == 0 && k == 0)
-				  dc.E1u = (Float_t)(fedep_f[i][1][0]/MeV);
-				if(j == 0 && k == 0)
-				  dc.E1v = (Float_t)(fedep_f[i][1][1]/MeV);
-				
-			      }
-
-			  if(i==0) {event->D0.V.push_back(dc);}
-			  else {event->D1.V.push_back(dc);}
-			}
-			  */
 		  //Wire Hit data
 		  //cerr << "Event Number" << event->ENum << endl;
 		  if(fdetector_package[i]){
@@ -403,6 +349,7 @@ OutputFile::WriteEvent()
 			  OutputWire OutWire = Get_Wire_f(i,j,k,l);
 			  Wire Wire;
 			  // Wire hit data for a single hit wire.
+			  Wire.WirePlane = (Int_t)OutWire.Get_WirePlane_f();
 			  Wire.WireNum = (Int_t)OutWire.Get_WireNum_f();
 			  Wire.X = (Float_t)(OutWire.Get_X_f()/cm);
 			  Wire.Y = (Float_t)(OutWire.Get_Y_f()/cm);
@@ -413,6 +360,9 @@ OutputFile::WriteEvent()
 			  Wire.Particle = (Int_t)OutWire.Get_Particle_f();
 			  //cerr << "[" << i << "][" << j << "][" << k << "] have " << Get_NumHit_f(i,j,k) << " hits." << endl;
 			  
+			  //In order to use TTree::MakeClass() Method, change different naming
+			  //Of wireplane into wireplane array:
+			  /*
 			  // Assign wire to corresponding wireplane in root file
 			  if( i == 0 && j == 0 && k == 0)event->D0.V0U.push_back(Wire);
 			  else if( i == 0 && j == 0 && k == 1)  event->D0.V0V.push_back(Wire);
@@ -421,8 +371,22 @@ OutputFile::WriteEvent()
 			  else if( i == 1 && j == 0 && k == 0)  event->D1.V0U.push_back(Wire);
 			  else if( i == 1 && j == 0 && k == 1)  event->D1.V0V.push_back(Wire);
 			  else if( i == 1 && j == 1 && k == 0)  event->D1.V1U.push_back(Wire);
-			  else if( i == 1 && j == 0 && k == 1)  event->D1.V1V.push_back(Wire);
-			  }
+			  else if( i == 1 && j == 0 && k == 1)  event->D1.V1V.push_back(Wire);*/
+			  //It seems root file can't store and show in TBrowser with array of vector data structure
+			  /*
+			  if( i == 0 && j == 0 && k == 0)event->D0.WP[0].push_back(Wire);
+			  else if( i == 0 && j == 0 && k == 1)  event->D0.WP[1].push_back(Wire);
+			  else if( i == 0 && j == 1 && k == 0)  event->D0.WP[2].push_back(Wire);
+			  else if( i == 0 && j == 1 && k == 1)  event->D0.WP[3].push_back(Wire);
+			  else if( i == 1 && j == 0 && k == 0)  event->D1.WP[0].push_back(Wire);
+			  else if( i == 1 && j == 0 && k == 1)  event->D1.WP[1].push_back(Wire);
+			  else if( i == 1 && j == 1 && k == 0)  event->D1.WP[2].push_back(Wire);
+			  else if( i == 1 && j == 1 && k == 1)  event->D1.WP[3].push_back(Wire);*/
+			  
+			  //Assign WirePlane information inside hit wires now:
+			  if( i == 0) event->D0.W.push_back(Wire);
+			  else if( i == 1) event->D1.W.push_back(Wire);
+			}
 		      }}
 
 		// Hodoscope data

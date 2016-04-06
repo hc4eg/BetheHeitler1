@@ -299,7 +299,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 		    Phip = Phie + 180.0*deg;
 		  else if ( Phie >= 180.0*deg && Phie < 360.0*deg)
 		    Phip = Phie - 180.0*deg;
-		  
+	  
 		}while(Thetae > 20.0*deg || Thetap > 20.0*deg || Thetae < -20.0*deg || Thetap < -20.0*deg);
 
 	      }while (((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0 || Ee < Me);	      

@@ -608,12 +608,17 @@ fLogicMagnet->SetVisAttributes(G4VisAttributes::Invisible);
   ConstructChambers();
 
 // Now place two copies of the chamber package into the world
+
+  //Beam left chambers transforms
   G4RotationMatrix ChamberRot;
   ChamberRot.rotateX(45.*deg); //to angle the chamber at 45 deg
+  //fVDCDistance1: distance between center of magnet and center of 1st chamber
   G4double PositionY = fVDCDistance1 + sqrt(2.)*(fVDCChamberHolderY/2. - fVDCSizeY/2. - fBagThick/2.);
 
   // Placement of the holder volume within the world volume
   // Beam left (copy number 0)
+  // Note: 1. G4Transform3D, rotate object than frame.
+  //       2. Rotate 1st, then translate
 fPhysVDCpackage[0] = 0;
 fPhysVDCpackage[0] =  new G4PVPlacement( G4Transform3D(ChamberRot, G4ThreeVector(0.,PositionY,0.)),
 		    fLogicChamberHolder,

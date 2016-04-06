@@ -65,8 +65,6 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   // Skip this part if we are not going to output Monitor info
   G4bool use_monitor = pOutputFile->GetUseMonitor();
 
-  //G4bool mon_hit[2];
-
 if(use_monitor)
   {
   G4int MONID = G4SDManager::GetSDMpointer()->GetCollectionID("Monitor/MonitorHitCollection");
@@ -270,7 +268,7 @@ if(use_monitor)
 	    wirehit[i][j][k].at(l-Count) =  wirehit[i][j][k].at(l);}
 	  for(unsigned int l = 0; l < Count; l++){ wirehit[i][j][k].pop_back(); }}
       }
-
+  /*
    //Print WireNum and WireHitCount:
   for(G4int i = 0; i < 2; i++)
     for(G4int j = 0; j < 2; j++)
@@ -281,6 +279,7 @@ if(use_monitor)
 	      " Wire [" << WireNum[i][j][k].at(l) <<"] hit, and number of hits is: " 
 		<< WireHitCount[i][j][k].at(l) <<"." << endl;
 	  }}
+  */
   //Till now, for the [package][chamber][layer],
   //WireNum[package][chamber][layer].at(0), at(1), at(2) will be: 100, 51, 50
   //Corresponding WireHitCount[package][chamber][layer].at(0), at(1), at(2) will be: 1,3,2
@@ -366,6 +365,7 @@ if(use_monitor)
 	    }} 
 	}
 
+  /*
   //Print WireHit objects:
 	  for(G4int i = 0; i < 2; i++)
 	    for(G4int j = 0; j < 2; j++)
@@ -379,6 +379,7 @@ if(use_monitor)
 			 << ". Charge: " << VDCWireHit[i][j][k].at(l).SWH.at(m).Get_Charge()
 			 << "." << endl;}}
 	      }
+  */
 	  //Till Now the VDCWireHit[package][chamber][layer] may look like:
 	  // VDCWireHit[package][chamber][layer] (vector of WireHit objects) have:
 	  
@@ -424,10 +425,21 @@ if(use_monitor)
 		      }}
 
 		    //Put highest KE and related data into fVDC_f in output.
+		    //Found out in DetectorConstruction.cc: 
+		    //U WirePlane (layer copy number 0) is back WirePlane, V (layer copy number 1) is front WirePlane  
 		      OutputWire TEMPWire;
+		      // Here k denotes layer copy number
+		      if( j== 0 && k==0)TEMPWire.Set_WirePlane_f(1);
+		      else if( j==0 && k==1)TEMPWire.Set_WirePlane_f(0);
+		      else if( j==1 && k==0)TEMPWire.Set_WirePlane_f(3);
+		      else if( j==1 && k==1)TEMPWire.Set_WirePlane_f(2);
+
 		      TEMPWire.Set_WireNum_f(VDCWireHit[i][j][k].at(l).WireNum);
 		      TEMPWire.Set_X_f(VDCWireHit[i][j][k].at(l).Position.getX());
-		      TEMPWire.Set_Y_f(VDCWireHit[i][j][k].at(l).Position.getZ());
+
+		      // In DetectorConstruction cc:Z rotated 180 deg for V WirePlane(layer copy number 1), then need - sign:
+		      if(k == 1) TEMPWire.Set_Y_f(-VDCWireHit[i][j][k].at(l).Position.getZ());
+		      else TEMPWire.Set_Y_f(VDCWireHit[i][j][k].at(l).Position.getZ());
 		      TEMPWire.Set_Edep_f(VDCWireHit[i][j][k].at(l).Edep);
 		      TEMPWire.Set_KE_f(TEMPKE);
 		      TEMPWire.Set_ToF_f(VDCWireHit[i][j][k].at(l).SWH.at(TEMP).Get_ToF());
@@ -661,7 +673,9 @@ if(use_monitor)
 	pOutputFile->Set_hod_hit(hod, hod_hit[hod]);
 	if(hod_hit[hod])
 		{
-		  if( PadKE[hod]/PadKENum[hod]>2.0*MeV &&  PadKE[hod]/PadKENum[hod] < 60.0*MeV){
+		  //Store avg. kinetic energy in every hit collection step that
+		  // the step with KE > 2.0MeV
+		  if( PadKE[hod]/PadKENum[hod]>2.0*MeV &&  PadKE[hod]/PadKENum[hod] < 60.0*MeV ){
 		    pOutputFile->Set_pad_KE(hod, PadKE[hod]/PadKENum[hod]);
 		    //cerr << "Number " << hod << " hit. With KE " <<  PadKE[hod]/PadKENum[hod] << endl;
 		  }
