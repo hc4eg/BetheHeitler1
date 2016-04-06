@@ -206,6 +206,12 @@ void HistoKE(void){
 	c_energy->Iconify();
 	c_energy->Divide(2,1);
 
+	//Ee vs Ep distribution
+	TCanvas * c_EeEp = new TCanvas ("c_EeEp", "(Ee,Ep) distribution", 1800, 1000);
+	c_EeEp->ToggleEventStatus();
+	c_EeEp->Iconify();
+	c_EeEp->Divide(2,2);
+
 	// Opening angle ditribution and opening vs energy difference distribution
 	TCanvas * c_theta = new TCanvas("c_theta", "Openning angle and Delta vs Theta Ditribution", 1800, 1000);
 	c_theta->ToggleEventStatus();
@@ -246,6 +252,13 @@ void HistoKE(void){
 	h_etheta->SetXTitle("Opening Angle(Degree)");
 	h_etheta->SetYTitle("Energy Difference Delta(MeV)");
 	h_etheta->SetOption("COLZ");
+
+	TH2F * h_EeEp[4];
+	for (int i = 0; i < 4; i++){
+	  h_EeEp[i] = new TH2F(Form("h_EeEp %d",i), Form ("(Ee,Ep) %d" ,i), 100, 0, 60, 100, 0, 60);
+	  h_EeEp[i]->SetXTitle(Form("Ee [%d]" , i));
+	  h_EeEp[i]->SetYTitle(Form("Ep [%d]" , i));
+	  h_EeEp[i]->SetOption("COLZ");}
 
 	//Histograms for Input. All Input data are set to red line while plotting histogram
 	TH1F * h_Ienergy = new TH1F("h_Ienergy", "Energy difference (Ee-Ep)",
@@ -456,6 +469,7 @@ void HistoKE(void){
 	h_energy->Fill((ME[1]-ME[0]));
 	h_theta->Fill(theta[1]);
 	h_etheta->Fill(theta[1],((ME[1]-ME[0])/2));
+	h_EeEp[1]->Fill(ME[1],ME[0]);
       }
     if(flag[0] == kTRUE)
       {
@@ -463,13 +477,18 @@ void HistoKE(void){
 	h_Ienergy->Fill((IE[1]-IE[0]));
 	h_Itheta->Fill(theta[0]);
 	h_Ietheta->Fill(theta[0],((IE[1]-IE[0])/2));
+	h_EeEp[0]->Fill(IE[1],IE[0]);	
       }
     if(flag[2] == kTRUE){
 	h_Vtotenergy->Fill((VE[1]+VE[0]));
-	h_Venergy->Fill((VE[1]-VE[0]));}
+	h_Venergy->Fill((VE[1]-VE[0]));
+	h_EeEp[2]->Fill(VE[1],VE[0]);
+    }
     if(flag[3] == kTRUE){
 	h_Htotenergy->Fill((HE[1]+HE[0]));
-	h_Henergy->Fill((HE[1]-HE[0]));}    
+	h_Henergy->Fill((HE[1]-HE[0]));
+	h_EeEp[3]->Fill(HE[1],HE[0]);
+    }    
   }
   
   
@@ -554,7 +573,11 @@ void HistoKE(void){
  
   //
   c_theta -> cd(1); h_Itheta -> Draw();h_theta -> Draw("same");
-  c_theta -> cd(2); h_etheta -> Draw(); h_Ietheta -> Draw("same");
+  c_theta -> cd(2); //h_etheta -> Draw(); 
+  //h_Ietheta -> Draw("same");
+  h_Ietheta -> Draw();
+  for (Int_t i = 0; i < 4; i++){
+    c_EeEp -> cd(i+1); h_EeEp[i] -> Draw();}
   // Ee + Ep
   c_energy -> cd(2);h_Vtotenergy -> Draw(); h_Itotenergy -> Draw("same");  h_totenergy -> Draw("same");h_Htotenergy -> Draw("same");
   // Ee - Ep
