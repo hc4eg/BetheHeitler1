@@ -16,10 +16,11 @@
 #include <TObject.h>
 
 // Fixed size dimensions of array or collections stored in the TTree if any.
-const Int_t kMaxD0_W = 28;
-const Int_t kMaxD0_P = 4;
-const Int_t kMaxD1_W = 45;
-const Int_t kMaxD1_P = 4;
+// Changed to larger value to suit multi root files.
+const Int_t kMaxD0_W = 200;
+const Int_t kMaxD0_P = 20;
+const Int_t kMaxD1_W = 200;
+const Int_t kMaxD1_P = 20;
 
 class WH {
 public :
@@ -159,6 +160,7 @@ public :
    virtual void     Loop();
    virtual void     Loop1();
    virtual void     Loop2();
+   virtual void     Plot();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
