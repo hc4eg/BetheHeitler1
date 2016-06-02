@@ -140,7 +140,8 @@ fChamberGasMaterial = Ethane_Argon;
 // fChamberSheetMaterial = Vacuum;
 // fChamberGasMaterial = Vacuum;
 //VDC Wires
-fWireAngle = 45*deg;
+//fWireAngle = 45*deg;
+ fWireAngle = (90-26.45)*deg;
 fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
 //Al sheet
 fAlThick = 0.75*inch;
@@ -653,7 +654,7 @@ fPhysVDCpackage[1] =  new G4PVPlacement( G4Transform3D(ChamberRot, G4ThreeVector
 	    "Hodoscope 1",
 	    fLogicWorld, 
 	    false,
-	    0); 
+	    0);
 
 // Beam right
   HodoscopeRot.rotateZ(-180.*deg);
