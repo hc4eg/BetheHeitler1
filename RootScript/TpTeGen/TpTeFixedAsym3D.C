@@ -32,7 +32,7 @@ void TpTeFixedASym3D (){
 
   Double_t A,a, Tempa;
   // Genertate e+, e- pairs with fixed asymmetry A
-  A = 0.3;
+  A = 0.5;
   a = (1-A)/(1+A);
   cerr << "Asymmetry = " << A << " . " << endl;
   
@@ -183,9 +183,9 @@ void TpTeFixedASym3D (){
 	    Thetae = Thetae*180/PI;
 	    Theta = Theta*180/PI;
 	    //}while(abs(Thetae*1.0) > 20.0 || abs(Thetap*1.0) > 20.0);
-	}while(  ((E-Ee)*(E-Ee)-Pey*Pey-Me*Me < 0.0) || Ee < Me);
+	    //}while(  ((E-Ee)*(E-Ee)-Pey*Pey-Me*Me < 0.0) || Ee < Me);
 	
-		 //(Ee < 15.0) || (Ee > 45.0) || Thetae > 20.0 || Thetap > 20.0 || Thetae < -20.0 || Thetap < -20.0  );
+	}while( (Ee < 15.0) || (Ee > 45.0) || Thetae > 20.0 || Thetap > 20.0 || Thetae < -20.0 || Thetap < -20.0  );
 	    //     }
       
       // Condition more like simulation with OR contition (require a range of energy to go through magnetic field, one side detector hit)

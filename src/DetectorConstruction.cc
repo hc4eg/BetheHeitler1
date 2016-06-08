@@ -141,8 +141,8 @@ fChamberGasMaterial = Ethane_Argon;
 // fChamberGasMaterial = Vacuum;
 //VDC Wires
 //fWireAngle = 45*deg;
- fWireAngle = (90-26.45)*deg;
-fVDCDistance1 = 85.0*cm; // distance of first VDC from magnet center
+fWireAngle = (90-26.45)*deg;
+fVDCDistance1 = 85.0*cm; // distance of center of first VDC from magnet center
 //Al sheet
 fAlThick = 0.75*inch;
 fGapThick = 0.5*inch;
