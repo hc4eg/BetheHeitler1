@@ -291,7 +291,7 @@ if(use_monitor)
 
 
   //Set WireHit object has same number of entries as WireNum for SWH
-  cerr << "VDCWireHit object:" << endl;  
+  //cerr << "VDCWireHit object:" << endl;  
   for(G4int i = 0; i < 2; i++)
     for(G4int j = 0; j < 2; j++)
       for(G4int k = 0; k < 2; k++){
@@ -303,7 +303,7 @@ if(use_monitor)
 	  NullWire.Set_Position(G4ThreeVector(0.,0.,0.));
 	  VDCWireHit[i][j][k].push_back(NullWire);
 	}
-	cerr << "[" << i << "][" << j << "][" << k << "] have "<< VDCWireHit[i][j][k].size() << " different hit wire" << endl;
+	//cerr << "[" << i << "][" << j << "][" << k << "] have "<< VDCWireHit[i][j][k].size() << " different hit wire" << endl;
       }
   // Till now VDCWireHit[package][chamber][layer].at(0),(1),(2) will be NullWire (a WireHit object, store hit data for a single wire):
   // 3 elements for the vector here since 3 individual wire hit(Num 100, 51, 50 )
@@ -349,8 +349,8 @@ if(use_monitor)
 	      // Add avg portion of Position of the step for the wire
 	      VDCWireHit[package][chamber][layer].at(i).Position += pos/(WireHitCount[package][chamber][layer].at(i));
 
-	      cerr << "Layer [" << package << "][" << chamber << "][" << layer << "]"; cerr<< "Wire " << wire << " hit. ";
-	      cerr<< "Edep = "  << VDCWireHit[package][chamber][layer].at(i).Edep << endl;
+	      //cerr << "Layer [" << package << "][" << chamber << "][" << layer << "]"; cerr<< "Wire " << wire << " hit. ";
+	      //cerr<< "Edep = "  << VDCWireHit[package][chamber][layer].at(i).Edep << endl;
 	      
 	      {
 		// The KE, ToF, Charge, Particle info will be stored as a SingleWireHit object as a vector element of the wire
@@ -686,7 +686,7 @@ if(use_monitor)
 				{
 				pOutputFile->Set_pad_energy(hod, pad, PadEnergy[hod][pad]);
 				pOutputFile->Set_pad_light(hod, pad, PadLight[hod][pad]);
-				cerr << "PadLight[" << hod << "][" << pad << "] = " << PadLight[hod][pad]/MeV << endl;
+				//cerr << "PadLight[" << hod << "][" << pad << "] = " << PadLight[hod][pad]/MeV << endl;
 				pOutputFile->Set_pad_time(hod, pad, PadTime[hod][pad]);
 				}
 			}
@@ -776,7 +776,7 @@ if(use_monitor)
 	//if(hod_hit[0] || hod_hit[1])
 	{
 	  //cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
-	  cerr << hod_hit[0] << hod_hit[1] << endl;
+	  //cerr << hod_hit[0] << hod_hit[1] << endl;
 	  pOutputFile->WriteEvent();
 	}
     }

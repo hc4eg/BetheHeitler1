@@ -71,8 +71,8 @@ DefineMaterials();
 fWorldSize = new G4ThreeVector(150.*cm*5, 200.*cm*5, 100.*cm*5);
 fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
 //fBackgroundMaterial = Helium;
-//fBackgroundMaterial = Vacuum;
-fBackgroundMaterial = Air;
+fBackgroundMaterial = Vacuum;
+//fBackgroundMaterial = Air;
 //
 // Magnetic field
 fBcenter = -0.4536*tesla;
@@ -109,21 +109,21 @@ fYokeMaterial = Iron;
 
 // Bag
 fBagThick = 0.1*mm;
-fBagMaterial = Poly;
-// fBagMaterial = Vacuum;
+//fBagMaterial = Poly;
+fBagMaterial = Vacuum;
 fMagnetToBagDistance = 1.0*mm;
 
 //target
 fTargetDistance = 42.26*cm;
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
-fTargetToBagMaterial = Air;
-//fTargetToBagMaterial = Vacuum;
+//fTargetToBagMaterial = Air;
+fTargetToBagMaterial = Vacuum;
 //fTargetToBagMaterial = Helium;
 // Target material and thickness can be changed through messenger
 fTargetThick = 0.025*mm; // Thickness of Uranium target
-fTargetMaterial = Uranium;  // Target material
-// fTargetMaterial = Vacuum;
+//fTargetMaterial = Uranium;  // Target material
+fTargetMaterial = Vacuum;
 
 //VDC Chambers
 fVDCSizeX = 96*inch;
@@ -135,9 +135,9 @@ fVDCTopWidth = 7.5*inch;
 fVDCSheetThick = 0.0005*inch;
 fVDCLayerThick = 0.5*inch;
 fVDCAlLayerThick = 0.75*inch;
-fChamberSheetMaterial = Mylar;
+//fChamberSheetMaterial = Mylar;
 fChamberGasMaterial = Ethane_Argon;
-// fChamberSheetMaterial = Vacuum;
+fChamberSheetMaterial = Vacuum;
 // fChamberGasMaterial = Vacuum;
 //VDC Wires
 //fWireAngle = 45*deg;
@@ -872,8 +872,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
 
   // Careful if you want to make all Vaccum
   fLogicVDCHolder = new G4LogicalVolume(VDCBox,
-					//Vacuum,//	
-					Air, 
+					Vacuum,//	
+					//Air, 
 					//fVDCMaterial,
 					"VDC Holder");
 
@@ -1268,15 +1268,16 @@ DetectorConstruction::ConstructHodoscope()
     new G4Box("Hodoscope Holder box", HodHolderX/2., HodHolderY/2., HodHolderZ/2.);
   fLogicHodoscopeHolder = 0;
   fLogicHodoscopeHolder = 
-    new G4LogicalVolume(hodoscopeHolderBox, Air, "Hodoscope Holder");
-  //new G4LogicalVolume(hodoscopeHolderBox, Vacuum, "Hodoscope Holder");
+    //  new G4LogicalVolume(hodoscopeHolderBox, Air, "Hodoscope Holder");
+  new G4LogicalVolume(hodoscopeHolderBox, Vacuum, "Hodoscope Holder");
   // make holder invisible
   fLogicHodoscopeHolder->SetVisAttributes(G4VisAttributes::Invisible);
 
   // create a single paddle Russian doll style
   // first the wrapping
   G4Box* paddleBox = new G4Box("Paddle Box", PaddleX/2., PaddleY/2., PaddleZ/2.);
-  G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Poly, "Paddle Wrap");
+  //G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Poly, "Paddle Wrap");
+  G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Vacuum, "Paddle Wrap");
   // then the scintillator
   //G4LogicalVolume * paddleLogic = new G4LogicalVolume(paddleBox, Vacuum, "Paddle Wrap");
   G4Box* scintBox = new G4Box("Paddle Scint", fPaddleWidth/2., fPaddleThick/2., fPaddleHeight/2.);

@@ -254,7 +254,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 	  G4double A,a, Temp, Randa, ThetaM;
 	  //Assigning Asymmetry
-	  A = 0.0;
+	  A = 0.5;
 	  a = (1-A)/(1+A);
 
 	  //Compute electron energy, momentum components

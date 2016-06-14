@@ -412,7 +412,7 @@ OutputFile::WriteEvent()
 					  paddle.Edep = (Float_t)(fPadEnergy[i][j]/MeV);
 					  //fprintf(fd," %13.4g",fPadLight[i][j]/MeV);
 					  paddle.Light = (Float_t)(fPadLight[i][j]/MeV);
-					  cerr << "paddle.Light[" << i << "][" << j << "] =" << fPadLight[i][j]/MeV << endl;
+					  //cerr << "paddle.Light[" << i << "][" << j << "] =" << fPadLight[i][j]/MeV << endl;
 					  //fprintf(fd," %13.4g",fPadTime[i][j]/ns);      
 					  paddle.Time = (Float_t)(fPadTime[i][j]/ns);
 					  //fprintf(fd,"\n");
