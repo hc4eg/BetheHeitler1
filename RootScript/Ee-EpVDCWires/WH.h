@@ -160,7 +160,8 @@ public :
    virtual void     Loop();
    virtual void     Loop1();
    virtual void     Loop2();
-   virtual void     Plot();
+   virtual void     PlotOR();
+   virtual void     PlotORMAXKE();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
