@@ -40,7 +40,7 @@ void Accecptance (){
   
   
   //Number of total events generated
-  Int_t N = 20000000;
+  Int_t N = 2000000;
   //Int_t N = 50000;
 
   E = 60.0;
@@ -293,6 +293,9 @@ void Accecptance (){
 	h_Ee[0]->Fill(Ee);
       }//if(abs(Thetae) < 15.0 || abs(Thetap) < 15.0)
 
+
+
+      /*
       //2nd Cut, check if particle make out magnetic field
       //list of constants for 2nd cut computation, most use SI units
       Float_t in = 2.54;
@@ -340,14 +343,108 @@ void Accecptance (){
 	Flage[1] = 1;
 	//Check e- Acceptance and only Ee is used
 	h_Ee[1]->Fill(Ee);}
+      */
+
+      
+      //2nd Cut, check if particle hits poles of magnet
+      //list of constants for 2nd cut computation, most use SI units
+      Float_t in = 2.54;
+      // R: magnetic field radius, D: distance between center of magnet and primary vertex
+      // C: speed of light, B: center magnetic field
+      Float_t R = 18.5*in/200., D = 42.26/100., C = 299792458, B = 0.4536;
+      Thetae = Thetae*PI/180.;
+      // Compute Position and velocity at Primary vertex
+      // Note: all array: [0] for e+, [1] for e-
+      Float_t XA[2], YA[2], ZA[2];
+      XA[1] = -D, YA[1] = 0., ZA[1] = 0.;
+      Float_t VXA[2], VYA[2], VZA[2];
+      VXA[1] = (-1)*C*cos(Thetae), VYA[1] = C*sin(Thetae)*cos(Phie), VZA[1] = C*sin(Thetae)*sin(Phie);
+
+      
+      // Compute Position and velocity at Point when particle enters B field
+      // RB: B field radius
+      Float_t RB = 17.25*in/200.;
+      //Float_t RP = 17.25*in/200.;
+      Float_t RP = 16.0*in/200.;
+      Float_t K[2];
+      K[1]= tan(Thetae)*cos(Phie);
+      //cerr << "K[1] = " << K[1] << " sqrt((RB*RB*(1+K[1]*K[1])-K[1]*K[1]*D*D) " << sqrt((RB*RB*(1+K[1]*K[1])-K[1]*K[1]*D*D)) <<  endl;
+      Float_t XB[2], YB[2], ZB[2];
+      XB[1] = (D*K[1]*K[1]+sqrt((RB*RB*(1.+K[1]*K[1])-K[1]*K[1]*D*D)))/(1.+K[1]*K[1]);
+      YB[1] = (D-XB[1])*K[1];
+      ZB[1] = YB[1]*tan(Phie);
+      //cerr << "Thetae = " << Thetae*180./PI << "deg. Phie = " << Phie*180./PI << "deg." << endl; 
+       //cerr << " (XB[1], YB[1], ZB[1]) = (" << XB[1] << " , " << YB[1] << " , " << ZB[1] << " ) meters." << endl;   
+      
+      //Center of the Helix(Trajectory of e- inside uniform B field)
+      // r: radius of projection of helix in XY plane, Alpha: angle between initial velocity in XY plane projection and X direction.
+      Float_t r[2], Alpha[2]; 
+      r[1]= Ee*1000000.*sqrt(1-sin(Thetae)*sin(Phie)*sin(Thetae)*sin(Phie))/(C*B); Alpha[1] = atan(tan(Thetae)*cos(Phie));
+      // Point H: center of helix, with ZH same as ZB.
+      Float_t XH[2], YH[2], ZH[2];
+      XH[1] = XB[1] + r[1]*sin(Alpha[1]); YH[1] = YB[1] + r[1]*cos(Alpha[1]); ZH[1] = ZB[1];
+
+      //Compute Time, Position and Velocity at Point when particle leaves B field, assigned as point C.
+      Float_t TC[2];
+      TC[1] = 2*r[1]*acos((XH[1]*XH[1]+YH[1]*YH[1]+r[1]*r[1]-RB*RB)/(2*r[1]*sqrt(XH[1]*XH[1]+YH[1]*YH[1])))/(C*sqrt(1-sin(Thetae)*sin(Phie)*sin(Thetae)*sin(Phie)));
+      //Omega: angular velocity of the helix motion. OmegaTC = Omega*TC.
+      Float_t Omega[2], OmegaTC[2];
+      Omega[1] = C*C*B/(Ee*1000000); OmegaTC[1] = 2.*acos((XH[1]*XH[1]+YH[1]*YH[1]+r[1]*r[1]-RB*RB)/(2*r[1]*sqrt(XH[1]*XH[1]+YH[1]*YH[1])));
+      Float_t XC[2], YC[2], ZC[2];
+      XC[1] = XH[1] - r[1]*sin(OmegaTC[1]+Alpha[1]); YC[1] = YH[1] - r[1]*cos(OmegaTC[1]+Alpha[1]); ZC[1] = ZH[1] + C*TC[1]*sin(Thetae)*sin(Phie);
+      //cerr << " r[1] = " << r[1] << "meters. Alpha[1] = " << Alpha[1]*180./PI << "degrees." << endl; 
+      //cerr << " (XC[1], YC[1], ZC[1]) = (" << XC[1] << " , " << YC[1] << " , " << ZC[1] << " ) meters." << endl;
+
+
+      // Now check if e- hits poles of the magnet
+      // PoleGap and Effective PoleRadius
+      Float_t PoleGap = 0.0508; 
+      // Compute time when e- reaches the PoleRadius:
+      // VP: velocity parallel to horizontal plane XY
+      Float_t VP[2];
+      VP[1] = C*sqrt(1-sin(Thetae)*sin(Phie)*sin(Thetae)*sin(Phie));
+      Float_t VXC[2], VYC[2], VZC[2];
+      // Velocity of particle at point C.
+      VXC[1] = (-1.)*VP[1]*cos(OmegaTC[1]+Alpha[1]); VYC[1] = VP[1]*sin(OmegaTC[1]+Alpha[1]); VZC[1] = C*sin(Thetae)*sin(Phie);
+
+      // If RP >= RB, point CP ( when particle leaves the pole region ) is outside B field, and compute a straight line.
+      Float_t TP[2];
+      Float_t XCP[2], YCP[2], ZCP[2];
+      Float_t Beta[2], Delta[2];    
+      if(RP >= RB){
+	// TP time from point C (where e- exit B field) to point CP(rime) (where e- reaches boundary of )
+	TP[1] = (-(XC[1]*VXC[1]+YC[1]*VYC[1])+sqrt((XC[1]*VXC[1]+YC[1]*VYC[1])*(XC[1]*VXC[1]+YC[1]*VYC[1])-VP[1]*VP[1]*(RB*RB-RP*RP)))/(VP[1]*VP[1]);
+	if( i%10000 == 0) cerr << "TP = " << TP[1] << endl;
+	XCP[1] = XC[1]+VXC[1]*TP[1];  YCP[1] = YC[1]+VYC[1]*TP[1];  ZCP[1] = ZC[1]+VZC[1]*TP[1]; 
+	
+ 
+	if( Flage[0]==1 && abs(ZCP[1]) <= (PoleGap/2.) ){
+	  Flage[1] = 1;
+	  //Check e- Acceptance and only Ee is used
+	  h_Ee[1]->Fill(Ee);}
+      }
+      // If RP < RB, point CP ( when particle leaves the pole region ) is inside B field, and compute intersection of 2 circles
+      else{
+	Beta[1] = atan(XH[1]/YH[1]); Delta[1] = acos((XH[1]*XH[1]+YH[1]*YH[1]+r[1]*r[1]-RP*RP)/(2*r[1]*sqrt(XH[1]*XH[1]+YH[1]*YH[1])));
+	// Here TP is the time from point B to point CP.
+	TP[1] = (Delta[1] + Beta[1] - Alpha[1])/Omega[1];
+	if( i%10000 == 0) cerr << "TP = " << TP[1] << endl;
+	
+	XCP[1] = XH[1] - r[1]*sin(Omega[1]*TP[1] + Alpha[1]);
+	YCP[1] = YH[1] - r[1]*cos(Omega[1]*TP[1] + Alpha[1]);
+	ZCP[1] = ZB[1] + VZA[1]*TP[1];
+
+	if( Flage[0]==1 && abs(ZCP[1]) <= (PoleGap/2.)){
+	  Flage[1] = 1;
+	  h_Ee[1]->Fill(Ee);}
+      }
+
+
+
+
 
       // 3rd cut: Check if e- hits poles of the magnet
       // Compute e- velocity and trajectory when it exits magnet
-      // VP: velocity parallel to horizontal plane XY
-      Float_t VP[2];
-      VP[1] = C*sqrt(1-sin(Thetae)*sin(Phie)*sin(Thetae)*sin(Phie)) ;
-      Float_t VXC[2], VYC[2], VZC[2];
-      VXC[1] = (-1.)*VP[1]*cos(OmegaTC[1]+Alpha[1]); VYC[1] = VP[1]*sin(OmegaTC[1]+Alpha[1]); VZC[1] = C*sin(Thetae)*sin(Phie);
       //Compute the point when e- reaches the boundary of side of magnet
       Float_t MagInnerX = 22.75*in/100. , MagY = 22.75*in/100. , MagInnerZ = 11.50*in/100.;
       // Time from exit of B field to side boundary of Magnet
@@ -423,6 +520,8 @@ void Accecptance (){
 	h_Ep[0]->Fill(Ep);
       }//if(abs(Thetae) < 15.0 || abs(Thetap) < 15.0)
 
+
+      /*
       //2nd Cut, check if particle make out magnetic field
       //list of constants for 2nd cut computation, most use SI units
       Thetap = Thetap*PI/180.;
@@ -449,19 +548,81 @@ void Accecptance (){
       XC[0] = XH[0] - r[0]*sin(OmegaTC[0]+Alpha[0]); YC[0] = YH[0] - r[0]*cos(OmegaTC[0]+Alpha[0]); ZC[0] = ZH[0] + C*TC[0]*sin(Thetap)*sin(-Phie);
       //cerr << " r[0] = " << r[0] << "meters. Alpha[0] = " << Alpha[0]*180./PI << "degrees." << endl; 
       //cerr << " (XC[0], YC[0], ZC[0]) = (" << XC[0] << " , " << YC[0] << " , " << ZC[0] << " ) meters." << endl;
-
-
-
+      
       // Check if e+ hits poles of the magnet
       if( Flagp[0]==1 && abs(ZC[0]) <= (PoleGap/2.) ){
 	Flagp[1] = 1;
 	//Check e+ Acceptance and only Ep is used
 	h_Ep[1]->Fill(Ep);}
+      */
+
+      // New: Magnet and Pole has different Radius
+      //2nd Cut, check if particle hits poles of magnet
+      Thetap = Thetap*PI/180.;
+      // Compute Position and velocity at Primary vertex
+      // Note: all array: [0] for e+, [1] for e-
+      XA[0] = -D, YA[0] = 0., ZA[0] = 0.;
+      VXA[0] = (-1)*C*cos(Thetap), VYA[0] = C*sin(Thetap)*cos(-Phie), VZA[0] = C*sin(Thetap)*sin(-Phie);
+      
+      // Compute Position and velocity at Point when particle enters B field
+      // RB: B field radius
+      K[0]= tan(Thetap)*cos(-Phie);
+      //cerr << "K[0] = " << K[0] << " sqrt((RB*RB*(1+K[0]*K[0])-K[0]*K[0]*D*D) " << sqrt((RB*RB*(1+K[0]*K[0])-K[0]*K[0]*D*D)) <<  endl;
+      XB[0] = (D*K[0]*K[0]+sqrt((RB*RB*(1.+K[0]*K[0])-K[0]*K[0]*D*D)))/(1.+K[0]*K[0]);
+      YB[0] = (D-XB[0])*K[0];
+      ZB[0] = YB[0]*tan(-Phie);
+      //cerr << "Thetap = " << Thetap*180./PI << "deg. -Phie = " << -Phie*180./PI << "deg." << endl; 
+      //cerr << " (XB[0], YB[0], ZB[0]) = (" << XB[0] << " , " << YB[0] << " , " << ZB[0] << " ) meters." << endl;   
+      
+      //Center of the Helix(Trajectory of e- inside uniform B field)
+      // r: radius of projection of helix in XY plane, Alpha: angle between initial velocity in XY plane projection and X direction.
+      r[0]= Ep*1000000.*sqrt(1-sin(Thetap)*sin(-Phie)*sin(Thetap)*sin(-Phie))/(C*B); Alpha[0] = atan(tan(Thetap)*cos(-Phie));
+      XH[0] = XB[0] + r[0]*sin(Alpha[0]); YH[0] = YB[0] + r[0]*cos(Alpha[0]); ZH[0] = ZB[0];
+
+      //Compute Time, Position and Velocity at Point when particle leaves B field
+      TC[0] = 2*r[0]*acos((XH[0]*XH[0]+YH[0]*YH[0]+r[0]*r[0]-RB*RB)/(2*r[0]*sqrt(XH[0]*XH[0]+YH[0]*YH[0])))/(C*sqrt(1-sin(Thetap)*sin(-Phie)*sin(Thetap)*sin(-Phie)));
+      Omega[0] = C*C*B/(Ep*1000000); OmegaTC[0] = 2.*acos((XH[0]*XH[0]+YH[0]*YH[0]+r[0]*r[0]-RB*RB)/(2*r[0]*sqrt(XH[0]*XH[0]+YH[0]*YH[0])));
+      XC[0] = XH[0] - r[0]*sin(OmegaTC[0]+Alpha[0]); YC[0] = YH[0] - r[0]*cos(OmegaTC[0]+Alpha[0]); ZC[0] = ZH[0] + C*TC[0]*sin(Thetap)*sin(-Phie);
+      //cerr << " r[0] = " << r[0] << "meters. Alpha[0] = " << Alpha[0]*180./PI << "degrees." << endl; 
+      //cerr << " (XC[0], YC[0], ZC[0]) = (" << XC[0] << " , " << YC[0] << " , " << ZC[0] << " ) meters." << endl;
+
+
+      // Now check if e- hits poles of the magnet
+      // Compute time when e- reaches the PoleRadius:
+      VP[0] = C*sqrt(1-sin(Thetap)*sin(-Phie)*sin(Thetap)*sin(-Phie));
+      VXC[0] = (-1.)*VP[0]*cos(OmegaTC[0]+Alpha[0]); VYC[0] = VP[0]*sin(OmegaTC[0]+Alpha[0]); VZC[0] = C*sin(Thetap)*sin(-Phie);
+
+      // If RP >= RB, point CP ( when particle leaves the pole region ) is outside B field, and compute a straight line.
+      if(RP >= RB){
+	// TP time from point C (where e- exit B field) to point CP(rime) (where e- reaches boundary of )
+	TP[0] = (-(XC[0]*VXC[0]+YC[0]*VYC[0])+sqrt((XC[0]*VXC[0]+YC[0]*VYC[0])*(XC[0]*VXC[0]+YC[0]*VYC[0])-VP[0]*VP[0]*(RB*RB-RP*RP)))/(VP[0]*VP[0]);
+	if( i%10000 == 0) cerr << "TP = " << TP[0] << endl;
+	XCP[0] = XC[0]+VXC[0]*TP[0];  YCP[0] = YC[0]+VYC[0]*TP[0];  ZCP[0] = ZC[0]+VZC[0]*TP[0]; 
+	
+ 
+	if( Flagp[0]==1 && abs(ZCP[0]) <= (PoleGap/2.) ){
+	  Flagp[1] = 1;
+	  //Check e- Acceptance and only Ee is used
+	  h_Ep[1]->Fill(Ep);}
+      }
+      // If RP < RB, point CP ( when particle leaves the pole region ) is inside B field, and compute intersection of 2 circles
+      else{
+	Beta[0] = atan(XH[0]/YH[0]); Delta[0] = acos((XH[0]*XH[0]+YH[0]*YH[0]+r[0]*r[0]-RP*RP)/(2*r[0]*sqrt(XH[0]*XH[0]+YH[0]*YH[0])));
+	TP[0] = (Delta[0] + Beta[0] - Alpha[0])/Omega[0];
+	if( i%10000 == 0) cerr << "TP = " << TP[0] << endl;
+	
+	XCP[0] = XH[0] - r[0]*sin(Omega[0]*TP[0]+Alpha[0]);
+	YCP[0] = YH[0] - r[0]*cos(Omega[0]*TP[0]+Alpha[0]);
+	ZCP[0] = ZB[0] + VZA[0]*TP[0];
+
+	if( Flagp[0]==1 && abs(ZCP[0]) <= (PoleGap/2.)){
+	  Flagp[1] = 1;
+	  h_Ep[1]->Fill(Ep);}
+      }
+
+
 
       // 3rd cut: Check if e+ hits poles of the magnet
-      // Compute e+ velocity and trajectory when it exits magnet
-      VP[0] = C*sqrt(1-sin(Thetap)*sin(-Phie)*sin(Thetap)*sin(-Phie)) ;
-      VXC[0] = (-1.)*VP[0]*cos(OmegaTC[0]+Alpha[0]); VYC[0] = VP[0]*sin(OmegaTC[0]+Alpha[0]); VZC[0] = C*sin(Thetap)*sin(-Phie);
       //Compute the point when e+ reaches the boundary of side of magnet
       // Time from exit of B field to side boundary of Magnet
       TD[0] = ((MagY/2.) - YC[0])/VYC[0];
@@ -579,17 +740,17 @@ void Accecptance (){
   // Compute asymmetry and add data to TGraphErrors:
   for(Int_t i = 0; i < 4; i++)
     for(Int_t j = 0; j < Num/2; j++){
-      if(Count[i][j] != 0. && Count[i][Num-j] != 0.){
-	Int_t N1 = Count[i][j], N2 = Count[i][Num-j];
-	Asym[i][j] = (Count[i][j]-Count[i][Num-j])/(Count[i][j]+Count[i][Num-j]);
+      if(Count[i][j] != 0. && Count[i][Num-j-1] != 0.){
+	Int_t N1 = Count[i][j], N2 = Count[i][Num-j-1];
+	Asym[i][j] = (Count[i][j]-Count[i][Num-j-1])/(Count[i][j]+Count[i][Num-j-1]);
 	AsymErr[i][j] = 2.*sqrt(N1*N2)/((N1+N2)*sqrt(N1+N2));
-	Asym[i][Num-j] = -Asym[i][j];
-	AsymErr[i][Num-j] = AsymErr[i][j];
+	Asym[i][Num-j-1] = -Asym[i][j];
+	AsymErr[i][Num-j-1] = AsymErr[i][j];
 	cerr << "N[" << i << "][" << j << "] = " << Count[i][j]
-	     << ", " << "N[" << i <<"]["<< Num-j << "] = " << Count[i][Num-j] << endl;
+	     << ", " << "N[" << i <<"]["<< Num-j-1 << "] = " << Count[i][Num-j-1] << endl;
       }
       else{
-	//Asym[i][j] = 0.; Asym[i][Num-j] = 0.;
+	//Asym[i][j] = 0.; Asym[i][Num-j-1] = 0.;
       }
     }
   
