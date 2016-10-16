@@ -1060,7 +1060,7 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
      // |//////////////////////////////////////////|   Upper left: last wire.
      // |//////////////////////////////////////////|   Plane center is local origin.
      // |//////////////////////////////////////////|   fWireAngle is the wire angle diviate from Z-axis
-     // --------------------------------------------
+     // --------------------------------------------   As shown for U WirePlane wire angle = 90-26.45 ()
 
 
 
