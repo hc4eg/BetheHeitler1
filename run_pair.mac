@@ -18,5 +18,5 @@
 /BH/outputfile/set_use_unique_filename true
 
 #/run/beamOn 5000
-#/run/beamOn 200000
-/run/beamOn 2000000
+/run/beamOn 677000
+#/run/beamOn 2000000

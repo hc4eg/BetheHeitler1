@@ -50,6 +50,25 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   particleGun->SetParticleEnergy(central_energy);
   particleGun->SetParticlePosition(G4ThreeVector(target_position, 0.*cm, 0.*cm));
 
+  E = 60*MeV;
+  c = CLHEP::c_light;
+  Me = CLHEP::electron_mass_c2;
+
+  string filenumber;
+  cerr << "Please input filenumber: (Format XXX)" << endl;
+  cin >> filenumber;
+  OpenFile(filenumber);
+  maxline = 0;
+//  infile.seekg(0);
+  while(!infile.eof()){
+	infile.ignore(200,'\n');
+	maxline++;
+//	if(maxline%100 == 0 ) cerr << "Read line: " << maxline << endl;
+  }
+
+  maxline--;
+  cerr << "Data file has Total line " << maxline << endl;
+  infile.seekg(0);
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -59,6 +78,7 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
   delete particleGun;
   delete pOutputFile;
   delete gunMessenger;
+  infile.close();
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -84,174 +104,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	radius = sqrt(x_in*x_in +y_in*y_in);
       } while (radius > radius_max);
       
-      /*
-      //Code Below: fixed asymmetry 2D
-      //Consider artificially generate e+ e- pair with fixed asymmetry in 2D
-  
-      if (pair_mode)
-	{
-	  
-	  //Code below: generate e+ e- pair with same energy and theta distribution.
-	  E = 60*MeV;
-	  c = CLHEP::c_light;
-	  Me = CLHEP::electron_mass_c2;
-	  
-	  G4double A,a, Temp, Randa, ThetaM;
-	  //Assigning Asymmetry
-	  A = 0.2;
-	  a = (1-A)/(1+A);
-
-	  //Compute electron energy, momentum components
- 
-	  //G4double Rand = CLHEP::RandFlat::shoot(0.0, 1.0);
-	  //if(Rand <= 0.50){
-	  // Generating Fixed Asymmetry distritution in 2D
-	  if(1){
-	    do{
-	      Randa = CLHEP::RandFlat::shoot(0.0 , 1+a);
-	      if (Randa <= 1.0){
-		Ee = CLHEP::RandFlat::shoot(15.0*MeV, 30.0*MeV);
-	      }
-	      else{
-		Ee = CLHEP::RandFlat::shoot(30.0*MeV, 45.0*MeV);		  
-	      }
-	      
-		do{
-		  Temp = sqrt(((E-Ee)*(E-Ee)-Me*Me)/(Ee*Ee-Me*Me));	  
-		  if(-1 < Temp && 1 > Temp){
-		    ThetaM = asin(Temp)*rad;
-		    Thetae = CLHEP::RandFlat::shoot(-ThetaM, ThetaM);
-		  }
-		  else
-		    Thetae = CLHEP::RandFlat::shoot(-90.0*deg,90.0*deg);
-	    
-		  Pe = sqrt(Ee*Ee-Me*Me);
-		  Pex = Pe*cos(Thetae);
-		  Pey = Pe*sin(Thetae);
-		  KEe = Ee - Me;
-	    
-		  Ep = E - Ee;
-		  Ppx = sqrt((E-Ee)*(E-Ee)-(Ee*Ee-Me*Me)*sin(Thetae)*sin(Thetae)-Me*Me);
-		  Ppy = -sqrt(Ee*Ee-Me*Me)*sin(Thetae);
-		  KEp = Ep - Me;
-		  Thetap = atan2(Ppy,Ppx);
-		}while(Thetae > 20.0*deg || Thetap > 20.0*deg || Thetae < -20.0*deg || Thetap < -20.0*deg);
-
-	      }while (((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0 || Ee < Me);	      
-		cerr << "Thetae = " << Thetae/deg << " deg. Thetap = " << Thetap/deg << " deg." << endl;
-		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
-		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
-	  }
-      */
-
-	  //Fixed energy , x-only direction beam
-	  /*
-	  Ee = 45.0*MeV;
-	  Pe = sqrt(Ee*Ee-Me*Me);
-	  Pex = Pe;
-	  Pey = 0;
-	  KEe = Ee - Me;
-	  
-	  Ep = E - Ee;
-	  Ppx = sqrt(Ep*Ep- Me*Me);
-	  Ppy = 0;
-	  KEp = Ep - Me;
-	  */
-	  
-	  /*
-	  else{
-	      do{
-		Randa = CLHEP::RandFlat::shoot(0.0 , 1+a);
-		if (Randa <= 1.0){
-		  Ep = CLHEP::RandFlat::shoot(0.0*MeV, 30.0*MeV);
-		}
-		else{
-		  Ep = CLHEP::RandFlat::shoot(30.0*MeV, 60.0*MeV);		  
-		}
-
-
-		//Assigning angle theta
-		Temp = sqrt(((E-Ep)*(E-Ep)-Me*Me)/(Ep*Ep-Me*Me));	  
-		if(-1 < Temp && 1 > Temp){
-		  ThetaM = asin(Temp);
-		  Thetap = CLHEP::RandFlat::shoot(-ThetaM*rad, ThetaM*rad);
-		}
-		else
-		  Thetap = CLHEP::RandFlat::shoot(-90*deg,90*deg);
-		
-		Pp = sqrt(Ep*Ep-Me*Me);
-		Ppx = Pp*cos(Thetap);
-		Ppy = Pp*sin(Thetap);
-		KEp = Ep - Me;
-
-		//Compute positron energy, momentum components
-		Ee = E - Ep;
-		Pex = sqrt((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me);
-		Pey = -Ppy;
-		Thetae = atan(Pey/Pex);
-		KEe = Ee - Me;
-
-	      }while (Ep < Me || ((E-Ep)*(E-Ep)-Ppy*Ppy-Me*Me) < 0.0);
-	      }*/
-	  /////////////////////////
-	  // Code above: Generate e+ e- pair with same energy and momentum distribution
-      /*	  
-	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
-	  G4String ParticleName;
-
-	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
-	  particleGun->SetParticleDefinition(P_electron);
-	  
-	  targ_in = target_position;
-	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEe);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, 0.0));
-	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  pOutputFile->Set_energy_i(1,KEe);
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_x_i(1,x_in);
-	  pOutputFile->Set_y_i(1,y_in);
-	  pOutputFile->Set_theta_i(1,abs(Thetae));
-	  if(Pey > 0.)pOutputFile->Set_phi_i(1, 0.0);
-	  else pOutputFile->Set_phi_i(1, 180.0*deg);
-
-	  //	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
-
-	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
-	  particleGun->SetParticleDefinition(P_positron);
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEp);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, 0.0));
-	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  pOutputFile->Set_energy_i(0,KEp);
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_x_i(0,x_in);
-	  pOutputFile->Set_y_i(0,y_in);
-	  pOutputFile->Set_theta_i(0,abs(Thetap));
-	  if( Ppy > 0.) pOutputFile->Set_phi_i(0, 0.0);
-	  else pOutputFile->Set_phi_i(0, 180.0*deg);
-	}
-
-      */
-      //Code Above: fixed asymmetry 2D
-
-
-
        
       //Code below: Generating Fixed Asymmetry distribution in 3D
       //Consider artificially generate e+ e- pair
       // some bug at BH/gun/set_pair_mode
       if (pair_mode)
 	{
-	  
-	  //Code below: generate e+ e- pair with same energy and theta distribution.
-	  E = 60*MeV;
-	  c = CLHEP::c_light;
-	  Me = CLHEP::electron_mass_c2;
 
+	  /*
 	  G4double A,a, Temp, Randa, ThetaM;
 	  //Assigning Asymmetry
 	  A = 0.5;
@@ -307,6 +167,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	    //		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
 		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
 	  }
+	  */
+	  G4int CurrentEvent = anEvent->GetEventID(); 
+	  if(CurrentEvent == 1) { Convert(1) ;}
+	  else ConvertNext();
+	  cerr << "Primary data file converted." << endl;
+	  PrintVertex();
+
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
@@ -321,6 +188,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
 	  particleGun->GeneratePrimaryVertex(anEvent);
 
+	  // for output: index 0: positron, index 1:eletron.
 	  pOutputFile->Set_energy_i(1,KEe);
 	  //pOutputFile->Set_delta_i(1,delta_in);
 	  pOutputFile->Set_x_i(1,x_in);
@@ -345,168 +213,60 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  pOutputFile->Set_phi_i(0,Phip);
 	}
       //Code Above:Fixed Asymmetry 3D */
-
-
-      /*
-      //Symmetric energy distribution 3D
-      // Code below: Generte e+ e- pair with same energy and momentum distribution in 3D
-      if (pair_mode)
-	{	  
-	  E = 60*MeV;
-	  c = CLHEP::c_light;
-	  Me = CLHEP::electron_mass_c2;
-
-	  //Compute electron energy, momentum components
- 
-	  G4double Rand = CLHEP::RandFlat::shoot(0.0, 1.0);
-	  if(Rand <= 0.50){
-	      do{
-		Ee = CLHEP::RandFlat::shoot(20.00*MeV, 40.0*MeV);
-		//Ee = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
-		Thetae = CLHEP::RandFlat::shoot( 0.0, 1);
-		Phie = CLHEP::RandFlat::shoot(0.0*deg, 360.0*deg);
-		Thetae = (acos(-2*Thetae + 1))*rad;
-
-		Pe = sqrt(Ee*Ee-Me*Me);
-		Pex = Pe*cos(Thetae);
-		Pey = Pe*sin(Thetae)*cos(Phie);
-		Pez = Pe*sin(Thetae)*sin(Phie);
-		KEe = Ee - Me;
-
-		//Compute positron energy, momentum components
-		Ep = E - Ee;
-		Ppx = sqrt((E-Ee)*(E-Ee)-Pey*Pey-Pez*Pez-Me*Me);
-		Ppy = -Pey;
-		Ppz = -Pez;
-		KEp = Ep - Me;
-
-	      }while (Ee < Me || ((E-Ee)*(E-Ee)-Pey*Pey-Pez*Pez-Me*Me) < 0.0 || Thetae > 20.0*deg);
-
-	      Thetap = (atan2(sqrt(Ppy*Ppy+Ppz*Ppz),Ppx))*rad;
-	  }
-	  else {
-	      do{
-		Ep = CLHEP::RandFlat::shoot(20.0*MeV, 40.0*MeV);
-		//Ep = CLHEP::RandFlat::shoot(0.0*MeV, 60.0*MeV);
-		Thetap = CLHEP::RandFlat::shoot( 0.0, 1);
-		Phip = CLHEP::RandFlat::shoot(0.0*deg, 360.0*deg);
-		Thetap = (acos(-2*Thetap + 1))*rad;
-
-		Pp = sqrt(Ep*Ep-Me*Me);
-		Ppx = Pp*cos(Thetap);
-		Ppy = Pp*sin(Thetap)*cos(Phip);
-		Ppz = Pp*sin(Thetap)*sin(Phip);
-		KEp = Ep - Me;
-
-		//Compute positron energy, momentum components
-		Ee = E - Ep;
-		Pex = sqrt((E-Ep)*(E-Ep)-Ppy*Ppy-Ppz*Ppz-Me*Me);
-		Pey = -Ppy;
-		Pez = -Ppz;
-		KEe = Ee - Me;
-
-	      }while (Ep < Me || ((E-Ep)*(E-Ep)-Ppy*Ppy-Ppz*Ppz-Me*Me) < 0.0 || Thetap > 20.0*deg);
-
-	      Thetae = (atan2(sqrt(Pey*Pey+Pez*Pez),Pex))*rad;
-	  }
-
-
-
-
-	  //Below just assigning data to particle gun.
-	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
-	  G4String ParticleName;
-
-	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
-	  particleGun->SetParticleDefinition(P_electron);
-	  
-	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	  targ_in = target_position;
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEe);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
-	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  pOutputFile->Set_energy_i(1,KEe);
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_x_i(1,x_in);
-	  pOutputFile->Set_y_i(1,y_in);
-	  pOutputFile->Set_theta_i(1,Thetae);
-	  pOutputFile->Set_phi_i(1,Phie);
-
-	  //	  cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
-
-	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
-	  particleGun->SetParticleDefinition(P_positron);
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEp);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, Ppz));
-	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  pOutputFile->Set_energy_i(0,KEp);
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_x_i(0,x_in);
-	  pOutputFile->Set_y_i(0,y_in);
-	  pOutputFile->Set_theta_i(0,Thetap);
-	  pOutputFile->Set_phi_i(0,Phip);
-}
-	  //	  cerr << "Ep = " << Ep/MeV << " MeV/c." << "Ppx = " << Ppx/MeV << " MeV/c."<< "Ppy = " << Ppy/MeV << " MeV/c."<< "Thetap = "<< Thetap/deg << endl;
-	  //	  cerr << "Ee + Ep = " << (Ee+Ep)/MeV << "MeV." << endl;	
-      //Code Above:Symmetric energy distribution 3D
-      */
-
-
-
-    /*
-      //Code Below: Normal case or gamma mode.
-
-      else
-	{
-      // choose angle
-      do	{
-	if(theta_max == theta_min) { theta_in = theta_min; }
-	else { theta_in =  CLHEP::RandFlat::shoot(theta_min, theta_max); }
-	if(phi_max == phi_min) { phi_in = phi_min; }
-	else { phi_in =  CLHEP::RandFlat::shoot(phi_min, phi_max); }
-	radius = sqrt(theta_in*theta_in +phi_in*phi_in);
-      } while (radius > angle_max);
-      
-      // choose delta
-      if(delta_max == delta_min) { delta_in = delta_min; }
-      else { delta_in =  CLHEP::RandFlat::shoot(delta_min, delta_max); }
-      energy_in = central_energy*(1. + delta_in/100.);
-      particleGun->SetParticleEnergy(energy_in);
-      if(gamma_mode)
-	{
-	  targ_in = target_position - Detector->GetTargetContainerThick()/2.;
-	}
-      else
-	{
-	  // choose random depth within target
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	}
-      particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-      v_x = 1.*cm;
-      v_y = tan(theta_in)*v_x;
-      v_z = tan(phi_in)*v_x;
-      particleGun->SetParticleMomentumDirection(G4ThreeVector(v_x, v_y, v_z));
-
-      pOutputFile->Set_energy_i(0,energy_in);
-      pOutputFile->Set_delta_i(0,delta_in);
-      pOutputFile->Set_x_i(0,x_in);
-      pOutputFile->Set_y_i(0,y_in);
-      pOutputFile->Set_theta_i(0,theta_in);
-      pOutputFile->Set_phi_i(0,phi_in);
-	
-      //G4cout << "Generate Primary...." << G4endl;
-      particleGun->GeneratePrimaryVertex(anEvent);
-      //G4cout << "Generated Primary...." << G4endl;
-      }
-      */
-      //Code Above: Normal case or gamma mode.
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+
+void PrimaryGeneratorAction::OpenFile(string filenumber){
+	string filename;
+//	filename = "./VertexGen/event.run"+filenubmer+".dat";
+//	filename = "~/BHsim/CrossSections/VertexGen/events.run"+filenubmer+".dat";
+	filename = "/home/haoyu/BHsim/BetheHeitler-1.3/src/events.run"+filenumber+".dat";
+	cerr << "Primary vertex data filename is " << filename  << endl;
+	infile.open(filename.c_str());
+	if(!infile.is_open()) cerr << "File open failed."  << endl;
+}
+
+int PrimaryGeneratorAction::Convert(int linenumber){
+	if(!infile.is_open()) { cerr << "Primary vertex data file not open." << endl; Clear(); return -1;}
+	if(linenumber == 0) { cerr <<"Line number 0." << endl; Clear(); return -1;}
+	infile.seekg(0);
+	if(linenumber > maxline) { cerr << "Line number exceed total line number: " << maxline << endl; Clear(); return -1; }
+	
+	for(int i = 0; i < linenumber-1; i++) { infile.ignore(200, '\n');}
+	ConvertNext();
+	return 0;
+}
+
+int PrimaryGeneratorAction::ConvertNext(){
+	if(!infile.eof()){
+		infile >> KEe >> KEp >> Thetae >> Phie >> Thetap >> Phip;
+		infile.ignore(200, '\n');
+		KEe *=MeV;
+		KEp *=MeV;
+		Thetae *= deg;
+		Thetap *= deg;
+		Phie *= deg;
+		Phip *= deg;
+
+		Pe = sqrt((KEe+Me)*(KEe+Me) - Me*Me);
+		Pp = sqrt((KEp+Me)*(KEp+Me) - Me*Me);
+		Pex = Pe*cos(Thetae);
+		Ppx = Pp*cos(Thetap);
+		Pey = Pe*sin(Thetae)*cos(Phie);	
+		Ppy = Pp*sin(Thetap)*cos(Phip);	
+		Pez = Pe*sin(Thetae)*sin(Phie);
+		Ppz = Pp*sin(Thetap)*sin(Phip);
+	}
+	else { cerr << "End of file, no conversion. Return -1" << endl; return -1;}
+	return 0;
+}
+
+void PrimaryGeneratorAction::PrintVertex(){
+	cout << "KEe" << KEe/MeV << " , Thetae " << Thetae/deg << ", Phie " << Phie/deg << " , Pe " << Pe/MeV << " , Pex " << Pex/MeV << " , Pey " << Pey/MeV << " , Pez " << Pez/MeV << endl; 
+	cout << "KEp" << KEp/MeV << " , Thetap " << Thetap/deg << ", Phip " << Phip/deg << " , Pp " << Pp/MeV << " , Ppx " << Ppx/MeV << " , Ppy " << Ppy/MeV << " , Ppz " << Ppz/MeV << endl; 
+}
 
 void
 PrimaryGeneratorAction::PrintParameters()
