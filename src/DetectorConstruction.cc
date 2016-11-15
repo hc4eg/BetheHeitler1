@@ -107,6 +107,22 @@ fYokeTopZ = (fMagnetZ - fYokeInnerZ)/2.;
 fYokeBeamHoleDiameter = 7.*cm;
 fYokeMaterial = Iron;
 
+// New cone constraint
+fTargetDistance = 42.26*cm;
+fConeAngle = 5*deg;
+//fConeAddZ = 0.;
+fConeAddZ = (fMagnetX-fYokeInnerX)/4.;
+fConeRmax1 = (fTargetDistance-fYokeInnerX/2.-fConeAddZ)*tan(fConeAngle);
+fConeRmax2 = (fTargetDistance+fYokeInnerX/2.)*tan(fConeAngle);
+cerr << "Cone R1 = " << fConeRmax1 << ", cone R2 = " << fConeRmax2 << endl;
+fConeZ = fYokeInnerX+fConeAddZ;
+//fConeInnerR = 1*cm;
+fConeInnerR = 0.5*cm;
+fConeBoxX = fConeRmax2;
+fConeBoxY = fConeZ;
+fConeBoxZ = fConeZ;
+fConeMaterial = Lead;
+
 // Bag
 fBagThick = 0.1*mm;
 //fBagMaterial = Poly;
@@ -114,7 +130,6 @@ fBagMaterial = Vacuum;
 fMagnetToBagDistance = 1.0*mm;
 
 //target
-fTargetDistance = 42.26*cm;
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
 //fTargetToBagMaterial = Air;
@@ -258,6 +273,7 @@ Copper = fNistMan->FindOrBuildMaterial("G4_Cu");
 Carbon = fNistMan->FindOrBuildMaterial("G4_C");
 Uranium = fNistMan->FindOrBuildMaterial("G4_U");
 Iron = fNistMan->FindOrBuildMaterial("G4_Fe");
+Lead = fNistMan->FindOrBuildMaterial("G4_Pb");
 Vacuum = fNistMan->FindOrBuildMaterial("G4_Galactic");
 
 
@@ -359,7 +375,7 @@ fSolidPoleBevel = 0; fLogicPoleBevel = 0; fPhysPoleBevel = 0;
 					fPoleBevelledDiameter/2.,//r max2
 					fPoleBevelHeight/2.,//z/2
 					0.,//start phi
-					360.*degree);//end phi
+					360.*degree);//phi range
 	fLogicPoleBevel = new G4LogicalVolume(	fSolidPoleBevel,
 						fPoleMaterial,
 						name);
@@ -380,8 +396,50 @@ fSolidPoleBevel = 0; fLogicPoleBevel = 0; fPhysPoleBevel = 0;
 	poleVisAtt->SetForceWireframe(true); //must be wireframe
 	fLogicPoleBevel->SetVisAttributes(poleVisAtt);	
 	fLogicPoleBase->SetVisAttributes(poleVisAtt);	
-				
-	
+
+}
+
+void DetectorConstruction::ConstructCone(G4ThreeVector center){
+
+// New cone constraint
+	G4String Name;
+	Name =  "ConeConstraint";
+	G4double Gap = fYokeInnerZ-2*fPoleHeight;
+	G4RotationMatrix* RotMatrix = new G4RotationMatrix();
+	RotMatrix->rotateY(-90*deg);
+	fCone = new G4Cons("Cone", 0., fConeRmax1, 0., fConeRmax2, fConeZ/2., 0., 2*M_PI*rad);
+	fConeIn = new G4Tubs( "ConeIn",
+				0.,
+				fConeInnerR,
+				fConeZ/2.+1*cm,
+				0.,
+				360.*deg);
+	fConeBox = new G4Box( "ConeBox",
+				fConeBoxX/2.,
+				fConeBoxY/2.,
+				fConeBoxZ/2.+1*mm);
+	fConeInner = new G4SubtractionSolid("Cone-Inner", fCone, fConeIn, 0, G4ThreeVector(0,0,0));
+	fConeInnerBox = new G4SubtractionSolid("Cone-Inner-Box", fConeInner, fConeBox, 0, G4ThreeVector(Gap/2.+fConeBoxX/2.,0,0));
+	fConeInner2Box = new G4SubtractionSolid("Cone-Inner-2Box", fConeInnerBox, fConeBox, 0, G4ThreeVector(-Gap/2.-fConeBoxX/2.,0,0));
+	fLogicCone = new G4LogicalVolume( fConeInner2Box,
+					  fConeMaterial,
+					  Name);
+					  //Name,0,0,0);
+	fPhysCone = new G4PVPlacement( RotMatrix,
+					  center,
+					  fLogicCone,
+					  Name,
+					  fLogicMagnet,
+					  false,
+					  1);
+
+// Vis Attributes
+	G4VisAttributes* ConeVis = new G4VisAttributes(G4Colour::Blue());
+	ConeVis->SetVisibility(true);
+//	ConeVis->SetForceWireframe(true);
+	ConeVis->SetForceSolid(true);
+	fLogicCone->SetVisAttributes(ConeVis);
+
 }
 
 void DetectorConstruction::ConstructYoke(G4ThreeVector center)
@@ -584,6 +642,12 @@ ConstructYoke(magnetCenter);
 	coilCenter = magnetCenter;
 	coilCenter.setZ(coilCenter.getZ() - (fYokeSideZ - fCoilHeight)/2. ); 
 	ConstructCoil(coilCenter, 1);
+
+// New cone constrait
+	G4ThreeVector coneCenter = magnetCenter;
+	coneCenter.setX(magnetCenter.getX()-fConeAddZ/2.);
+	ConstructCone(coneCenter);
+
 
 //now add the magnet:
 fPhysMagnet = 0;

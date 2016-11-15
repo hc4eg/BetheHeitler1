@@ -250,6 +250,9 @@ int PrimaryGeneratorAction::ConvertNext(){
 		Phie *= deg;
 		Phip *= deg;
 
+		// From the way Py computed: 
+		// phi = 0, left , phi = 180 deg , rihgt
+	        // Clockwise looking towards x direction
 		Pe = sqrt((KEe+Me)*(KEe+Me) - Me*Me);
 		Pp = sqrt((KEp+Me)*(KEp+Me) - Me*Me);
 		Pex = Pe*cos(Thetae);

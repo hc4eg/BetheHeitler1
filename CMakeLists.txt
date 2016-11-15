@@ -64,7 +64,8 @@ file(GLOB sources ${PROJECT_SOURCE_DIR}/src/*.cc ${PROJECT_SOURCE_DIR}/dict.cxx)
 add_executable(BetheHeitler BetheHeitler.cc ${sources}) 
 
 # ROOT libraries are in /usr/lib/i386-linux-gnu/root5.34/lib
-target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} -L/usr/lib/i386-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGpad -lTree -lRint -lMatrix -lMathCore -lThread -pthread -lm -ldl -rdynamic)
+#target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} -L/usr/lib/i386-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGpad -lTree -lRint -lMatrix -lMathCore -lThread -pthread -lm -ldl -rdynamic)
+target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} -L/usr/lib/i386-linux-gnu -lCore -lCint -lRIO -lNet -lHist -lGraf -lGpad -lTree -lRint -lMatrix -lMathCore -lThread -pthread -lm -ldl -rdynamic -Wno-shadow)
 #target_link_libraries(BetheHeitler ${Geant4_LIBRARIES} ${ROOT_LIBRARIES})
 #target_link_libraries(fluxnolucid ${Geant4_LIBRARIES} ${G4FakeLucid_lib}
 #${LightOutput_lib})

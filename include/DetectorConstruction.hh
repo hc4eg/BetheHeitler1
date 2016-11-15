@@ -87,6 +87,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	G4Material * Iron;
 	G4Material * Ethane_Argon;
 	G4Material * Carbon;
+	G4Material * Lead;
 
 	//coil
 	G4double fCoilInnerDiameter;
@@ -144,8 +145,35 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	
 	G4double fMagnetX, fMagnetY, fMagnetZ;
 	G4double fYokeInnerX, fYokeInnerZ;
-	//yoke
+
 	
+
+	// New cone constraint
+	G4double fConeAngle;
+	G4double fConeRmax1;
+	G4double fConeRmax2;
+	//G4double fConeDistmin;
+	//G4double fConeDistmax;
+	G4double fConeAddZ;
+	G4double fConeZ;
+	G4double fConeInnerR;
+	G4double fConeBoxX;
+	G4double fConeBoxY;
+	G4double fConeBoxZ;
+	G4Material* fConeMaterial;
+
+	//Cone related volumes
+	G4Cons* fCone;
+	G4Tubs* fConeIn;
+	G4Box* fConeBox;
+	G4VSolid* fConeInner;
+	G4VSolid* fConeInnerBox;
+	G4VSolid* fConeInner2Box;
+	G4LogicalVolume* fLogicCone;
+	G4VPhysicalVolume* fPhysCone;
+
+
+	//yoke
 	G4double fYokeSideX;
 	G4double fYokeSideY;
 	G4double fYokeSideZ;
@@ -249,6 +277,7 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	void DefineMaterials();
 	void ConstructYoke(G4ThreeVector center);
 	void ConstructPole(G4ThreeVector center, G4bool bevelUp, G4int copy);
+	void ConstructCone(G4ThreeVector center);
 	void ConstructCoil(G4ThreeVector center, G4int copy);
 	void ConstructBag(G4ThreeVector center);
 	void ConstructChambers();
