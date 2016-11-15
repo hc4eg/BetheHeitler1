@@ -11,6 +11,7 @@
 #include <TROOT.h>
 #include <TChain.h>
 #include <TFile.h>
+#include <vector>
 
 // Header file for the classes stored in the TTree if any.
 #include <TObject.h>
@@ -86,8 +87,8 @@ public :
    Float_t         D1_P_Edep[kMaxD1_P];   //[D1.P_]
    Float_t         D1_P_Light[kMaxD1_P];   //[D1.P_]
    Float_t         D1_P_Time[kMaxD1_P];   //[D1.P_]
-   vector<Double_t> HKE0;
-   vector<Double_t> HKE1;
+   std::vector<Double_t> HKE0;
+   std::vector<Double_t> HKE1;
 
    // List of branches
    TBranch        *b_B_fUniqueID;   //!
@@ -157,11 +158,12 @@ public :
    virtual Int_t    GetEntry(Long64_t entry);
    virtual Long64_t LoadTree(Long64_t entry);
    virtual void     Init(TTree *tree);
-   virtual void     Loop();
-   virtual void     Loop1();
-   virtual void     Loop2();
-   virtual void     PlotOR();
-   virtual void     PlotORMAXKE();
+   virtual void     PlotAsym();
+   virtual void     PlotInput();
+   virtual void     PlotMonitor();
+   virtual void     PlotPaddle();
+   virtual void     PlotVDC();
+   virtual void     PlotVDCMAXKE();
    virtual Bool_t   Notify();
    virtual void     Show(Long64_t entry = -1);
 };
@@ -184,9 +186,15 @@ WH::WH(TTree *tree) : fChain(0)
 WH::WH(Int_t runNumber, TTree* tree)
 {
      if (tree == 0) {
-       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("Pair.%04d.root",runNumber));
+       // original Pair.%4d.root files
+       //TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("Pair.%04d.root",runNumber));
+       // Theoretic cross section random generated pair as primary vertex
+       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("TheoXsec.%03d.root",runNumber));
+       //TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("TheoXsecLead.%03d.root",runNumber));
       if (!f || !f->IsOpen()) {
-	f = new TFile(Form("Pair.%04d.root",runNumber));
+	//f = new TFile(Form("Pair.%04d.root",runNumber));
+	f = new TFile(Form("TheoXsec.%03d.root",runNumber));
+	//f = new TFile(Form("TheoXsecLead.%03d.root",runNumber));
       }
       //f->GetObject("T",tree);
       tree = (TTree*)gDirectory->Get("T");
