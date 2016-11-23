@@ -47,6 +47,13 @@ DetectorMessenger::DetectorMessenger( DetectorConstruction* Det)
   SetVerbose_cmd->SetGuidance("Usage: verbose true/false.");
   SetVerbose_cmd->SetParameterName("verbose", false, false);
   SetVerbose_cmd->AvailableForStates(G4State_Idle);
+
+  Set_add_cone_cmd = new G4UIcmdWithABool("/BH/detector/set_add_cone",this);
+  Set_add_cone_cmd->SetGuidance("Set if add new cone constraint in magnet."); 
+  Set_add_cone_cmd->SetGuidance("Usage: set_add_cone true/false");
+  Set_add_cone_cmd->SetGuidance("MUST execute /BH/detector/update for changes to take effect.");
+  Set_add_cone_cmd->SetParameterName("set_add_cone", false, false);
+  Set_add_cone_cmd->AvailableForStates(G4State_Idle);
       
   Dump_cmd = new G4UIcmdWithAnInteger("/BH/detector/dump",this);
   Dump_cmd->SetGuidance("Print information about geometry.");
@@ -96,6 +103,7 @@ DetectorMessenger::~DetectorMessenger()
 	delete SetTargetMat_cmd;
 	delete SetTargetThick_cmd;
 	delete SetVerbose_cmd;
+	delete Set_add_cone_cmd;
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -119,6 +127,10 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
   else if(command == SetVerbose_cmd)
 	{
 	Detector->SetVerbose( SetVerbose_cmd->GetNewBoolValue(newValue));
+	}
+  else if(command == Set_add_cone_cmd)
+	{
+	Detector->Set_add_cone( Set_add_cone_cmd->GetNewBoolValue(newValue));
 	}
   else if(command == SetB0_cmd)
 	{

@@ -63,6 +63,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	inline void SetTargetMaterial(G4String mat) { fTargetMaterial = G4Material::GetMaterial(mat);};
 	inline void SetTargetMaterial( G4Material * mat) { fTargetMaterial = mat; }
 	void Print();
+	// method to set if/not include new cone-shaped constraint
+	inline void Set_add_cone(G4bool mode) { add_cone = mode; }
 
   private:
      
@@ -172,6 +174,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
 	G4LogicalVolume* fLogicCone;
 	G4VPhysicalVolume* fPhysCone;
 
+	//Include / not include cone
+	G4bool add_cone;
 
 	//yoke
 	G4double fYokeSideX;

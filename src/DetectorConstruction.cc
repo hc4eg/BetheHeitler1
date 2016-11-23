@@ -644,10 +644,11 @@ ConstructYoke(magnetCenter);
 	ConstructCoil(coilCenter, 1);
 
 // New cone constrait
-	G4ThreeVector coneCenter = magnetCenter;
-	coneCenter.setX(magnetCenter.getX()-fConeAddZ/2.);
-	ConstructCone(coneCenter);
-
+	if(add_cone){
+		G4ThreeVector coneCenter = magnetCenter;
+		coneCenter.setX(magnetCenter.getX()-fConeAddZ/2.);
+		ConstructCone(coneCenter);
+	}
 
 //now add the magnet:
 fPhysMagnet = 0;

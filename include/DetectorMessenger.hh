@@ -38,6 +38,7 @@ class DetectorMessenger: public G4UImessenger
     G4UIcmdWithADoubleAndUnit*	SetTargetThick_cmd;
     G4UIcmdWithAString*		SetTargetMat_cmd;
     G4UIcmdWithABool*		SetVerbose_cmd;
+    G4UIcmdWithABool*		Set_add_cone_cmd;
 };
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
