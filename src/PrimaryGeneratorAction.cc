@@ -228,6 +228,7 @@ void PrimaryGeneratorAction::OpenFile(string filenumber){
 	if(!infile.is_open()) cerr << "File open failed."  << endl;
 }
 
+// Initialize and Convert 1st line of datafile parameters to primary vertex parameters.
 int PrimaryGeneratorAction::Convert(int linenumber){
 	if(!infile.is_open()) { cerr << "Primary vertex data file not open." << endl; Clear(); return -1;}
 	if(linenumber == 0) { cerr <<"Line number 0." << endl; Clear(); return -1;}
@@ -239,6 +240,8 @@ int PrimaryGeneratorAction::Convert(int linenumber){
 	return 0;
 }
 
+// Code for sphereical angle
+/*
 int PrimaryGeneratorAction::ConvertNext(){
 	if(!infile.eof()){
 		infile >> KEe >> KEp >> Thetae >> Phie >> Thetap >> Phip;
@@ -265,10 +268,48 @@ int PrimaryGeneratorAction::ConvertNext(){
 	else { cerr << "End of file, no conversion. Return -1" << endl; return -1;}
 	return 0;
 }
+*/
+
+// Code for projection angle
+int PrimaryGeneratorAction::ConvertNext(){
+	if(!infile.eof()){
+		infile >> KEe >> KEp >> Thetae >> Phie >> Thetap >> Phip;
+		infile.ignore(200, '\n');
+		KEe *=MeV;
+		KEp *=MeV;
+		Thetae *= deg;
+		Thetap *= deg;
+		Phie *= deg;
+		Phip *= deg;
+
+		// From the way Py computed: 
+		// phi = 0, left , phi = 180 deg , rihgt
+	        // Clockwise looking towards x direction
+		Pe = sqrt((KEe+Me)*(KEe+Me) - Me*Me);
+		Pp = sqrt((KEp+Me)*(KEp+Me) - Me*Me);
+		/*
+		Pex = Pe*cos(Thetae);
+		Ppx = Pp*cos(Thetap);
+		Pey = Pe*sin(Thetae)*cos(Phie);	
+		Ppy = Pp*sin(Thetap)*cos(Phip);	
+		Pez = Pe*sin(Thetae)*sin(Phie);
+		Ppz = Pp*sin(Thetap)*sin(Phip);
+		*/
+		Pex = Pe/(1+tan(Thetae)*tan(Thetae)+tan(Phie)*tan(Phie));
+		Pey = Pex*tan(Thetae);
+		Pez = Pex*tan(Phie);
+
+		Ppx = Pp/(1+tan(Thetap)*tan(Thetap)+tan(Phip)*tan(Phip));
+		Ppy = Ppx*tan(Thetap);
+		Ppz = Ppx*tan(Phip);
+	}
+	else { cerr << "End of file, no conversion. Return -1" << endl; return -1;}
+	return 0;
+}
 
 void PrimaryGeneratorAction::PrintVertex(){
-	cout << "KEe" << KEe/MeV << " , Thetae " << Thetae/deg << ", Phie " << Phie/deg << " , Pe " << Pe/MeV << " , Pex " << Pex/MeV << " , Pey " << Pey/MeV << " , Pez " << Pez/MeV << endl; 
-	cout << "KEp" << KEp/MeV << " , Thetap " << Thetap/deg << ", Phip " << Phip/deg << " , Pp " << Pp/MeV << " , Ppx " << Ppx/MeV << " , Ppy " << Ppy/MeV << " , Ppz " << Ppz/MeV << endl; 
+	cout << "KEe " << KEe/MeV << " , Thetae " << Thetae/deg << ", Phie " << Phie/deg << " , Pe " << Pe/MeV << " , Pex " << Pex/MeV << " , Pey " << Pey/MeV << " , Pez " << Pez/MeV << endl; 
+	cout << "KEp " << KEp/MeV << " , Thetap " << Thetap/deg << ", Phip " << Phip/deg << " , Pp " << Pp/MeV << " , Ppx " << Ppx/MeV << " , Ppy " << Ppy/MeV << " , Ppz " << Ppz/MeV << endl; 
 }
 
 void
