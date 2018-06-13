@@ -277,6 +277,7 @@ int PrimaryGeneratorAction::ConvertNext(){
 		infile.ignore(200, '\n');
 		KEe *=MeV;
 		KEp *=MeV;
+		// deg = PI/180; so Theta(in deg)*deg turns Theta(in rad) for computation
 		Thetae *= deg;
 		Thetap *= deg;
 		Phie *= deg;
@@ -295,11 +296,11 @@ int PrimaryGeneratorAction::ConvertNext(){
 		Pez = Pe*sin(Thetae)*sin(Phie);
 		Ppz = Pp*sin(Thetap)*sin(Phip);
 		*/
-		Pex = Pe/(1+tan(Thetae)*tan(Thetae)+tan(Phie)*tan(Phie));
+		Pex = Pe/sqrt(1+tan(Thetae)*tan(Thetae)+tan(Phie)*tan(Phie));
 		Pey = Pex*tan(Thetae);
 		Pez = Pex*tan(Phie);
 
-		Ppx = Pp/(1+tan(Thetap)*tan(Thetap)+tan(Phip)*tan(Phip));
+		Ppx = Pp/sqrt(1+tan(Thetap)*tan(Thetap)+tan(Phip)*tan(Phip));
 		Ppy = Ppx*tan(Thetap);
 		Ppz = Ppx*tan(Phip);
 	}

@@ -4,6 +4,7 @@
 #include <TStyle.h>
 #include <TCanvas.h>
 #include <TGraph.h>
+#include <TGraphErrors.h>
 #include <iostream>
 #include <string>
 #include "Riostream.h"
@@ -15,17 +16,54 @@ using namespace std;
 // Since other data type are unchanged, they're plotted by PlotVDCKE.C
 #define PI 3.1415926
 
+//Since Input directions now have been changed to (t_theta,t_phi)
+//Need to convert back to spherical angle (theta,phi)
+//NOTE: need input in unit rad
+void IConvert(Float_t& theta,Float_t&  phi){
+	Float_t t = theta;
+	Float_t p = phi;
+	theta = atan(sqrt(pow(tan(t),2)+pow(tan(p),2)));
+	phi = atan2(tan(p),tan(t));
+	phi = phi<0 ? 2*PI+phi : phi;
+}
+
+inline void IConvertAngle(Float_t& theta0, Float_t& phi0, Float_t& theta1, Float_t& phi1){
+			theta0 /= 1000.;
+			phi0 /= 1000.;
+			theta1 /= 1000.;
+			phi1 /= 1000.;
+
+			IConvert(theta0, phi0);
+			IConvert(theta1, phi1);
+
+			// rad to degrees
+			theta0 *= 180/PI;
+			phi0 *= 180/PI;
+			theta1 *= 180/PI;
+			phi1 *= 180/PI;
+}
+
 void WH::PlotAsym(){
 	// Canvas
 	TCanvas* CAsym = new TCanvas("CAsym", "Asymmetry graph", 1600,900);
 
+	/*
 	// Constraints , Bin size, etc.
 	Double_t D_theta_tol = 1.;
 	Double_t D_phi_tol = 1.;
 	Double_t D_theta_bin = 0.5;
 	//Double_t D_theta_bin = 15.;
 	Double_t D_delta_bin = 0.25;
-	Int_t NPts = 50;
+	*/
+
+	Double_t D_theta_tol = 1.;
+	Double_t D_phi_tol = 5.;
+	Double_t D_theta_bin = 1;
+	Double_t D_delta_bin = 0.5;
+
+	//Int_t NPts = 50;
+	Int_t NPts = 41;
+	//Int_t NPts = 1001;
 	//Double_t theta_bin[NPts];
 	Double_t theta_bin;
 	cerr << "Which theta for asymmetry? (4~15 degrees)" << endl;
@@ -34,14 +72,21 @@ void WH::PlotAsym(){
 	Double_t NPos[NPts];
 	Double_t NNeg[NPts];
 	Double_t Asym[NPts];
+	//Uncertainty of Asymmetry
+	Double_t Sig_A[NPts];
+	Double_t Sig_Del[NPts];
 	// Initialize:
 	for(Int_t i = 0; i < NPts; i++){
 		NPos[i] = 0;
 		NNeg[i] = 0;
 		Asym[i] = 0;
+		Sig_A[i] = 0;
+		Sig_Del[i] = 0;
 	}
 	for(Int_t i = 0; i < NPts; i++){
-		delta_bin[i] = 24.*((double)i+1.)/((double)NPts);
+		//delta_bin[i] = 24.*((double)i+1.)/((double)NPts);
+		// bins centered at delta = {-20,-19,...,20} (MeV)
+		delta_bin[i] = 40.*((double)i/(double)(NPts-1))-20.;
 	}
 	// Conversion constant from mrad to degrees
 	Double_t DegMrad = (0.18/PI);
@@ -57,15 +102,46 @@ void WH::PlotAsym(){
       		// if (Cut(ientry) < 0) continue;
 	
 		if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0){
-			if(abs((I0_Theta-I1_Theta)*DegMrad) < D_theta_tol && abs((I0_Phi-I1_Phi)*DegMrad) < D_phi_tol){
+
+			/*
+			// mrad to rad
+			I0_Theta /= 1000.;
+			I0_Phi /= 1000.;
+			I1_Theta /= 1000.;
+			I1_Phi /= 1000.;
+
+			IConvert(I0_Theta, I0_Phi);
+			IConvert(I1_Theta, I1_Phi);
+
+			// rad to degrees
+			I0_Theta *= 180/PI;
+			I0_Phi *= 180/PI;
+			I1_Theta *= 180/PI;
+			I1_Phi *= 180/PI;
+			*/
+			IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
+
+			//cerr << "Input0 spherical angles (" << I0_Theta<< "," << I0_Phi << ") (degrees)" << endl;
+			//cerr << "Input1 spherical angles (" << I1_Theta<< "," << I1_Phi << ") (degrees)" << endl;
+			if(abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol){
+			//if(abs(I0_Theta-I1_Theta) < D_theta_tol)
+			//if(abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol)
+				//cerr << "Input (Theta,Phi) difference: ( " << abs(I0_Theta-I1_Theta) << ", " << abs(abs(I0_Phi-I1_Phi)-180) <<") (degrees)" << endl;
+				//cerr << "Theta = " << (I0_Theta+I1_Theta)/2. << endl;
+			}
+			//cerr << "Input Phi difference " << abs(I0_Phi-I1_Phi) << " (degrees)" << endl;
+
+			//if(abs((I0_Theta-I1_Theta)*DegMrad) < D_theta_tol && abs((I0_Phi-I1_Phi)*DegMrad) < D_phi_tol){
+			if(abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol){
+				//cerr << "Phi difference: " << (I0_Phi-I1_Phi)*DegMrad << "(Degrees)" << endl;
 				for(int i = 0; i < NPts; i++){
-					if(abs(theta_bin-(I0_Theta+I1_Theta)*DegMrad/2.) < (D_theta_bin/2.)
+					if(abs(theta_bin-(I0_Theta+I1_Theta)/2.) < (D_theta_bin/2.)
 					&& abs(delta_bin[i]-(I1_Energy-I0_Energy)) < (D_delta_bin/2.)){ 
 						NPos[i]++;
-						cerr << "Theta bin = " << theta_bin << ", Theta = " << (I0_Theta+I1_Theta)*DegMrad/2. << endl;
-						cerr << "delta bin = " << delta_bin[i] << ", delta =  " << (I1_Energy-I0_Energy) << endl << endl;
+						//cerr << "Theta bin = " << theta_bin << ", Theta = " << (I0_Theta+I1_Theta)/2. << endl;
+						//cerr << "delta bin = " << delta_bin[i] << ", delta =  " << (I1_Energy-I0_Energy) << endl << endl;
 					}
-					if(abs(theta_bin-(I0_Theta+I1_Theta)*DegMrad/2.) < (D_theta_bin/2.)
+					if(abs(theta_bin-(I0_Theta+I1_Theta)/2.) < (D_theta_bin/2.)
 					&& abs(delta_bin[i]+(I1_Energy-I0_Energy)) < (D_delta_bin/2.)) NNeg[i]++;
 				}
 			}
@@ -76,15 +152,19 @@ void WH::PlotAsym(){
 		else{
 			Asym[i] = (NPos[i]-NNeg[i])/(NPos[i]+NNeg[i]); 
 			cerr << "Npos[i] = " << NPos[i] << ", Nneg[i] = " << NNeg[i] << endl;
+
+			//Compute statistical uncertainties
+			Sig_A[i] = 4*NPos[i]*NNeg[i]/(pow((NPos[i]+NNeg[i]),3.));
+			Sig_A[i] = sqrt(Sig_A[i]);
 		}
 	}
-	TGraph* GAsym = new TGraph(NPts, delta_bin, Asym);
+	//TGraph* GAsym = new TGraph(NPts, delta_bin, Asym);
+	TGraphErrors* GAsym = new TGraphErrors(NPts, delta_bin, Asym, Sig_Del, Sig_A);
 	GAsym->SetTitle(Form("Asymmetry for fixed theta = %f",theta_bin));
 	GAsym->GetXaxis()->SetTitle("Delta");
 	GAsym->GetYaxis()->SetTitle("Asymmetry");
 	GAsym->GetXaxis()->CenterTitle();
 	GAsym->GetYaxis()->CenterTitle();
-
 	CAsym->cd(); GAsym->Draw();
 }
 
@@ -129,6 +209,9 @@ void WH::PlotInput(){
       	if (ientry < 0) break;
       	nb = fChain->GetEntry(jentry);   nbytes += nb;
       	// if (Cut(ientry) < 0) continue;
+
+	IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
+
 	if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0){
 		for (int i = 0; i < 2; i++){
 			if(i == 0){
@@ -136,21 +219,21 @@ void WH::PlotInput(){
 				HIDelta[i]->Fill(I0_Delta);
 				HIX[i]->Fill(I0_X);
 				HIY[i]->Fill(I0_Y);
-				HITheta[i]->Fill(I0_Theta*DegMrad);
-				HIPhi[i]->Fill(I0_Phi*DegMrad);
+				HITheta[i]->Fill(I0_Theta);
+				HIPhi[i]->Fill(I0_Phi);
 			}
 			else{
 				HIEnergy[i]->Fill(I1_Energy);
 				HIDelta[i]->Fill(I1_Delta);
 				HIX[i]->Fill(I1_X);
 				HIY[i]->Fill(I1_Y);
-				HITheta[i]->Fill(I1_Theta*DegMrad);
-				HIPhi[i]->Fill(I1_Phi*DegMrad);
+				HITheta[i]->Fill(I1_Theta);
+				HIPhi[i]->Fill(I1_Phi);
 			}
 		}
-		HIThetaDiff->Fill((I1_Theta-I0_Theta)*DegMrad);
-		HIPhiDiff->Fill(abs(I1_Phi-I0_Phi)*DegMrad);
-		HIth1th2->Fill(I0_Theta*DegMrad, I1_Theta*DegMrad);
+		HIThetaDiff->Fill((I1_Theta-I0_Theta));
+		HIPhiDiff->Fill(abs(I1_Phi-I0_Phi));
+		HIth1th2->Fill(I0_Theta, I1_Theta);
    	}
    }
    
@@ -252,12 +335,12 @@ void WH::PlotPaddle(){
 		CP[i]->Divide(2,2);
 	}
 	//Histograms
-	TH1S* HPNum[2];
+	TH1I* HPNum[2];
 	TH1F* HPEdep[2];
 	TH1F* HPLight[2];
 	TH1F* HPTime[2];
 	for(int i = 0; i < 2; i++){
-		HPNum[i] = new TH1S(Form("HPNum %d",i), Form("Detector %d Paddle Number",i),29,0,29);
+		HPNum[i] = new TH1I(Form("HPNum %d",i), Form("Detector %d Paddle Number",i),29,0,29);
 		HPEdep[i] = new TH1F(Form("HPEdep %d",i), Form("Detector %d Paddle Energy deposite",i),100,0.,10.);
 		HPLight[i] = new TH1F(Form("HPLight %d",i), Form("Detctor %d Paddle Light", i),100,0.,10.);
 		HPTime[i] = new TH1F(Form("HPTime %d",i), Form("Detector %d Paddle Time",i),100,5,9.);
@@ -414,24 +497,24 @@ void WH::PlotVDC()
      H0Wire[i] = new TH1I(Form("H0Wire WirePlane%d", i), Form("Detector0 VDC WirePlane%d Wire Number", i), 279, 0, 279);
      H0KE[i] = new TH1F(Form("H0KE WirePlane%d", i) , Form("Detector0 VDC WirePlane%d KE", i), 600, 0,60.0);
      H0X[i] = new TH1F(Form("H0X WirePlane%d", i) , Form("Detector0 VDC WirePlane%d X", i), 400, -50., 50.);
-     H0X[i]->SetBit(TH1::kCanRebin);
+     //  H0X[i]->SetBit(TH1::kCanRebin);
      H0Y[i] = new TH1F(Form("H0Y WirePlane%d", i) , Form("Detector0 VDC WirePlane%d Y", i), 100, -25., 25.);
-     H0Y[i]->SetBit(TH1::kCanRebin);
+     //  H0Y[i]->SetBit(TH1::kCanRebin);
      H0ToF[i] = new TH1F(Form("H0ToF WirePlane%d", i), Form("Detector0 VDC WirePlane%d ToF", i), 100, 0., 10.);
      H0Charge[i] = new TH1F(Form("H0Charge WirePlane%d", i), Form("Detector0 VDC WirePlane%d Charge", i), 4, -2., 2.);
      H0Particle[i] = new TH1F(Form("H0Particle WirePlane%d", i), Form("Detector0 VDC WirePlane%d Particle",i), 50, -25., 25.);
-     H0Particle[i]->SetBit(TH1::kCanRebin);
+     //  H0Particle[i]->SetBit(TH1::kCanRebin);
 
      H1Wire[i] = new TH1I(Form("H1Wire WirePlane%d", i), Form("Detector1 VDC WirePlane%d Wire Number", i), 279, 0, 279);
      H1KE[i] = new TH1F(Form("H1KE WirePlane%d", i) , Form("Detector1 VDC WirePlane%d KE", i), 600, 0,60.0);
      H1X[i] = new TH1F(Form("H1X WirePlane%d", i) , Form("Detector1 VDC WirePlane%d X", i), 400, -50., 50.);
-     H1X[i]->SetBit(TH1::kCanRebin);
+     //  H1X[i]->SetBit(TH1::kCanRebin);
      H1Y[i] = new TH1F(Form("H1Y WirePlane%d", i) , Form("Detector1 VDC WirePlane%d Y", i), 100, -25., 25.);
-     H1Y[i]->SetBit(TH1::kCanRebin);
+     //  H1Y[i]->SetBit(TH1::kCanRebin);
      H1ToF[i] = new TH1F(Form("H1ToF WirePlane%d", i), Form("Detector1 VDC WirePlane%d ToF", i), 100, 0., 10.);
      H1Charge[i] = new TH1F(Form("H1Charge WirePlane%d", i), Form("Detector1 VDC WirePlane%d Charge", i), 4, -2., 2.);
      H1Particle[i] = new TH1F(Form("H1Particle WirePlane%d", i), Form("Detector1 VDC WirePlane%d Particle",i), 50, -25., 25.);
-     H1Particle[i]->SetBit(TH1::kCanRebin);
+     //  H1Particle[i]->SetBit(TH1::kCanRebin);
    }
 
    Long64_t nentries = fChain->GetEntriesFast();

@@ -187,13 +187,13 @@ WH::WH(Int_t runNumber, TTree* tree)
 {
      if (tree == 0) {
        // original Pair.%4d.root files
-       //TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("Pair.%04d.root",runNumber));
+       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("Pair.%04d.root",runNumber));
        // Theoretic cross section random generated pair as primary vertex
-       TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("TheoXsec.%03d.root",runNumber));
+       //TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("TheoXsec.%03d.root",runNumber));
        //TFile *f = (TFile*)gROOT->GetListOfFiles()->FindObject(Form("TheoXsecLead.%03d.root",runNumber));
       if (!f || !f->IsOpen()) {
-	//f = new TFile(Form("Pair.%04d.root",runNumber));
-	f = new TFile(Form("TheoXsec.%03d.root",runNumber));
+	f = new TFile(Form("Pair.%04d.root",runNumber));
+	//f = new TFile(Form("TheoXsec.%03d.root",runNumber));
 	//f = new TFile(Form("TheoXsecLead.%03d.root",runNumber));
       }
       //f->GetObject("T",tree);
