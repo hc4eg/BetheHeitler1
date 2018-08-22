@@ -171,8 +171,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  G4int CurrentEvent = anEvent->GetEventID(); 
 	  if(CurrentEvent == 1) { Convert(1) ;}
 	  else ConvertNext();
-	  cerr << "Primary data file converted." << endl;
-	  PrintVertex();
+	  //cerr << "Primary data file converted." << endl;
+	  //PrintVertex();
 
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
@@ -297,6 +297,12 @@ int PrimaryGeneratorAction::ConvertNext(){
 		Pez = Pe*sin(Thetae)*sin(Phie);
 		Ppz = Pp*sin(Thetap)*sin(Phip);
 		*/
+
+
+		// x is beam direction
+		// y is horrizontal, left positive
+		// z is vertical, up positive
+		// Makes (x,y,z) right hand
 		Pex = Pe/sqrt(1+tan(Thetae)*tan(Thetae)+tan(Phie)*tan(Phie));
 		Pey = Pex*tan(Thetae);
 		Pez = Pex*tan(Phie);
