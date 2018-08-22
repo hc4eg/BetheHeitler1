@@ -20,9 +20,12 @@
 /BH/outputfile/set_prefix Pair
 /BH/outputfile/set_use_unique_filename true
 
-/run/beamOn 5
+#/run/beamOn 5 
 #/run/beamOn 5000
 # 677000 is the nubmer of events in event_run001.dat file
 #/run/beamOn 677000
-#/run/beamOn 990000
+#/run/beamOn 1020000
+
+#/run/beamOn 4990000
+/run/beamOn 5000000
 #/run/beamOn 2000000
