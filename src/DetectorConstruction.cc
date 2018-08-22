@@ -644,6 +644,14 @@ ConstructYoke(magnetCenter);
 	ConstructCoil(coilCenter, 1);
 
 // New cone constrait
+	//add_cone = true;
+	cerr << "ADD CONE FLAG";
+	Set_add_cone(true);
+	for(int i = 0; i < 200; i++){
+		if(add_cone) cerr << "true";
+		else cerr << "false";
+		cerr << endl;
+	}
 	if(add_cone){
 		G4ThreeVector coneCenter = magnetCenter;
 		coneCenter.setX(magnetCenter.getX()-fConeAddZ/2.);

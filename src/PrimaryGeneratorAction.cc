@@ -211,6 +211,7 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  pOutputFile->Set_y_i(0,y_in);
 	  pOutputFile->Set_theta_i(0,Thetap);
 	  pOutputFile->Set_phi_i(0,Phip);
+
 	}
       //Code Above:Fixed Asymmetry 3D */
 }

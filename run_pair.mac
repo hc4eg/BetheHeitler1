@@ -11,14 +11,18 @@
 
 
 /BH/gun/set_pair_mode true
+
+#/BH/detector/set_add_cone true
 #/BH/detector/update
+
 /BH/outputfile/set_out_pair_mode true
 /BH/outputfile/set_use_monitor true
 /BH/outputfile/set_prefix Pair
 /BH/outputfile/set_use_unique_filename true
 
+/run/beamOn 5
 #/run/beamOn 5000
 # 677000 is the nubmer of events in event_run001.dat file
 #/run/beamOn 677000
-/run/beamOn 990000
+#/run/beamOn 990000
 #/run/beamOn 2000000
