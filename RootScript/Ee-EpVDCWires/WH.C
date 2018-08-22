@@ -16,6 +16,7 @@ using namespace std;
 // Note all below functions are used to plot data stored in VDC objects
 // Since other data type are unchanged, they're plotted by PlotVDCKE.C
 #define PI 3.1415926
+const Double_t Wire_angle = 26.45*PI/180.;
 
 //IConvert: Since Input directions now have been changed to (t_theta,t_phi)
 //Need to convert (t_theta,t_phi) back to spherical angle (theta,phi)
@@ -579,6 +580,17 @@ void WH::PlotVDC()
    CD1Charge->Divide(2,2);
    CD1Particle->Divide(2,2);   
 
+   //To find out abnormality of 2nd wireplanes of each wire chamber, plot (X,Y) distribution of each wire plane
+   TCanvas* CD0XY = new TCanvas("CD0XY", "Detector0 (X,Y)", 1600, 1200);
+   CD0XY->Divide(2,2);
+   TCanvas* CD1XY = new TCanvas("CD1XY", "Detector1 (X,Y)", 1600, 1200);
+   CD1XY->Divide(2,2);
+   //Also plot hit coordinate parallel to wire direction
+   TCanvas* CD0Xp = new TCanvas("CD0Xp", "Detector0 Xp", 1600, 1200);
+   CD0Xp -> Divide(2,2);
+   TCanvas* CD1Xp = new TCanvas("CD1Xp", "Detector1 Xp", 1600, 1200);
+   CD1Xp -> Divide(2,2);
+
    //Histograms
    TH1D* HENum = new TH1D("HENum", "Event Number", 100, 0, 100000);
    HENum->SetBit(TH1::kCanRebin);
@@ -597,14 +609,24 @@ void WH::PlotVDC()
    TH1F* H1Charge[4];
    TH1F* H0Particle[4];
    TH1F* H1Particle[4];
+
+   // Additional (X,Y) and Xp check
+   TH2F* H0XY[4];
+   TH2F* H1XY[4];
+   TH1F* H0Xp[4];
+   TH1F* H1Xp[4];
    
    for (int i = 0; i< 4; i++){
      H0Wire[i] = new TH1I(Form("H0Wire WirePlane%d", i), Form("Detector0 VDC WirePlane%d Wire Number", i), 279, 0, 279);
      H0KE[i] = new TH1F(Form("H0KE WirePlane%d", i) , Form("Detector0 VDC WirePlane%d KE", i), 600, 0,60.0);
-     H0X[i] = new TH1F(Form("H0X WirePlane%d", i) , Form("Detector0 VDC WirePlane%d X", i), 400, -50., 50.);
+
+
+     H0X[i] = new TH1F(Form("H0X WirePlane%d", i) , Form("Detector0 VDC WirePlane%d X", i), 4000, -50., 50.);
      //  H0X[i]->SetBit(TH1::kCanRebin);
-     H0Y[i] = new TH1F(Form("H0Y WirePlane%d", i) , Form("Detector0 VDC WirePlane%d Y", i), 100, -25., 25.);
+     H0Y[i] = new TH1F(Form("H0Y WirePlane%d", i) , Form("Detector0 VDC WirePlane%d Y", i), 1000, -25., 25.);
      //  H0Y[i]->SetBit(TH1::kCanRebin);
+
+
      H0ToF[i] = new TH1F(Form("H0ToF WirePlane%d", i), Form("Detector0 VDC WirePlane%d ToF", i), 100, 0., 10.);
      H0Charge[i] = new TH1F(Form("H0Charge WirePlane%d", i), Form("Detector0 VDC WirePlane%d Charge", i), 4, -2., 2.);
      H0Particle[i] = new TH1F(Form("H0Particle WirePlane%d", i), Form("Detector0 VDC WirePlane%d Particle",i), 50, -25., 25.);
@@ -612,15 +634,34 @@ void WH::PlotVDC()
 
      H1Wire[i] = new TH1I(Form("H1Wire WirePlane%d", i), Form("Detector1 VDC WirePlane%d Wire Number", i), 279, 0, 279);
      H1KE[i] = new TH1F(Form("H1KE WirePlane%d", i) , Form("Detector1 VDC WirePlane%d KE", i), 600, 0,60.0);
-     H1X[i] = new TH1F(Form("H1X WirePlane%d", i) , Form("Detector1 VDC WirePlane%d X", i), 400, -50., 50.);
+
+
+     H1X[i] = new TH1F(Form("H1X WirePlane%d", i) , Form("Detector1 VDC WirePlane%d X", i), 4000, -50., 50.);
      //  H1X[i]->SetBit(TH1::kCanRebin);
-     H1Y[i] = new TH1F(Form("H1Y WirePlane%d", i) , Form("Detector1 VDC WirePlane%d Y", i), 100, -25., 25.);
+     H1Y[i] = new TH1F(Form("H1Y WirePlane%d", i) , Form("Detector1 VDC WirePlane%d Y", i), 1000, -25., 25.);
      //  H1Y[i]->SetBit(TH1::kCanRebin);
+
+
      H1ToF[i] = new TH1F(Form("H1ToF WirePlane%d", i), Form("Detector1 VDC WirePlane%d ToF", i), 100, 0., 10.);
      H1Charge[i] = new TH1F(Form("H1Charge WirePlane%d", i), Form("Detector1 VDC WirePlane%d Charge", i), 4, -2., 2.);
      H1Particle[i] = new TH1F(Form("H1Particle WirePlane%d", i), Form("Detector1 VDC WirePlane%d Particle",i), 50, -25., 25.);
      //  H1Particle[i]->SetBit(TH1::kCanRebin);
+
+	//(X,Y) distribution
+	H0XY[i] = new TH2F(Form("H0 XY WirePlane %d",i), Form("Detector0 VDC WirePlane%d (X,Y)",i), 500, -50., 50., 250, -25., 25.);
+	H1XY[i] = new TH2F(Form("H1 XY WirePlane %d",i), Form("Detector1 VDC WirePlane%d (X,Y)",i), 500, -50., 50., 250, -25., 25.);
+
+	H0Xp[i] = new TH1F(Form("H0 Xp WirePlane %d",i), Form("Detector0 VDC WirePlane%d Xp",i), 5000, -50, 50);
+	H1Xp[i] = new TH1F(Form("H1 Xp WirePlane %d",i), Form("Detector1 VDC WirePlane%d Xp",i), 5000, -50, 50);
    }
+
+	Double_t Xp0[D0_W_];
+	Double_t Xp1[D1_W_];
+	for(int i = 0; i < D0_W_; i++) Xp0[i] = 0.;
+	for(int i = 0; i < D1_W_; i++) Xp1[i] = 0.;
+	Double_t Rp[2] = {tan(Wire_angle), -1.};
+	for(int i = 0; i < 2; i++) { Rp[i] /= sqrt(1+pow(tan(Wire_angle),2.)); }
+	//cerr << "Rp = (" << Rp[0] << "," << Rp[1] << ")" << "   ,   |Rp|" <<  sqrt(1+pow(tan(Wire_angle),2.)) << endl;
 
    Long64_t nentries = fChain->GetEntriesFast();
 
@@ -634,7 +675,8 @@ void WH::PlotVDC()
       //Fill CENum:
       HENum->Fill(ENum);
       
-      // Loop over data from a single hit, find MAX KE in each wireplane and its index
+	// Loop over data from a single hit, find MAX KE in each wireplane and its index
+	// flag0 flag1 to make histograms fill with MAX KE condition
 	int flag0[4]={0,0,0,0};
 	int flag1[4]={0,0,0,0};
 	int Index0[4]={0,0,0,0};
@@ -673,6 +715,9 @@ void WH::PlotVDC()
 				  	H0ToF[i]->Fill(D0_W_ToF[Index0[i]]);
 				  	H0Charge[i]->Fill(D0_W_Charge[Index0[i]]);
 				  	H0Particle[i]->Fill(D0_W_Particle[Index0[i]]);
+
+					H0XY[i]->Fill(D0_W_X[Index0[i]], D0_W_Y[Index0[i]]);
+					H0Xp[i]->Fill( D0_W_X[Index0[i]]*Rp[0] + D0_W_Y[Index0[i]]*Rp[1] );
 	  			}
 				if(flag1[i] == 1){
 				  	H1Wire[i]->Fill(D1_W_WireNum[Index1[i]]);
@@ -682,6 +727,9 @@ void WH::PlotVDC()
 				  	H1ToF[i]->Fill(D1_W_ToF[Index1[i]]);
 				  	H1Charge[i]->Fill(D1_W_Charge[Index1[i]]);
 				  	H1Particle[i]->Fill(D1_W_Particle[Index1[i]]);
+
+					H1XY[i]->Fill(D1_W_X[Index1[i]], D1_W_Y[Index1[i]]);
+					H1Xp[i]->Fill( D1_W_X[Index1[i]]*Rp[0] + D1_W_Y[Index1[i]]*Rp[1] );
 				}
 			}
 		}
@@ -699,7 +747,11 @@ void WH::PlotVDC()
 					  	H0Y[j]->Fill(D0_W_Y[i]);
 					      	H0ToF[j]->Fill(D0_W_ToF[i]);
 						H0Charge[j]->Fill(D0_W_Charge[i]);
-					      	H0Particle[j]->Fill(D0_W_Particle[i]);}}}
+					      	H0Particle[j]->Fill(D0_W_Particle[i]);
+
+						H0XY[j]->Fill(D0_W_X[i], D0_W_Y[i]);
+						H0Xp[i]->Fill( D0_W_X[i]*Rp[0] + D0_W_Y[i]*Rp[1] );
+			}}}
 				// Same for D1
 			for(int i = 0; i < D1_W_; i++){
 				for(int j = 0; j < 4; j++){
@@ -710,7 +762,11 @@ void WH::PlotVDC()
 		           		     	H1Y[j]->Fill(D1_W_Y[i]);
 		     	     		     	H1ToF[j]->Fill(D1_W_ToF[i]);
 		      	      		     	H1Charge[j]->Fill(D1_W_Charge[i]);
-			     	 	      	H1Particle[j]->Fill(D1_W_Particle[i]);}}}
+			     	 	      	H1Particle[j]->Fill(D1_W_Particle[i]);
+
+						H1XY[j]->Fill(D1_W_X[i], D1_W_Y[i]);
+						H1Xp[i]->Fill( D1_W_X[i]*Rp[0] + D1_W_Y[i]*Rp[1] );
+			}}}
       		}
    	}
 	else if (AND == false && MAXKE == true){
@@ -723,6 +779,9 @@ void WH::PlotVDC()
 			  	H0ToF[i]->Fill(D0_W_ToF[Index0[i]]);
 			  	H0Charge[i]->Fill(D0_W_Charge[Index0[i]]);
 			  	H0Particle[i]->Fill(D0_W_Particle[Index0[i]]);
+
+					H0XY[i]->Fill(D0_W_X[Index0[i]], D0_W_Y[Index0[i]]);
+					H0Xp[i]->Fill( D0_W_X[Index0[i]]*Rp[0] + D0_W_Y[Index0[i]]*Rp[1] );
   			}
 			if(flag1[i] == 1){
 			  	H1Wire[i]->Fill(D1_W_WireNum[Index1[i]]);
@@ -732,6 +791,9 @@ void WH::PlotVDC()
 			  	H1ToF[i]->Fill(D1_W_ToF[Index1[i]]);
 			  	H1Charge[i]->Fill(D1_W_Charge[Index1[i]]);
 			  	H1Particle[i]->Fill(D1_W_Particle[Index1[i]]);
+
+					H1XY[i]->Fill(D1_W_X[Index1[i]], D1_W_Y[Index1[i]]);
+					H1Xp[i]->Fill( D1_W_X[Index1[i]]*Rp[0] + D1_W_Y[Index1[i]]*Rp[1] );
 			}
 		}
 	}
@@ -745,7 +807,13 @@ void WH::PlotVDC()
 					  	H0Y[j]->Fill(D0_W_Y[i]);
 					      	H0ToF[j]->Fill(D0_W_ToF[i]);
 						H0Charge[j]->Fill(D0_W_Charge[i]);
-					      	H0Particle[j]->Fill(D0_W_Particle[i]);}}}
+					      	H0Particle[j]->Fill(D0_W_Particle[i]);
+
+						H0XY[j]->Fill(D0_W_X[i], D0_W_Y[i]);
+						//cerr << "D0_W_X " << D0_W_X[i] << ", D0_W_Y " << D0_W_Y[i] << endl;
+						//cerr << "Rp[0] " << Rp[0] << ", Rp[1] " << Rp[1] << endl;
+						H0Xp[i]->Fill( D0_W_X[i]*Rp[0] + D0_W_Y[i]*Rp[1] );
+}}}
 				// Same for D1
 			for(int i = 0; i < D1_W_; i++){
 				for(int j = 0; j < 4; j++){
@@ -756,7 +824,11 @@ void WH::PlotVDC()
 		           		     	H1Y[j]->Fill(D1_W_Y[i]);
 		     	     		     	H1ToF[j]->Fill(D1_W_ToF[i]);
 		      	      		     	H1Charge[j]->Fill(D1_W_Charge[i]);
-			     	 	      	H1Particle[j]->Fill(D1_W_Particle[i]);}}}
+			     	 	      	H1Particle[j]->Fill(D1_W_Particle[i]);
+
+						H1XY[j]->Fill(D1_W_X[i], D1_W_Y[i]);
+						H1Xp[i]->Fill( D1_W_X[i]*Rp[0] + D1_W_Y[i]*Rp[1] );
+}}}
 	}
 }
    
@@ -772,6 +844,8 @@ void WH::PlotVDC()
      CD0ToF->cd(i+1);   H0ToF[i]->Draw();
      CD0Charge->cd(i+1);H0Charge[i]->Draw();
      CD0Particle->cd(i+1);H0Particle[i]->Draw();
+	CD0XY->cd(i+1); H0XY[i]->Draw("COLZ");
+	CD0Xp->cd(i+1); H0Xp[i]->Draw();
 
      CD1Wire->cd(i+1);  H1Wire[i]->Draw();
      CD1KE->cd(i+1);    H1KE[i]->Draw();
@@ -780,6 +854,8 @@ void WH::PlotVDC()
      CD1ToF->cd(i+1);   H1ToF[i]->Draw();
      CD1Charge->cd(i+1);H1Charge[i]->Draw(); 
      CD1Particle->cd(i+1);H1Particle[i]->Draw();
+	CD1XY->cd(i+1); H1XY[i]->Draw("COLZ");
+	CD1Xp->cd(i+1); H1Xp[i]->Draw();
      }
 }
 
