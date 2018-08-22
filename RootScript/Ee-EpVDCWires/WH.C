@@ -914,11 +914,11 @@ void WH::PlotVDCMAXKE(){
    Int_t NPt = 60;
    Double_t del = 120./(Double_t)NPt;
    Int_t N[4][NPt];
-   Double_t A[4][NPt],  Del[NPt];
+   Double_t A[4][NPt], A_Err[4][NPt],  Del[NPt];
 
    for(int n = 0 ; n < 4; n++)
-     for(int m = 0; m < NPt; m++){
-       N[n][m] = 0; Del[m] = -30.0 + m*del/2. + del/4.; A[n][m] = 0.;}
+     for(int m = 0; m < NPt; m++){ 
+       N[n][m] = 0; Del[m] = -30.0 + m*del/2. + del/4.; A[n][m] = 0.; A_Err[n][m]=0;}
  
    Long64_t nentries = fChain->GetEntriesFast();
 
@@ -966,7 +966,8 @@ void WH::PlotVDCMAXKE(){
 	if(TEMPKE0[n] > 2.0 && TEMPKE1[n] > 2.0){
 	  for(int m = 0; m < NPt; m++){
 	    if(TEMPKE1[n] - TEMPKE0[n] > -60.0 + (double)m*del && TEMPKE1[n]- TEMPKE0[n] < -60.0 + ((double)m+1.0)*del)
-	      N[n][m]++;}}}
+	      N[n][m]++;
+	}}}
  
       //Fill Histograms with MAX KE on each WirePlane condition
 	if(AND == false){
@@ -1006,14 +1007,28 @@ void WH::PlotVDCMAXKE(){
    for(Int_t i = 0; i < 4; i++){
      GDN[i] = new TGraph (NPt, Del, ND[i]);
      for(Int_t j = 0; j < NPt/2; j++){
-       if(N[i][NPt/2+j] == 0 && N[i][NPt/2-j-1] == 0) A[i][NPt/2+j] = 0.;
-       else A[i][NPt/2+j] = ((Double_t)N[i][NPt/2+j] - (Double_t)N[i][NPt/2-j-1])/((Double_t)N[i][NPt/2+j] + (Double_t)N[i][NPt/2-j-1]);
-       A[i][NPt/2-j-1] = -A[i][NPt/2+j];}
+       if( N[i][NPt/2+j] == 0 && N[i][NPt/2-j-1] == 0){ 
+		A[i][NPt/2+j] = 0.;
+	        A_Err[i][NPt/2+j] = 0;
+       }
+       else {
+		A[i][NPt/2+j] = ((Double_t)N[i][NPt/2+j] - (Double_t)N[i][NPt/2-j-1])/((Double_t)N[i][NPt/2+j] + (Double_t)N[i][NPt/2-j-1]);
+			A_Err[i][NPt/2+j] = 4*(Double_t)N[i][NPt/2+j]*(Double_t)N[i][NPt/2-j-1]/(pow(((Double_t)N[i][NPt/2+j]+(Double_t)N[i][NPt/2+j]),3.));
+			A_Err[i][NPt/2+j] = sqrt(A_Err[i][NPt/2+j]);
+	    }
+       A[i][NPt/2-j-1] = -A[i][NPt/2+j];
+       A_Err[i][NPt/2-j-1] = A_Err[i][NPt/2+j];
+   }
      GDA[i] = new TGraph (NPt, Del, A[i]);}
+     TGraphErrors* GAsym[4];
+     for(Int_t i = 0; i < 4; i++){
+	GAsym[i] = new TGraphErrors(NPt, Del, A[i], 0, A_Err[i]);
+     }
 
    for(Int_t i = 0; i < 4; i++){
      CDN->cd(i+1); GDN[i] -> Draw();
-     CDA->cd(i+1); GDA[i] -> Draw();
+     CDA->cd(i+1); //GDA[i] -> Draw();
+     GAsym[i]->Draw();
      
      GDN[i]->SetTitle(Form("WirePlane%d Ee-Ep distribution",i));
      GDN[i]->GetXaxis()->SetTitle("Delta: (Ee-Ep)/2");
@@ -1026,6 +1041,8 @@ void WH::PlotVDCMAXKE(){
      GDA[i]->GetYaxis()->SetTitle("Asymmetry");
      GDA[i]->GetXaxis()->CenterTitle();
      GDA[i]->GetYaxis()->CenterTitle();
+
+
 
      C0WX->cd(i+1); H0WX[i]->Draw();
      C1WX->cd(i+1); H1WX[i]->Draw();
