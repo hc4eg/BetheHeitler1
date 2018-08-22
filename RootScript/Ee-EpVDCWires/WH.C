@@ -294,6 +294,7 @@ void WH::PlotInput(){
 		HIY[i] = new TH1F(Form("HIY %d",i), Form("Detector %d input Y",i),80,-4.,4. );	
 		HITheta[i] = new TH1F(Form("HITheta %d",i), Form("Detetor %d input theta",i),300,0., 15.);	
 		HIPhi[i] = new TH1F(Form("HIPhi %d",i), Form("Detector %d phi",i),3600,0., 360.);	
+		//HIPhi[i] = new TH1F(Form("HIPhi %d",i), Form("Detector %d phi",i),3600,-180., 180.);	
 	}
 	Double_t DegMrad = (0.18/PI);
 	//cerr << "1 Degree = " << DegMrad << "mrad." << endl;
@@ -330,7 +331,13 @@ void WH::PlotInput(){
 			}
 		}
 		HIThetaDiff->Fill((I1_Theta-I0_Theta));
-		HIPhiDiff->Fill(abs(I1_Phi-I0_Phi));
+		//Maybe not reflect real case
+		//HIPhiDiff->Fill(abs(I1_Phi-I0_Phi));
+		Double_t Temp_I0_Phi = I0_Phi;
+		Double_t Temp_I1_Phi = I1_Phi;
+		if(I0_Phi < 90) Temp_I0_Phi += 360;
+		if(I1_Phi < 90) Temp_I1_Phi += 360;
+		HIPhiDiff->Fill(Temp_I1_Phi-Temp_I0_Phi);
 		HIth1th2->Fill(I0_Theta, I1_Theta);
    	}
    }
@@ -531,7 +538,7 @@ void WH::PlotVDC()
       //getline(cin, SMAXKE);
       cin >> SMAXKE;
 
-      cerr << "AND is " << SAND << ", MAXKE is " << SMAXKE << endl;
+      //cerr << "AND is " << SAND << ", MAXKE is " << SMAXKE << endl;
 
       if(SAND == "Y") AND = true;
       else AND  = false;
