@@ -334,7 +334,7 @@ if(use_monitor)
 	  G4double KE = aHit->GetKE();
 	  G4double Charge = aHit->GetCharge();
 	  G4int Particle = aHit->GetParticle();
-	  G4ThreeVector pos = ( aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
+	  G4ThreeVector Temppos = ( aHit->GetLocalPrePosition() + aHit->GetLocalPostPosition() )/2.;
 	  
 	  // Compare hit wire number, pacakge, chamber, layer, and
 	  // store associate  WireNumber, Position, Edep, Kineticenergy, Charge, ToF in VDCWireHit[package][chamber][layer]
@@ -347,14 +347,14 @@ if(use_monitor)
 	      // Add edep from the step to total Edep for the wire
 	      VDCWireHit[package][chamber][layer].at(i).Edep += edep;
 	      // Add avg portion of Position of the step for the wire
-	      VDCWireHit[package][chamber][layer].at(i).Position += pos/(WireHitCount[package][chamber][layer].at(i));
+	      VDCWireHit[package][chamber][layer].at(i).Position += Temppos/(WireHitCount[package][chamber][layer].at(i));
 
 	      //cerr << "Layer [" << package << "][" << chamber << "][" << layer << "]"; cerr<< "Wire " << wire << " hit. ";
 	      //cerr<< "Edep = "  << VDCWireHit[package][chamber][layer].at(i).Edep << endl;
 	      
 	      {
-		// The KE, ToF, Charge, Particle info will be stored as a SingleWireHit object as a vector element of the wire
-		// Thus when MAX KE is found, coresponding ToF, Charge, Particle of the hitcollection step can be found easily.
+		// The KE, ToF, Charge, Particle info will be stored as a SingleWireHit object as a part of wire hit
+		// Thus when MAX KE is found, coresponding ToF, Charge, Particle of the hitcollection step are bound together and can be found easily.
 		SingleWireHit SingleHit;
 		SingleHit.Set_KE(KE);
 		SingleHit.Set_ToF(time);
