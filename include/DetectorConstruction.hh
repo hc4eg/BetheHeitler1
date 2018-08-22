@@ -249,7 +249,8 @@ class DetectorConstruction : public G4VUserDetectorConstruction
   G4double fGapThick;
 
   //New Data Constructed Wires for WirePlane
-  static const G4int fWireNum = 200;
+  //static const G4int fWireNum = 200;
+  static const G4int fWireNum = 279;
   G4double fWireX; 
   G4double fWireAngle; // = 45*deg;
   G4double fWireWidth, fWireThick, fWireLength;

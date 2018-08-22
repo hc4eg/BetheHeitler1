@@ -1065,6 +1065,8 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
   //Shape for SD Chamber
   G4Box * gas2Box = new G4Box ("Gas layer 2 box", gas2X/2., gas2Y/2., gas2Z/2.); 
   fWireX = (gas2X + gas2Z*tan(fWireAngle))/((G4double)fWireNum);
+  //for(int i = 0; i < 100; i++)
+  //	cerr <<  "gas2X = " << gas2X << ", gas2Z = "<< gas2Z <<  ", fWireAgnel = " << fWireAngle << " , fWireNum = "  << fWireNum << " , fWireX = " << fWireX << endl;
   
 
   // Below is the geometry of wires as sensitive detector in wire plane: 
@@ -1073,9 +1075,10 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
 
 
   //Note: Real wire tile angle is 26.5deg, number of wires on each plane is 279.
-  //However, gas2X = 204.47cm/80.5inch, gas2Z = 53.34cm/21.0inch, is inconsistent with wire spacing 1.112cm 
+  //However, gas2X = 204.47cm/80.5inch, gas2Z = 53.34cm/21.0inch, get wirespacing fWireX from formula above 1.117cm
+  //close to wire spacing 1.112cm in documentation
   // Dimensions for a single wire: Wirelength, Width and Thickness for each wire
-  fWireLength = fWireX*sin(fWireAngle)+gas2Z/cos(fWireAngle);
+  fWireLength = 2*fWireX*sin(fWireAngle)+gas2Z/cos(fWireAngle);
   fWireWidth = fWireX*cos(fWireAngle);
   fWireThick = gas2Y;
 
@@ -1096,8 +1099,9 @@ Notes:	-Gas frame has same dimensions as Al frame except for width and # holes (
 
    //Construct Individual Wire in WirePlane
    G4VSolid * fWire[fWireNum];
-   G4VSolid * WirePlane = new G4Box("WirePlane Box", gas2X, gas2Y, gas2Z);
-   G4VSolid * WireBox = new G4Box("Wire Box", fWireWidth, fWireThick, fWireLength);
+   //FIXME: All G4Box parameters needs /2. ?
+   G4VSolid * WirePlane = new G4Box("WirePlane Box", gas2X/2., gas2Y/2., gas2Z/2.);
+   G4VSolid * WireBox = new G4Box("Wire Box", fWireWidth/2., fWireThick/2., fWireLength/2.);
    for(G4int i = 0; i < fWireNum; i++){
      // Construct G4IntersectionSolid for individual wire, and put all wires into the wireplane 
      // Rotation RotWire makes all wires tilt fWireAngle in wireplane
