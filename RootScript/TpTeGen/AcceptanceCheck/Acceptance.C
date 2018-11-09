@@ -16,7 +16,8 @@ using namespace std;
 
 #define PI 3.14159265
 
-// Usage of the file: Computing following situation: A gamma photon in x direction hit a rest nucleus in lab reference frame.
+// Usage of the file: Computing following situation:
+// A gamma photon in x direction (x: beam direction, y:in horizontal plane perpendicular to x, z: vertical) hit a rest nucleus in lab reference frame.
 // Then a e+ e- pair is generated with recoiled nucleus moving in photon direction.
 // The electron/positron is generated with uniform random Energy and Theta (Angle relative to x-axis in xy plane).
 // Then compute the distribution of energy and theta, plot histogram.
@@ -33,7 +34,7 @@ void Accecptance (){
 
   
   Double_t A,a, Tempa;
-  // Genertate e+, e- pairs with fixed asymmetry A
+  // Genertate e+, e- pairs with fixed energy asymmetry A
   A = 0.5;
   a = (1-A)/(1+A);
   cerr << "Asymmetry = " << A << " . " << endl;
@@ -58,7 +59,7 @@ void Accecptance (){
 	c_theta->ToggleEventStatus();
 	c_theta->Iconify();
 	
-	TCanvas * c_solid = new TCanvas("c_solid","Opening solid angle distribution",800, 400);
+  TCanvas * c_solid = new TCanvas("c_solid","Opening solid angle distribution",800, 400);
 	c_solid->ToggleEventStatus();
 	c_solid->Iconify();
     
@@ -247,6 +248,7 @@ void Accecptance (){
 		  Pey = Pe*sin(Thetae)*cos(Phie);
 		  Pez = Pe*sin(Thetae)*sin(Phie);
 	    
+		  // Condition of kinematics implemented: recoil nucleus same as beam direction
 		  Ep = E - Ee;
 		  Ppx = sqrt((E-Ee)*(E-Ee)-(Ee*Ee-Me*Me)*sin(Thetae)*sin(Thetae)-Me*Me);
 		  Ppy = -Pey;
@@ -286,7 +288,7 @@ void Accecptance (){
       Int_t Flage[6] = {0,0,0,0,0,0};
       // Now check detectors acceptance from magnets, VDC till Paddles.
       // Looser OR requirement, simulate events go through yoke of magnet
-      // 1st cut: the hole at magnet
+      // 1st cut (index 0): if particles pass yoke hole at magnet
       if(abs(Thetae) < 14.67 || abs(Thetap) < 14.67){
 	Flage[0] = 1;
 	//Check only e- Acceptance and only Ee is used
@@ -412,7 +414,7 @@ void Accecptance (){
       Float_t XCP[2], YCP[2], ZCP[2];
       Float_t Beta[2], Delta[2];    
       if(RP >= RB){
-	// TP time from point C (where e- exit B field) to point CP(rime) (where e- reaches boundary of )
+	// TP time from point C (where e- exit B field) to point CP(rim) (where e- reaches boundary of )
 	TP[1] = (-(XC[1]*VXC[1]+YC[1]*VYC[1])+sqrt((XC[1]*VXC[1]+YC[1]*VYC[1])*(XC[1]*VXC[1]+YC[1]*VYC[1])-VP[1]*VP[1]*(RB*RB-RP*RP)))/(VP[1]*VP[1]);
 	if( i%10000 == 0) cerr << "TP = " << TP[1] << endl;
 	XCP[1] = XC[1]+VXC[1]*TP[1];  YCP[1] = YC[1]+VYC[1]*TP[1];  ZCP[1] = ZC[1]+VZC[1]*TP[1]; 
@@ -423,6 +425,8 @@ void Accecptance (){
 	  //Check e- Acceptance and only Ee is used
 	  h_Ee[1]->Fill(Ee);}
       }
+
+
       // If RP < RB, point CP ( when particle leaves the pole region ) is inside B field, and compute intersection of 2 circles
       else{
 	Beta[1] = atan(XH[1]/YH[1]); Delta[1] = acos((XH[1]*XH[1]+YH[1]*YH[1]+r[1]*r[1]-RP*RP)/(2*r[1]*sqrt(XH[1]*XH[1]+YH[1]*YH[1])));
@@ -458,6 +462,7 @@ void Accecptance (){
 	h_Ee[2]->Fill(Ee);}
 
       // Note : cut 4,5,6 simplified that hits considered at center plane of detectors
+      // Or other way to say: 4,5,6 are considered all chambers and scintillators vertical than 45degrees tilt.
       // 4th cut: Check if e- hits effective area of VDC0
       Float_t VDC0X = 80.5*in/100. , VDC0Y = 0.85, VDC0Z = 21.*in/(100.*sqrt(2));
       // Time from point C to VDC0
@@ -557,7 +562,7 @@ void Accecptance (){
       */
 
       // New: Magnet and Pole has different Radius
-      //2nd Cut, check if particle hits poles of magnet
+      // 2nd Cut, check if particle hits poles of magnet
       Thetap = Thetap*PI/180.;
       // Compute Position and velocity at Primary vertex
       // Note: all array: [0] for e+, [1] for e-
@@ -674,6 +679,7 @@ void Accecptance (){
       if(Flagp[4]==1) PairFlag[0][0] = 1;
       if(Flage[2]==1 &&  abs(ZG[1]) <= (HodoZ/2.) && abs(XG[1]) <= (HodoX/2.))PairFlag[1][1] = 1;
       if(Flagp[2]==1 &&  abs(ZG[0]) <= (HodoZ/2.) && abs(XG[0]) <= (HodoX/2.))PairFlag[0][1] = 1;
+
       if(PairFlag[0][0]==1 && PairFlag[1][0]==1){
 	h_EeEp[1]->Fill(Ee-Ep);
 	// Use this condition to plot asymmetry curve on VDC energy
