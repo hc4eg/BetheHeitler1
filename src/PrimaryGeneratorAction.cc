@@ -34,11 +34,23 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   target_thickness = Detector->GetTargetThickness();
   delta_min = 0.; // percent from central_energy
   delta_max = 0.;
-  radius_max = 0.65*cm;
-  x_min = 0.*cm;
-  x_max = 0.*cm;
-  y_min = 0.*cm;
-  y_max = 0.*cm;
+
+  //Here primary particles are generated within rectangle bounded by
+  // x = x_min, x = x_max, y = y_min, y = y_max.
+  // with additional condition sqrt(x^2+y^2)<radius_max (circle with radius radius_max)
+
+  //x_min = 0.*cm;
+  //x_max = 0.*cm;
+  //y_min = 0.*cm;
+  //y_max = 0.*cm;
+
+  x_min = -0.5*cm;
+  x_max = 0.5*cm;
+  y_min = -0.5*cm;
+  y_max = 0.5*cm;
+  //radius_max = 0.65*cm;
+  radius_max = 0.5*cm;
+
   angle_max = 175.*mrad;
   theta_min = 0*mrad;
   theta_max = 0*mrad;
@@ -181,8 +193,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
 	  particleGun->SetParticleDefinition(P_electron);
 	  
-	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	  targ_in = target_position;
+	  // Primary particle are generated uniformly within depth of target.
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  //targ_in = target_position;
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(KEe);
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
@@ -218,18 +231,16 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
-
+// OpenFile: open file that contains generator pair data
 void PrimaryGeneratorAction::OpenFile(string filenumber){
 	string filename;
-//	filename = "./VertexGen/event.run"+filenubmer+".dat";
-//	filename = "~/BHsim/CrossSections/VertexGen/events.run"+filenubmer+".dat";
 	filename = "/home/haoyu/BHsim/BetheHeitler-1.3/src/events.run"+filenumber+".dat";
 	cerr << "Primary vertex data filename is " << filename  << endl;
 	infile.open(filename.c_str());
 	if(!infile.is_open()) cerr << "File open failed."  << endl;
 }
 
-// Initialize and Convert 1st line of datafile parameters to primary vertex parameters.
+// Initialize and Convert lines of datafile parameters to primary vertex parameters.
 int PrimaryGeneratorAction::Convert(int linenumber){
 	if(!infile.is_open()) { cerr << "Primary vertex data file not open." << endl; Clear(); return -1;}
 	if(linenumber == 0) { cerr <<"Line number 0." << endl; Clear(); return -1;}
@@ -285,20 +296,10 @@ int PrimaryGeneratorAction::ConvertNext(){
 		Phip *= deg;
 
 		// From the way Py computed: 
-		// phi = 0, left , phi = 180 deg , rihgt
+		// phi = 0, left , phi = 180 deg , right
 	        // Clockwise looking towards x direction
 		Pe = sqrt((KEe+Me)*(KEe+Me) - Me*Me);
 		Pp = sqrt((KEp+Me)*(KEp+Me) - Me*Me);
-		/*
-		Pex = Pe*cos(Thetae);
-		Ppx = Pp*cos(Thetap);
-		Pey = Pe*sin(Thetae)*cos(Phie);	
-		Ppy = Pp*sin(Thetap)*cos(Phip);	
-		Pez = Pe*sin(Thetae)*sin(Phie);
-		Ppz = Pp*sin(Thetap)*sin(Phip);
-		*/
-
-
 		// x is beam direction
 		// y is horrizontal, left positive
 		// z is vertical, up positive
@@ -315,6 +316,7 @@ int PrimaryGeneratorAction::ConvertNext(){
 	return 0;
 }
 
+// PrintVertex(): Print e(electron) and p(ositron)'s Theta, Phi, P , Px, Py, Pz
 void PrimaryGeneratorAction::PrintVertex(){
 	cout << "KEe " << KEe/MeV << " , Thetae " << Thetae/deg << ", Phie " << Phie/deg << " , Pe " << Pe/MeV << " , Pex " << Pex/MeV << " , Pey " << Pey/MeV << " , Pez " << Pez/MeV << endl; 
 	cout << "KEp " << KEp/MeV << " , Thetap " << Thetap/deg << ", Phip " << Phip/deg << " , Pp " << Pp/MeV << " , Ppx " << Ppx/MeV << " , Ppy " << Ppy/MeV << " , Ppz " << Ppz/MeV << endl; 
