@@ -1,0 +1,38 @@
+#exclude all .root, .runno, .txt files .~ files
+*.root
+/*.runno
+*.txt
+
+# exclude text editor temp files
+*~
+*.swp
+*.swo
+\#*\#
+
+# exclude compiler output
+*.d
+*.so
+*.o
+
+# Data files
+./src/events.run*.dat
+
+# some output directories
+DatFiles/
+OldRootFiles/
+OldRootScript/
+BadRootFiles/
+fitting/
+RootFiles/
+
+#exclude make CMake related files
+BetheHeitler
+G4History.macro
+current*.rndm
+dict.*
+CMakeFiles
+CMakeCache.txt
+CMakeScripts
+Makefile
+cmake_install.cmake
+install_manifest.txt
