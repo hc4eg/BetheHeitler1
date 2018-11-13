@@ -124,8 +124,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //Consider artificially generate e+ e- pair
       // some bug at BH/gun/set_pair_mode
 
-	for(int i = 0 ; i < 100 ; i++) cerr << "pair mode is " << pair_mode << endl;
-
       if (pair_mode)
 	{
 
@@ -251,9 +249,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  particleGun->SetParticleEnergy(E_gamma);
 	  particleGun->SetParticleMomentumDirection(G4ThreeVector(1., 0., 0.));
 	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  cerr << "Primary vertex location: (" << targ_in << ", " << x_in << ", " << y_in << ")" << endl;
-	  cerr << "Energy " << E_gamma << endl;
 
 	  pOutputFile->Set_energy_i(0,E_gamma);
 	  pOutputFile->Set_x_i(0,x_in);
