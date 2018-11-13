@@ -19,7 +19,8 @@
 #/BH/outputfile/set_out_pair_mode true
 /BH/outputfile/set_out_pair_mode false
 /BH/outputfile/set_use_monitor true
-/BH/outputfile/set_prefix Pair
+#/BH/outputfile/set_prefix Pair
+/BH/outputfile/set_prefix Gamma
 /BH/outputfile/set_use_unique_filename true
 
 #/run/beamOn 5 
