@@ -120,6 +120,9 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //Code below: Generating Fixed Asymmetry distribution in 3D
       //Consider artificially generate e+ e- pair
       // some bug at BH/gun/set_pair_mode
+
+	for(int i = 0 ; i < 100 ; i++) cerr << "pair mode is " << pair_mode << endl;
+
       if (pair_mode)
 	{
 
@@ -227,6 +230,34 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 
 	}
       //Code Above:Fixed Asymmetry 3D */
+	else{
+	  G4int CurrentEvent = anEvent->GetEventID(); 
+
+	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
+	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
+	  G4String ParticleName;
+
+	  G4ParticleDefinition * P_gamma = ParticleTable->FindParticle(ParticleName="gamma");
+	  particleGun->SetParticleDefinition(P_gamma);
+	  
+	  // Primary particle are generated uniformly within depth of target.
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., -target_thickness/2.);
+	  G4double E_gamma = 60.; 
+	  //targ_in = target_position;
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(E_gamma);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(1., 0., 0.));
+	  particleGun->GeneratePrimaryVertex(anEvent);
+
+	  cerr << "Primary vertex location: (" << targ_in << ", " << x_in << ", " << y_in << ")" << endl;
+	  cerr << "Energy " << E_gamma << endl;
+
+	  pOutputFile->Set_energy_i(0,E_gamma);
+	  pOutputFile->Set_x_i(0,x_in);
+	  pOutputFile->Set_y_i(0,y_in);
+	  pOutputFile->Set_theta_i(0,0.);
+	  pOutputFile->Set_phi_i(0,0.);
+	}
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......

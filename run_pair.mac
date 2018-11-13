@@ -10,12 +10,14 @@
 # parameters for creating a file to fit to.
 
 
-/BH/gun/set_pair_mode true
+#/BH/gun/set_pair_mode true
+/BH/gun/set_pair_mode false
 
 #/BH/detector/set_add_cone true
 #/BH/detector/update
 
-/BH/outputfile/set_out_pair_mode true
+#/BH/outputfile/set_out_pair_mode true
+/BH/outputfile/set_out_pair_mode false
 /BH/outputfile/set_use_monitor true
 /BH/outputfile/set_prefix Pair
 /BH/outputfile/set_use_unique_filename true
@@ -27,6 +29,7 @@
 #/run/beamOn 1020000
 
 #/run/beamOn 4990000
-/run/beamOn 5000000
-#/run/beamOn 100000
+#/run/beamOn 5000000
+#/run/beamOn 2000
+/run/beamOn 10000
 #/run/beamOn 2000000
