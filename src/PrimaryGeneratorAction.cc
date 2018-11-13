@@ -66,21 +66,24 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   c = CLHEP::c_light;
   Me = CLHEP::electron_mass_c2;
 
-  string filenumber;
-  cerr << "Please input filenumber: (Format XXX)" << endl;
-  cin >> filenumber;
-  OpenFile(filenumber);
-  maxline = 0;
-//  infile.seekg(0);
-  while(!infile.eof()){
-	infile.ignore(200,'\n');
-	maxline++;
-//	if(maxline%100 == 0 ) cerr << "Read line: " << maxline << endl;
-  }
+  if(pair_mode){
+	string filenumber;
+	cerr << "Please input filenumber: (Format XXX)" << endl;
+	cin >> filenumber;
+	OpenFile(filenumber);
 
-  maxline--;
-  cerr << "Data file has Total line " << maxline << endl;
-  infile.seekg(0);
+	maxline = 0;
+	//  infile.seekg(0);
+	while(!infile.eof()){
+		infile.ignore(200,'\n');
+		maxline++;
+	//if(maxline%100 == 0 ) cerr << "Read line: " << maxline << endl;
+	}
+
+	maxline--;
+	cerr << "Data file has Total line " << maxline << endl;
+	infile.seekg(0);
+  }
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
