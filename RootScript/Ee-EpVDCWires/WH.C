@@ -16,6 +16,7 @@ using namespace std;
 // Note all below functions are used to plot data stored in VDC objects
 // Since other data type are unchanged, they're plotted by PlotVDCKE.C
 #define PI 3.1415926
+// Wire_angle in unit rad:
 const Double_t Wire_angle = 26.45*PI/180.;
 
 //IConvert: Since Input directions now have been changed to (t_theta,t_phi)
@@ -29,7 +30,8 @@ void IConvert(Float_t& theta,Float_t&  phi){
 	phi = phi<0 ? 2*PI+phi : phi;
 }
 
-// IConvertAngle: convert input projection angle (t_theta0, t_phi0) and (t_theta1, t_phi1) in Mrad
+// IConvertAngle: convert input projection angle
+// (t_theta0, t_phi0) and (t_theta1, t_phi1) in Mrad
 // to (theta0,phi0) and (theta1,phi1) in degrees
 inline void IConvertAngle(Float_t& theta0, Float_t& phi0, Float_t& theta1, Float_t& phi1){
 			theta0 /= 1000.;
@@ -47,12 +49,12 @@ inline void IConvertAngle(Float_t& theta0, Float_t& phi0, Float_t& theta1, Float
 			phi1 *= 180/PI;
 }
 
+//MradDeg: convert angle from Mrad unit to Deg unit
 inline void MradDeg(Double_t& angle){
 	angle *= (180./(PI*1000.));
 }
 
 void WH::PlotAsym(){
-
 	/*
 	// Constraints , Bin size, etc.
 	Double_t D_theta_tol = 1.;
@@ -168,14 +170,15 @@ void WH::PlotAsym(){
 				//cerr << "Theta = " << (I0_Theta+I1_Theta)/2. << endl;
 			}
 			*/
-
 			//cerr << "Input Phi difference " << abs(I0_Phi-I1_Phi) << " (degrees)" << endl;
-
-			//if(abs((I0_Theta-I1_Theta)*DegMrad) < D_theta_tol && abs((I0_Phi-I1_Phi)*DegMrad) < D_phi_tol){
+			// Only consider pairs with Theta0 ~ Theta1, Phi ~ 180 deg
 			if(abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol){
-				// Following code was to check issue on randomness of pair generation, and it's found that 
-				// there're seeding issues. (By checking if a small bin with multiple data having all data the same)
-				// Also note: it seems jentry and ientry cannot be accessed, reason?
+
+
+				// Purpose of following code is to check issue on randomness of pair generation, and it's found that
+				// there're seeding issues.(Same pair appears in pair data file multiple times before Geant4 simulation)
+				// (By checking if a small bin with multiple data having all data the same)
+				// FIXME: it seems jentry and ientry cannot be accessed, reason? (Thus TIndex is introduced)
 				if( abs((I0_Theta+I1_Theta)/2.-6.325) < 0.005 && abs((I1_Energy-I0_Energy)-6.1125)<0.0025 ){
 					TData[0] = I0_Theta;
 					TData[1] = I1_Theta;
@@ -197,10 +200,14 @@ void WH::PlotAsym(){
 				*/
 
 				//cerr << "Phi difference: " << (I0_Phi-I1_Phi)*DegMrad << "(Degrees)" << endl;
+
+				// Counting NPos and NNeg, which are used to compute asymmetry
 				for(int i = 0; i < NPts; i++){
 					if(abs(theta_bin-(I0_Theta+I1_Theta)/2.) < (D_theta_bin/2.)
 					&& abs(delta_bin[i]-(I1_Energy-I0_Energy)) < (D_delta_bin/2.)){ 
 						NPos[i]++;
+
+						// HBin: check in a certain bin, Delta vs Theta
 						//if(i == (NPts-1)/2+6) HBin->Fill((I0_Theta+I1_Theta)/2., (I1_Energy-I0_Energy));
 						if(i == (NPts-1)/2+6) {
 							//cerr << "i = " << i << endl;
@@ -237,6 +244,8 @@ void WH::PlotAsym(){
 	TCanvas* CTheta = new TCanvas("CTheta","Theta distribution",1600,900);
 	TCanvas* CPhi= new TCanvas("CPhi","Phi distribution",1600,900);
 	TCanvas* CDelta = new TCanvas("CDelta","Delta distribution",1600,900);
+
+	// Graph: Asymmetry graph
 	//TGraph* GAsym = new TGraph(NPts, delta_bin, Asym);
 	TGraphErrors* GAsym = new TGraphErrors(NPts, delta_bin, Asym, Sig_Del, Sig_A);
 	GAsym->SetTitle(Form("Asymmetry for fixed theta = %f",theta_bin));
@@ -246,14 +255,14 @@ void WH::PlotAsym(){
 	GAsym->GetYaxis()->CenterTitle();
 	CAsym->cd(); GAsym->Draw();
 
-	//HBin: Draw hit distribution in a (Theta,Delta) bin
+	//Histograms:
+	//HBin: Draw hit distribution in a certain (Theta,Delta) bin
 	HBin->SetTitle(Form("Bin distribution for fixed theta = %f",theta_bin));
 	HBin->GetXaxis()->SetTitle("Delta");
 	HBin->GetYaxis()->SetTitle("Theta");
 	HBin->GetXaxis()->CenterTitle();
 	HBin->GetYaxis()->CenterTitle();
 	CBin->cd(); HBin->Draw("COLZ");
-
 	//Print Bin data
 	for(unsigned i = 0; i < BinData.size(); i++){
 		for(unsigned j = 0; j < TData.size() ; j++){
