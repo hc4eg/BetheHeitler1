@@ -111,7 +111,11 @@ void WH::PlotAsym(){
 	TH1F* HDelta = new TH1F("HDelta", "Delta distribution", 500, -25, 25.);
 	*/
 
-	TH1F* HTheta = new TH1F("HTheta", "Theta distribution", 200, 0., 20.);
+	TH1F* HTheta[3];
+	for(int i = 0; i < 3; i++){
+		if(i < 2) HTheta[i] = new TH1F(Form("HTheta %d", i), "Theta distribution", 200, 0., 20.);
+		else HTheta[i] = new TH1F(Form("HTheta %d", i), "Theta distribution", 200, -10., 10.);
+	}
 	TH1F* HPhi = new TH1F("HPhi", "Phi distribution", 400, 180.-Del_Phi , 180.+Del_Phi);
 	TH1F* HDelta = new TH1F("HDelta", "Delta distribution", 500, -30, 30.);
 
@@ -139,29 +143,44 @@ void WH::PlotAsym(){
    	Long64_t nentries = fChain->GetEntriesFast();
 
    	Long64_t nbytes = 0, nb = 0;
+	cerr << "Swapped Input and Monitor? (Y/N)" << endl;
+	string run_s;
+	cin >> run_s;
    	for (Long64_t jentry=0; jentry<nentries;jentry++) {
       		Long64_t ientry = LoadTree(jentry);
       		if (ientry < 0) break;
       		nb = fChain->GetEntry(jentry);   nbytes += nb;
       		// if (Cut(ientry) < 0) continue;
-	
 		TIndex++;
-
+		// Convert projection angle to spherical angle
 							IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
-							if(D0_W_>0 && D1_W_>0){
-								HTheta->Fill((I0_Theta+I1_Theta)/2.);
+		// Fill histograms:
+		// Theta, Phi, and Delta = Ee - Ep
+							if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0 ){
+							//if( D1_W_>0 ){
+								//HTheta->Fill((I0_Theta+I1_Theta)/2.);
+								HTheta[0]->Fill(I1_Theta);
+								if(run_s == "Y" || run_s == "y"){
+									HTheta[1]->Fill(M0_Theta*DegMrad);
+									HTheta[2]->Fill(I1_Theta - M0_Theta*DegMrad);
+								}
+								else{
+									HTheta[1]->Fill(M1_Theta*DegMrad);
+									HTheta[2]->Fill(I1_Theta - M1_Theta*DegMrad);
+								}
+								//HTheta->Fill(M1_Theta*DegMrad - I1_Theta);
 								//HPhi->Fill(180+abs(abs(I0_Phi-I1_Phi)-180));
 								HPhi->Fill(abs(I0_Phi-I1_Phi));
 								HDelta->Fill(I1_Energy-I0_Energy);
-							}	
+							}
 
+		// Only use pairs observed by all detectors:
+		// To compute asymmetry, and fill HBin
 		if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0){
 
 			//IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
-
 			//cerr << "Input0 spherical angles (" << I0_Theta<< "," << I0_Phi << ") (degrees)" << endl;
 			//cerr << "Input1 spherical angles (" << I1_Theta<< "," << I1_Phi << ") (degrees)" << endl;
-
 			/*
 			if(abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol){
 			//if(abs(I0_Theta-I1_Theta) < D_theta_tol)
@@ -270,10 +289,18 @@ void WH::PlotAsym(){
 		}
 		cerr << endl;
 	}
-
-	CTheta->cd(); HTheta->Draw();
+	// Theta, Phi and Delta histograms
+	CTheta->Divide(2,2);
+	for(int i = 0; i < 3; i++){
+		CTheta->cd(i+1);
+		HTheta[i]->Draw();
+	}
 	CPhi->cd(); HPhi->Draw();
 	CDelta->cd(); HDelta->Draw();
+
+	// Note:
+	// 1. GAsym, HBin requires all detectors hit
+	// 2. HTheta, HPhi, HDelta only require both wire chambers hit
 }
 
 void WH::PlotInput(){
