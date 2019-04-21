@@ -12,9 +12,21 @@
 PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
 :Detector(DC)
 {
-  G4int n_particle = 1;
-  particleGun  = new G4ParticleGun(n_particle);
+  pair_mode = true;
 
+  /*
+  cerr << "Pair mode = " << (pair_mode==true?"True":"False") << ", continue?"<< endl;
+  string s_pair_mode;
+  cin >> s_pair_mode;
+  */
+
+  G4int n_particle;
+  if(pair_mode)
+  	n_particle = 2;
+  else
+	n_particle = 1;
+
+  particleGun  = new G4ParticleGun(n_particle);
   pOutputFile = OutputFile::GetOutputFilePointer();
   
   //create a messenger for this class
@@ -28,9 +40,9 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
 
   //some default values defining source
   central_energy = 30.0*MeV;
-  //target_position = -42.26*cm;
+  target_position = -42.26*cm;
   // get from geometry
-  target_position = -Detector->GetTargetDistance();
+  //target_position = -Detector->GetTargetDistance();
   target_thickness = Detector->GetTargetThickness();
   delta_min = 0.; // percent from central_energy
   delta_max = 0.;
@@ -38,18 +50,19 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   //Here primary particles are generated within rectangle bounded by
   // x = x_min, x = x_max, y = y_min, y = y_max.
   // with additional condition sqrt(x^2+y^2)<radius_max (circle with radius radius_max)
+  x_min = 0.*cm;
+  x_max = 0.*cm;
+  y_min = 0.*cm;
+  y_max = 0.*cm;
 
-  //x_min = 0.*cm;
-  //x_max = 0.*cm;
-  //y_min = 0.*cm;
-  //y_max = 0.*cm;
-
+  /*
   x_min = -0.5*cm;
   x_max = 0.5*cm;
   y_min = -0.5*cm;
   y_max = 0.5*cm;
   //radius_max = 0.65*cm;
   radius_max = 0.5*cm;
+  */
 
   angle_max = 175.*mrad;
   theta_min = 0*mrad;
@@ -108,6 +121,13 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       // get from geometry  - may have changed after constructor
       target_position = -Detector->GetTargetDistance();
       target_thickness = Detector->GetTargetThickness();
+      /*
+      cerr << "In PrimaryGeneratorAction::GeneratePrimaries(): Target position = " << target_position/cm << "(cm)" << endl;
+      cerr << "Target thickness = " << target_thickness/cm << "(cm)" << endl;
+      cerr << "Type any to continue" << endl;
+      string st;
+      cin >> st;
+      */
 
       //G4cout << "Generate Primaries called." << G4endl;
       // choose position
@@ -185,52 +205,96 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  }
 	  */
 	  G4int CurrentEvent = anEvent->GetEventID(); 
-	  if(CurrentEvent == 1) { Convert(1) ;}
-	  else ConvertNext();
+	  //cerr << "Current Event = " << CurrentEvent << endl;
+	  //FIXME: 1st event index 0 or 1?
+	  //if(CurrentEvent == 1) { Convert(1) ;}
+	  //if(CurrentEvent == 0) { Convert(0) ;}
+	  //else ConvertNext();
+	  ConvertNext();
 	  //cerr << "Primary data file converted." << endl;
 	  //PrintVertex();
 
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
-
-	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
-	  particleGun->SetParticleDefinition(P_electron);
-	  
 	  // Primary particle are generated uniformly within depth of target.
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	  //targ_in = target_position;
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEe);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
-	  particleGun->GeneratePrimaryVertex(anEvent);
+	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  targ_in = target_position;
+
+
+
+
+
 
 	  // for output: index 0: positron, index 1:eletron.
-	  pOutputFile->Set_energy_i(1,KEe);
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_x_i(1,x_in);
-	  pOutputFile->Set_y_i(1,y_in);
-	  pOutputFile->Set_theta_i(1,Thetae);
-	  pOutputFile->Set_phi_i(1,Phie);
-
-      	  //cerr << "Ee = " << Ee/MeV << " MeV." << "Pex = " << Pex/MeV << " MeV/c."<< "Pey = " << Pey/MeV << " MeV/c."<< "Thetae = "<< Thetae/deg << endl;
-
+	  // Positron generation
 	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
 	  particleGun->SetParticleDefinition(P_positron);
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(KEp);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, Ppz));
+	  // Note Thetae, Phie are projection angles than spherical angles
+	  int flag = 1;
+	  // FIXME: if SetParticleMomentumDirection() swapped Pp and Pe,
+	  // SWAP Thetae, Phie in Set_theta_i(), Set_phi_i()
+	  // Otherwise in root file Input Phi_i/Theta_i[0/1] will be correspond to Monitor Phi_m/Theta_m[1/0]
+	  // FIXME: Below two lines comment maybe wrong
+	  // flag == 1: original magnetic field direction: B vertical down direction, e- goes right, e+ left
+	  // flag == 0: reversed magnetic field direction: B vertical up direction,   e- goes left,  e+ right
+	  if( flag == 1){
+		particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, Ppz));
+		pOutputFile->Set_theta_i(0,Thetap);
+	  }
+	  else{
+		particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, -Ppy, Ppz));
+		pOutputFile->Set_theta_i(0, -Thetap);
+	  }
 	  particleGun->GeneratePrimaryVertex(anEvent);
 
 	  pOutputFile->Set_energy_i(0,KEp);
 	  //pOutputFile->Set_delta_i(1,delta_in);
 	  pOutputFile->Set_x_i(0,x_in);
 	  pOutputFile->Set_y_i(0,y_in);
-	  pOutputFile->Set_theta_i(0,Thetap);
 	  pOutputFile->Set_phi_i(0,Phip);
 
+
+
+
+	  // Electron generation
+	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
+	  particleGun->SetParticleDefinition(P_electron);
+	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
+	  particleGun->SetParticleEnergy(KEe);
+	  // Note Thetae, Phie are projection angles than spherical angles
+	  if(flag == 1){
+		particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
+		pOutputFile->Set_theta_i(1,Thetae);
+	  }
+	  else{
+		particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, -Pey, Pez));
+		pOutputFile->Set_theta_i(1,-Thetae);
+	  }
+	  particleGun->GeneratePrimaryVertex(anEvent);
+	  pOutputFile->Set_energy_i(1,KEe);
+	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_x_i(1,x_in);
+	  pOutputFile->Set_y_i(1,y_in);
+	  pOutputFile->Set_phi_i(1,Phie);
+
+	cerr << endl << endl;
+	// Note: deg = PI/180
+	cerr << "Input 0: Energy = " << KEp << ", (Ppx, Ppy, Ppz) = " << "(" << Ppx <<  " , " << Ppy << " , " << Ppz << ")" << ", Ppy/Ppz = " << Ppy/Ppz << endl;
+	cerr << "t_theta_p = " << atan2(Ppy, Ppx)/deg << ", t_phi_p  = " << atan2(Ppz, Ppx)/deg << endl;
+	cerr << "Input 1: Energy = " << KEe << ", (Pex, Pey, Pez) = " << "(" << Pex <<  " , " << Pey << " , " << Pez << ")" << ", Pey/Pez = " << Pey/Pez << endl;
+	cerr << "t_theta_e = " << atan2(Pey, Pex)/deg << ", t_phi_e  = " << atan2(Pez, Pex)/deg << endl;
+
 	}
-      //Code Above:Fixed Asymmetry 3D */
+      //Code Above: Read pair data file from generator obeys theory calculation. */
+
+
+
+
+
+
 	else{
 	  G4int CurrentEvent = anEvent->GetEventID(); 
 
@@ -242,12 +306,12 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  particleGun->SetParticleDefinition(P_gamma);
 	  
 	  // Primary particle are generated uniformly within depth of target.
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., -target_thickness/2.);
+	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., -target_thickness/2.);
+	  targ_in =  target_position;
 	  G4double E_gamma = 60.; 
-	  //targ_in = target_position;
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(E_gamma);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(1., 0., 0.));
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(+1., 0., 0.));
 	  particleGun->GeneratePrimaryVertex(anEvent);
 
 	  pOutputFile->Set_energy_i(0,E_gamma);
@@ -311,13 +375,17 @@ int PrimaryGeneratorAction::ConvertNext(){
 }
 */
 
-// Code for projection angle
+// Code for projection angle stored in pair data file
 int PrimaryGeneratorAction::ConvertNext(){
 	if(!infile.eof()){
 		infile >> KEe >> KEp >> Thetae >> Phie >> Thetap >> Phip;
 		infile.ignore(200, '\n');
+
+		// KE stored in pair data file in units MeV
 		KEe *=MeV;
 		KEp *=MeV;
+
+		// Theta,Phi stored in data file in unit degree
 		// deg = PI/180; so Theta(in deg)*deg turns Theta(in rad) for computation
 		Thetae *= deg;
 		Thetap *= deg;
@@ -329,6 +397,17 @@ int PrimaryGeneratorAction::ConvertNext(){
 	        // Clockwise looking towards x direction
 		Pe = sqrt((KEe+Me)*(KEe+Me) - Me*Me);
 		Pp = sqrt((KEp+Me)*(KEp+Me) - Me*Me);
+
+
+		// Check if data in EventAction.cc will follow pairs in primary generator.
+		bool b_s_dir = 0;
+		if(b_s_dir){
+			Thetae = 6.*deg;
+			Thetap = -6.*deg;
+			Phie = 30*deg;
+			Phip = -20*deg;
+		}
+
 		// x is beam direction
 		// y is horrizontal, left positive
 		// z is vertical, up positive
