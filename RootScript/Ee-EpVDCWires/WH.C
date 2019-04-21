@@ -54,6 +54,45 @@ inline void MradDeg(Double_t& angle){
 	angle *= (180./(PI*1000.));
 }
 
+inline bool Cut_Th(double* th, double th_bin, double D_th_bin){
+	return ( abs(th_bin - (th[0] + th[1])/2.) < (D_th_bin)/2. );
+}
+
+inline bool Cut_Del(double E[], double del_bin, double D_del_bin, bool b_pos){
+	if( b_pos == true ){ return ( abs( del_bin - (E[1]- E[0]) ) < (D_del_bin/2.) );}
+	else return ( abs( del_bin + (E[1] - E[0]) ) < (D_del_bin/2.) );
+}
+
+void Fill_bin(bool c_th, bool c_del, double* E, double* th, TH2F* hbin){
+	if(c_th && c_del){
+		hbin->Fill( E[1] - E[0], (th[1] + th[0])/2. );
+	}
+}
+
+inline bool Cut_Angle(double* th, double D_th, double* phi, double D_phi){
+	return (abs(th[0]-th[1]) < D_th && abs(abs(phi[0] - phi[1])-180) < D_phi);
+}
+
+inline void Fill_N( bool c_a, bool c_th, double* E, double* del_bin, double D_del_bin, double* Npos, double* Nneg, double Npt){
+	if( c_a ){
+		for(int i =  0; i < Npt; i++){
+			if(c_th && Cut_Del(E, del_bin[i], D_del_bin, true) ) Npos[i]++;
+			if(c_th && Cut_Del(E, del_bin[i], D_del_bin, false)) Nneg[i]++;
+		}
+	}
+}
+
+inline void Fill_HBin(bool c_a, bool c_th, double* theta,  double* E, double* del_bin, double D_del_bin, double NPts, TH2F* HBin){
+	if( c_a ){
+		int i = (NPts-1)/2+6;
+		//cerr << "i = " << i << endl;
+		//HBin->Fill( 6,6 );
+		//HBin->Fill( (I0_Theta+I1_Theta)/2., (I1_Energy-I0_Energy) );
+		if(c_th && Cut_Del(E, del_bin[i], D_del_bin, true))
+			HBin->Fill( E[1] - E[0] , ( theta[0] + theta[1] )/2. );
+	}
+}
+
 void WH::PlotAsym(){
 	/*
 	// Constraints , Bin size, etc.
@@ -210,38 +249,27 @@ void WH::PlotAsym(){
 					TData[6] = TIndex;
 					BinData.push_back(TData);
 				}
-				
-				/*
-				// Condition: abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol)
-							HTheta->Fill((I0_Theta+I1_Theta)/2.);
-							HPhi->Fill(abs(I0_Phi-I1_Phi));
-							HDelta->Fill(I1_Energy-I0_Energy);
-				*/
-
-				//cerr << "Phi difference: " << (I0_Phi-I1_Phi)*DegMrad << "(Degrees)" << endl;
-
-				// Counting NPos and NNeg, which are used to compute asymmetry
-				for(int i = 0; i < NPts; i++){
-					if(abs(theta_bin-(I0_Theta+I1_Theta)/2.) < (D_theta_bin/2.)
-					&& abs(delta_bin[i]-(I1_Energy-I0_Energy)) < (D_delta_bin/2.)){ 
-						NPos[i]++;
-
-						// HBin: check in a certain bin, Delta vs Theta
-						//if(i == (NPts-1)/2+6) HBin->Fill((I0_Theta+I1_Theta)/2., (I1_Energy-I0_Energy));
-						if(i == (NPts-1)/2+6) {
-							//cerr << "i = " << i << endl;
-							//HBin->Fill( 6,6 );
-							//HBin->Fill( (I0_Theta+I1_Theta)/2., (I1_Energy-I0_Energy) );
-							HBin->Fill( (I1_Energy-I0_Energy), (I0_Theta+I1_Theta)/2. );
-							//cerr << "Theta bin = " << theta_bin << ", Theta = " << (I0_Theta+I1_Theta)/2. << endl;
-							//cerr << "delta bin = " << delta_bin[i] << ", delta =  " << (I1_Energy-I0_Energy) << endl << endl;
-						}
-					}
-					if(abs(theta_bin-(I0_Theta+I1_Theta)/2.) < (D_theta_bin/2.)
-					&& abs(delta_bin[i]+(I1_Energy-I0_Energy)) < (D_delta_bin/2.)) NNeg[i]++;
-				}
 			}
-   		}
+
+			double th[2] = {(double)I0_Theta, (double)I1_Theta};
+			double phi[2] = {(double)I0_Phi, (double)I1_Phi};
+			double E[2] = {(double)I0_Energy,(double)I1_Energy};
+
+			if(b_monitor){
+				th[0] = M0_Theta;
+				phi[0] = M0_Phi;
+				E[0] = M0_Energy;
+				th[1] = M1_Theta;
+				phi[1] = M1_Phi;
+				E[1] = M1_Energy;
+			}
+
+			bool c_a = Cut_Angle(th, D_theta_tol, phi, D_phi_tol);
+			bool c_th = Cut_Th(th, theta_bin, D_theta_bin);
+
+			Fill_N( c_a, c_th, E, delta_bin, D_delta_bin, NPos, NNeg, NPts );
+			Fill_HBin(c_a, c_th, th,  E, delta_bin, D_delta_bin , NPts, HBin);
+		}
 	}
 
 	// Compute Asymmetry and its standard deviation by error propagation
