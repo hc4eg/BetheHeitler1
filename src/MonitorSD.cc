@@ -83,7 +83,7 @@ for(G4int fparentage = 0; fparentage < 3; fparentage++)
    G4ParticleDefinition * aParticle = aTrack->GetDefinition();
    G4String part = aParticle->GetParticleName();
    newHit->SetParticle(part);
-	// for now not implementing light output response
+   // for now not implementing light output response
 
    //newHit->Print();
 

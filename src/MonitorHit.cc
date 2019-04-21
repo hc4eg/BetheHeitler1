@@ -13,6 +13,7 @@ G4Allocator<MonitorHit> MonitorHitAllocator;
 
 MonitorHit::MonitorHit()
  : G4VHit(),
+   // Original value
    fTrackID(-1),
    fParticle(""),
    fMomentumDirection(G4ThreeVector(1.,0.,0.)),
