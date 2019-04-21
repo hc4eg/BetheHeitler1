@@ -73,9 +73,14 @@ fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
 //fBackgroundMaterial = Helium;
 fBackgroundMaterial = Vacuum;
 //fBackgroundMaterial = Air;
+
 //
 // Magnetic field
+// Original B direction (B down, -z dir)
 fBcenter = -0.4536*tesla;
+// Reversed B direction (B up, parallel to +z)
+//fBcenter = 0.4536*tesla;
+// B field off
 //fBcenter = -0.*tesla;
 
 //pole
