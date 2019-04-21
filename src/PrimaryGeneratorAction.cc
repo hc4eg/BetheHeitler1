@@ -121,13 +121,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       // get from geometry  - may have changed after constructor
       target_position = -Detector->GetTargetDistance();
       target_thickness = Detector->GetTargetThickness();
-      /*
-      cerr << "In PrimaryGeneratorAction::GeneratePrimaries(): Target position = " << target_position/cm << "(cm)" << endl;
-      cerr << "Target thickness = " << target_thickness/cm << "(cm)" << endl;
-      cerr << "Type any to continue" << endl;
-      string st;
-      cin >> st;
-      */
 
       //G4cout << "Generate Primaries called." << G4endl;
       // choose position
@@ -141,8 +134,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       
        
       //Code below: Generating Fixed Asymmetry distribution in 3D
-      //Consider artificially generate e+ e- pair
-      // some bug at BH/gun/set_pair_mode
+      // Consider artificially generate e+ e- pair
+      // FIXME:some bug at BH/gun/set_pair_mode
 
       if (pair_mode)
 	{
@@ -203,18 +196,14 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	    //		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
 		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
 	  }
+	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  */
 	  G4int CurrentEvent = anEvent->GetEventID(); 
 	  //cerr << "Current Event = " << CurrentEvent << endl;
-	  //FIXME: 1st event index 0 or 1?
-	  //if(CurrentEvent == 1) { Convert(1) ;}
-	  //if(CurrentEvent == 0) { Convert(0) ;}
-	  //else ConvertNext();
 	  ConvertNext();
 	  //cerr << "Primary data file converted." << endl;
 	  //PrintVertex();
 
-	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 	  // Primary particle are generated uniformly within depth of target.
@@ -280,21 +269,16 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  pOutputFile->Set_y_i(1,y_in);
 	  pOutputFile->Set_phi_i(1,Phie);
 
+	/*
 	cerr << endl << endl;
 	// Note: deg = PI/180
 	cerr << "Input 0: Energy = " << KEp << ", (Ppx, Ppy, Ppz) = " << "(" << Ppx <<  " , " << Ppy << " , " << Ppz << ")" << ", Ppy/Ppz = " << Ppy/Ppz << endl;
 	cerr << "t_theta_p = " << atan2(Ppy, Ppx)/deg << ", t_phi_p  = " << atan2(Ppz, Ppx)/deg << endl;
 	cerr << "Input 1: Energy = " << KEe << ", (Pex, Pey, Pez) = " << "(" << Pex <<  " , " << Pey << " , " << Pez << ")" << ", Pey/Pez = " << Pey/Pez << endl;
 	cerr << "t_theta_e = " << atan2(Pey, Pex)/deg << ", t_phi_e  = " << atan2(Pez, Pex)/deg << endl;
-
+	*/
 	}
       //Code Above: Read pair data file from generator obeys theory calculation. */
-
-
-
-
-
-
 	else{
 	  G4int CurrentEvent = anEvent->GetEventID(); 
 
