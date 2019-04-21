@@ -142,13 +142,6 @@ void WH::PlotAsym(){
 	}
 
 	Double_t Del_Phi = 50.;
-	//TH1F* HPhi = new TH1F("HPhi", "Phi distribution", 200, 100., 300.);
-
-	/*
-	TH1F* HTheta = new TH1F("HTheta", "Theta distribution", 150, 0., 15.);
-	TH1F* HPhi = new TH1F("HPhi", "Phi distribution", 50, 180.-Del_Phi , 180.+Del_Phi);
-	TH1F* HDelta = new TH1F("HDelta", "Delta distribution", 500, -25, 25.);
-	*/
 
 	TH1F* HTheta[3];
 	for(int i = 0; i < 3; i++){
@@ -158,11 +151,6 @@ void WH::PlotAsym(){
 	TH1F* HPhi = new TH1F("HPhi", "Phi distribution", 400, 180.-Del_Phi , 180.+Del_Phi);
 	TH1F* HDelta = new TH1F("HDelta", "Delta distribution", 500, -30, 30.);
 
-	//TH1F* HTheta = new TH1F("HTheta", "Theta distribution", 100, theta_bin-D_theta_bin/2., theta_bin+D_theta_bin/2.);
-	//TH1F* HPhi = new TH1F("HPhi", "Phi distribution", 200, 100., 300.);
-	//TH1F* HPhi = new TH1F("HPhi", "Phi distribution", 50, 175., 185.);
-	//TH1F* HDelta = new TH1F("HDelta", "Delta distribution", 100, delta_bin[(NPts-1)/2+6]-D_delta_bin/2.,delta_bin[(NPts-1)/2+6]+D_delta_bin/2.);
-	
 	TH2F* HBin = new TH2F("HBin","Bin distribution",
 				100, delta_bin[(NPts-1)/2+6]-D_delta_bin/2., delta_bin[(NPts-1)/2+6]+D_delta_bin/2.,
 				100, theta_bin-D_theta_bin/2., theta_bin+D_theta_bin/2.);
@@ -178,60 +166,46 @@ void WH::PlotAsym(){
 	// Conversion constant from mrad to degrees
 	Double_t DegMrad = (0.18/PI);
 
+	bool b_monitor;
+	cerr << "Use monitor angles to compute asymmetry? " << endl;
+	string s_monitor;
+	cin >> s_monitor;
+	b_monitor = ( s_monitor == ("Y" || "y") ?  true : false );
+
 	if (fChain == 0) return;
    	Long64_t nentries = fChain->GetEntriesFast();
 
    	Long64_t nbytes = 0, nb = 0;
-	cerr << "Swapped Input and Monitor? (Y/N)" << endl;
-	string run_s;
-	cin >> run_s;
-   	for (Long64_t jentry=0; jentry<nentries;jentry++) {
+   	for (Long64_t jentry=0; jentry<nentries;jentry++){
       		Long64_t ientry = LoadTree(jentry);
       		if (ientry < 0) break;
       		nb = fChain->GetEntry(jentry);   nbytes += nb;
       		// if (Cut(ientry) < 0) continue;
 		TIndex++;
+
 		// Convert projection angle to spherical angle
-							IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
+		IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
+
 		// Fill histograms:
 		// Theta, Phi, and Delta = Ee - Ep
-							if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0 ){
-							//if( D1_W_>0 ){
-								//HTheta->Fill((I0_Theta+I1_Theta)/2.);
-								HTheta[0]->Fill(I1_Theta);
-								if(run_s == "Y" || run_s == "y"){
-									HTheta[1]->Fill(M0_Theta*DegMrad);
-									HTheta[2]->Fill(I1_Theta - M0_Theta*DegMrad);
-								}
-								else{
-									HTheta[1]->Fill(M1_Theta*DegMrad);
-									HTheta[2]->Fill(I1_Theta - M1_Theta*DegMrad);
-								}
-								//HTheta->Fill(M1_Theta*DegMrad - I1_Theta);
-								//HPhi->Fill(180+abs(abs(I0_Phi-I1_Phi)-180));
-								HPhi->Fill(abs(I0_Phi-I1_Phi));
-								HDelta->Fill(I1_Energy-I0_Energy);
-							}
+		if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0 ){
+		//if( D0_W_>0 && D1_W_>0){
+			HTheta[0]->Fill(I1_Theta);
+			HTheta[1]->Fill(M1_Theta*DegMrad);
+			if(M1_Theta*DegMrad < 5.)
+			//HTheta[2]->Fill(I1_Theta - M1_Theta*DegMrad);
+			HTheta[2]->Fill(I1_Theta);
+
+			HPhi->Fill(abs(I0_Phi-I1_Phi));
+			HDelta->Fill(I1_Energy-I0_Energy);
+		}
 
 		// Only use pairs observed by all detectors:
 		// To compute asymmetry, and fill HBin
 		if( D0_W_>0 && D1_W_>0 && D0_P_>0 && D1_P_> 0){
 
-			//IConvertAngle(I0_Theta,I0_Phi,I1_Theta,I1_Phi);
-			//cerr << "Input0 spherical angles (" << I0_Theta<< "," << I0_Phi << ") (degrees)" << endl;
-			//cerr << "Input1 spherical angles (" << I1_Theta<< "," << I1_Phi << ") (degrees)" << endl;
-			/*
-			if(abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol){
-			//if(abs(I0_Theta-I1_Theta) < D_theta_tol)
-			//if(abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol)
-				//cerr << "Input (Theta,Phi) difference: ( " << abs(I0_Theta-I1_Theta) << ", " << abs(abs(I0_Phi-I1_Phi)-180) <<") (degrees)" << endl;
-				//cerr << "Theta = " << (I0_Theta+I1_Theta)/2. << endl;
-			}
-			*/
-			//cerr << "Input Phi difference " << abs(I0_Phi-I1_Phi) << " (degrees)" << endl;
 			// Only consider pairs with Theta0 ~ Theta1, Phi ~ 180 deg
 			if(abs(I0_Theta-I1_Theta) < D_theta_tol && abs(abs(I0_Phi-I1_Phi)-180) < D_phi_tol){
-
 
 				// Purpose of following code is to check issue on randomness of pair generation, and it's found that
 				// there're seeding issues.(Same pair appears in pair data file multiple times before Geant4 simulation)
@@ -277,7 +251,7 @@ void WH::PlotAsym(){
 		if(NPos[i] == 0. && NNeg[i] == 0.) Asym[i] = 0;
 		else{
 			Asym[i] = (NPos[i]-NNeg[i])/(NPos[i]+NNeg[i]); 
-			cerr << "Npos[i] = " << NPos[i] << ", Nneg[i] = " << NNeg[i] << endl;
+			cerr << "Npos["<< i <<"] = " << NPos[i] << ", Nneg[" << i << "] = " << NNeg[i] << endl;
 
 			//Compute statistical uncertainties
 			Sig_A[i] = 4*NPos[i]*NNeg[i]/(pow((NPos[i]+NNeg[i]),3.));
