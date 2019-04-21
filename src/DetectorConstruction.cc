@@ -97,6 +97,9 @@ fCoilHeight = 3.625*inch;
 fCoilMaterial = Copper;
   
 //yoke
+//X: Beam direction
+//Y: Left
+//Z: Up
 fMagnetX = 30.75*inch;
 fMagnetY = 22.75*inch;
 fMagnetZ = 17.50*inch;
@@ -120,8 +123,21 @@ fConeAddZ = (fMagnetX-fYokeInnerX)/4.;
 fConeRmax1 = (fTargetDistance-fYokeInnerX/2.-fConeAddZ)*tan(fConeAngle);
 fConeRmax2 = (fTargetDistance+fYokeInnerX/2.)*tan(fConeAngle);
 cerr << "Cone R1 = " << fConeRmax1 << ", cone R2 = " << fConeRmax2 << endl;
+cerr << "Continue?" << endl;
+string con;
+cin >> con;
 fConeZ = fYokeInnerX+fConeAddZ;
-//fConeInnerR = 1*cm;
+// Note: When cone inner radius too large, larger than
+// (cone_front_to_target_distance)*tan(fConeAngle)
+// Then it will cut off front flat portion of the lead cone.
+// And Cone will not stretch till designated fConeAddZ (Half of yoke hole depth)
+
+// For reference:
+// outer radius of cone front surface when cone is half way inside yoke hole
+// D*tan(5*deg) = 0.725(cm)
+// D*tan(6*deg) = 0.871(cm)
+// D*tan(7*deg) = 1.0175(cm)
+//fConeInnerR = 1.*cm;
 fConeInnerR = 0.5*cm;
 fConeBoxX = fConeRmax2;
 fConeBoxY = fConeZ;
@@ -693,6 +709,10 @@ fLogicMagnet->SetVisAttributes(G4VisAttributes::Invisible);
   //fVDCDistance1: distance between center of magnet and center of 1st chamber
   G4double PositionY = fVDCDistance1 + sqrt(2.)*(fVDCChamberHolderY/2. - fVDCSizeY/2. - fBagThick/2.);
 
+  //cerr << "Position Y = " << PositionY << ", continue?" << endl;
+  //string s_PositionY;
+  //cin >> s_PositionY;
+
   // Placement of the holder volume within the world volume
   // Beam left (copy number 0)
   // Note: 1. G4Transform3D, rotate object than frame.
@@ -732,6 +752,8 @@ fPhysVDCpackage[1] =  new G4PVPlacement( G4Transform3D(ChamberRot, G4ThreeVector
 	    fLogicWorld, 
 	    false,
 	    0);
+  //cerr << "HodoscopeY = " << fHodoscopeDistance << ", continue?" <<endl;
+  //cin >> s_PositionY;
 
 // Beam right
   HodoscopeRot.rotateZ(-180.*deg);
