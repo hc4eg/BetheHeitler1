@@ -154,9 +154,12 @@ fMagnetToBagDistance = 1.0*mm;
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
 // Target material and thickness can be changed through messenger
+// Default thickness
 fTargetThick = 0.025*mm; // Thickness of Uranium target
-fTargetMaterial = Uranium;  // Target material
-//fTargetMaterial = Vacuum;
+//fTargetThick = 0.005*mm; // Thickness of Uranium target
+//fTargetThick = 0.001*mm; // Thickness of Uranium target
+//fTargetMaterial = Uranium;  // Target material
+fTargetMaterial = Vacuum;
 
 //fTargetToBagMaterial = Air;
 fTargetToBagMaterial = Vacuum;
