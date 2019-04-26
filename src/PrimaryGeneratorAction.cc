@@ -5,14 +5,19 @@
 #include "G4ParticleDefinition.hh"
 #include "Randomize.hh"
 #include "math.h"
-
 #define PI 3.14159265
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
+
+inline double randfloat(){
+	double r = random()/ double (RAND_MAX);
+	return r;
+}
 
 PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
 :Detector(DC)
 {
-  pair_mode = true;
+  //pair_mode = true;
+  pair_mode = false;
 
   /*
   cerr << "Pair mode = " << (pair_mode==true?"True":"False") << ", continue?"<< endl;
@@ -33,7 +38,6 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   gunMessenger = new GeneratorMessenger(this);
 
   // default particle kinematic
-
   G4ParticleTable* particleTable = G4ParticleTable::GetParticleTable();
   G4String particleName;
   G4ParticleDefinition * p_electron = particleTable->FindParticle(particleName="e-");
@@ -50,19 +54,19 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   //Here primary particles are generated within rectangle bounded by
   // x = x_min, x = x_max, y = y_min, y = y_max.
   // with additional condition sqrt(x^2+y^2)<radius_max (circle with radius radius_max)
+  /*
   x_min = 0.*cm;
   x_max = 0.*cm;
   y_min = 0.*cm;
   y_max = 0.*cm;
+  */
 
-  /*
   x_min = -0.5*cm;
   x_max = 0.5*cm;
   y_min = -0.5*cm;
   y_max = 0.5*cm;
   //radius_max = 0.65*cm;
   radius_max = 0.5*cm;
-  */
 
   angle_max = 175.*mrad;
   theta_min = 0*mrad;
@@ -198,18 +202,84 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  }
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  */
+
+
+
 	  G4int CurrentEvent = anEvent->GetEventID(); 
 	  //cerr << "Current Event = " << CurrentEvent << endl;
 	  ConvertNext();
-	  //cerr << "Primary data file converted." << endl;
 	  //PrintVertex();
 
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 	  // Primary particle are generated uniformly within depth of target.
-	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	  targ_in = target_position;
+	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
+	  //targ_in = target_position;
 
+	/*
+	  // Throwing uniformly random solid angle at circumference of cone:
+	  // Numbers in DetectorConstruction:
+	  double inch = 2.54*cm;
+	  double fTargetDistance = 42.26*cm;
+	  double fMagnetX = 30.75*inch;
+	  double fYokeInnerX = 22.75*inch;
+	  double fYokeSideX = (fMagnetX - fYokeInnerX)/2.;
+
+	  double deg = PI/180.;
+	  double fConeAddZ = 5.82*cm ;
+	  //double fConeAddZ = 0.;
+	  double fConeAngle = 5 * deg ;
+
+	  double fConeR = ( fTargetDistance - fYokeInnerX/2. - fConeAddZ ) * tan(fConeAngle) + 0.001*cm;
+	  targ_in = -( fYokeInnerX/2. + fConeAddZ );
+
+	  cerr << "fConeR = " << fConeR/cm << "cm, targ_in = " << targ_in/cm << "cm."<< endl;
+	  cerr << "continue?" << endl;
+	  string ss;
+	  cin >> ss;
+
+	  double ang = CLHEP::RandFlat::shoot(0., 2*PI);
+	  //cerr << "angle = " << ang/deg << "(deg)" << endl;
+	  x_in = fConeR * cos(ang);
+	  y_in = fConeR * sin(ang);
+
+
+
+		// Below: use uniformly random spherical angle (rather than reading pairs from data file)
+		// with theta from 4 to 90 deg as pairticle angles at primary vertex
+		double th_min = 4 * deg;
+		double th_max = 90 * deg;
+		double t_Thetae = acos( cos(th_min) - randfloat()*( cos(th_min) - cos(th_max) ) );
+		double t_Thetap = acos( cos(th_min) - randfloat()*( cos(th_min) - cos(th_max) ) );
+		//Phie = randfloat() * 360.*deg;
+		//Phip = randfloat() * 360.*deg;
+		double t_Phie =  90* deg + randfloat() * 180. * deg;
+		double t_Phip = -90* deg + randfloat() * 180. * deg;
+
+		// From spherical angle to projection angle as input
+		Thetae = atan( tan(t_Thetae) * cos(t_Phie) );
+		Phie   = atan( tan(t_Thetae) * sin(t_Phie) );
+		Thetap = atan( tan(t_Thetap) * cos(t_Phip) );
+		Phip   = atan( tan(t_Thetap) * sin(t_Phip) );
+
+		// [18, 42] MeV/C momentum
+		Pe = 18.*MeV + randfloat()*24.*MeV;
+		Pp = 18.*MeV + randfloat()*24.*MeV;
+		//Pe = 30.*MeV;
+		//Pp = 30.*MeV;
+
+		// Makes (x,y,z) right hand
+		Pex = Pe/sqrt(1+tan(Thetae)*tan(Thetae)+tan(Phie)*tan(Phie));
+		Pey = Pex*tan(Thetae);
+		Pez = Pex*tan(Phie);
+
+		Ppx = Pp/sqrt(1+tan(Thetap)*tan(Thetap)+tan(Phip)*tan(Phip));
+		Ppy = Ppx*tan(Thetap);
+		Ppz = Ppx*tan(Phip);
+
+	KEe = sqrt(Pe*Pe - Me*Me) -Me;
+	KEp = sqrt(Pp*Pp - Me*Me) -Me;
+	*/
 
 
 
@@ -245,9 +315,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  pOutputFile->Set_y_i(0,y_in);
 	  pOutputFile->Set_phi_i(0,Phip);
 
-
-
-
 	  // Electron generation
 	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
 	  particleGun->SetParticleDefinition(P_electron);
@@ -281,17 +348,18 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
       //Code Above: Read pair data file from generator obeys theory calculation. */
 	else{
 	  G4int CurrentEvent = anEvent->GetEventID(); 
-
 	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 
 	  G4ParticleDefinition * P_gamma = ParticleTable->FindParticle(ParticleName="gamma");
 	  particleGun->SetParticleDefinition(P_gamma);
-	  
 	  // Primary particle are generated uniformly within depth of target.
 	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., -target_thickness/2.);
-	  targ_in =  target_position;
+	  //targ_in =  target_position;
+
+	  // For checking background, using gamma before target:
+	  targ_in = target_position - target_thickness/2.;
 	  G4double E_gamma = 60.; 
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(E_gamma);
@@ -391,6 +459,8 @@ int PrimaryGeneratorAction::ConvertNext(){
 			Phie = 30*deg;
 			Phip = -20*deg;
 		}
+
+		// Covert to projection angles:
 
 		// x is beam direction
 		// y is horrizontal, left positive

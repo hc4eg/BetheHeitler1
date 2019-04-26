@@ -45,12 +45,11 @@ void EventAction::BeginOfEventAction(const G4Event* evt)
   // get needed detector info here because it may have changed since constructor
   fVDCSpacing = pDetector->GetVDCSpacing();
   pOutputFile->ClearKE();
-  if (event_number < 5 || event_number%printModulo == 0)
-	{ 
+  if (event_number < 5 || event_number%printModulo == 0){
 	if(event_number >= 10*printModulo && printModulo < 100000) printModulo *= 10;
 	G4cout << "---> Begin of event: " << event_number << G4endl;
-    //CLHEP::HepRandom::showEngineStatus();
-	}
+	//CLHEP::HepRandom::showEngineStatus();
+  }
  
 }
 
@@ -72,32 +71,73 @@ if(use_monitor)
   G4int totalMonHits = MonitorHC->entries();
   MonitorHit * mHit;
   // We just need to find earliest time for each of e- and e+ hits
+  // min_time: minimum of time e+/- hits monitor
+  // min_time_hit: minimum of index of hit in MonitorHC
+  // ipart: 0: e+, 1: e-
   G4double min_time[2]; G4int min_time_hit[2]; G4int ipart;
   G4bool mon_hit[2];
+  //G4double now = mHit->GetTime();
+  G4double now[2];
+
+  // Initialize values
   for(G4int i=0 ; i < 2; i++)
 	{
   	min_time[i] = 0;
 	min_time_hit[i] = -1;
 	mon_hit[i] = false;
+	now[i] = 10.;
 	}
+
+  // 1. Find if e+/e- hits
+  // 2. Find minimum time e+/e- hits
+  // 3. Find minimum index of MonitorHC where e+/e- hits
   for(G4int jj = 0; jj < totalMonHits; jj++)
 	{
 	mHit = (*MonitorHC)[jj];
-	G4double now = mHit->GetTime();
-	if(mHit->GetParticle() == "e-") ipart = 1;
-	else if(mHit->GetParticle() == "e+") ipart = 0;
+	// FIXME: (4/4/2019)Test why I0/1 and M0/1 in root file act strange:
+	if(mHit->GetParticle() == "e-"){
+		ipart = 1;
+		now[1] = mHit->GetTime();
+	}
+	else if(mHit->GetParticle() == "e+"){
+		ipart = 0;
+		now[0] = mHit->GetTime();
+	}
 	else continue;
+
+	/*
+	cerr << "jj = " << jj << endl;
+	cerr << "ipart = " << ipart << ", now = " << now[ipart] << ", min_time[" << ipart << "" << "] = " << min_time[ipart]
+	     << ", ( min_time[ipart] > now )? = " << ( min_time[ipart] > now[ipart] ) << endl;
+	*/
+
+	/*
+	for(int i = 0; i < 2; i++){
+		cerr << ( i== 0? "e+" : "e-" ) << ": min_time = " << min_time[i] << ", index in MonitorHC is " << min_time_hit[i] << endl;
+	}
+	*/
+
+	/*
 	if( !mon_hit[ipart] || min_time[ipart] > now)
 		{
 		min_time[ipart] = now;
 		min_time_hit[ipart] = jj;
 		mon_hit[ipart] = true;
+		cerr << ( ipart == 0? "e+" : "e-" ) << ": min_time = " << now << ", index in MonitorHC is " << min_time_hit[ipart] << endl;
+		}
+	*/
+		for(int i = 0; i < 2; i++){
+			if( !mon_hit[i] || min_time[i] > now[i] ){
+				min_time[i] = now[i];
+				min_time_hit[i] = jj;
+				mon_hit[i] = true;
+			}
 		}
 	}
 
   //we need both monitor hit to get result of e+ /e- pair production
-  if(mon_hit[0] && mon_hit[1])
-    //  if(mon_hit[0] || mon_hit[1])
+  if( mon_hit[0] && mon_hit[1] )
+  //if(mon_hit[0] || mon_hit[1])
 	{
   	for(ipart = 0; ipart < 2; ipart++)
 		{
@@ -115,6 +155,12 @@ if(use_monitor)
 			G4ThreeVector dir = mHit->GetMomentumDirection();
 			//G4double theta_m = atan2( dir.y(), dir.x() );
 			//G4double phi_m = atan2( dir.z(), dir.x() );
+
+			/*
+			cerr << "EventAction.cc" << endl;
+			cerr << "i = " << ipart << ", KE = " << mHit->GetKineticEnergy()
+			     << ", x = " << pos.y() << ", y = " << pos.z() << ", x/y = " << pos.y()/pos.z() << endl;
+			*/
 
 			// theta_m , phi_m here are spherical angle about x-axis.
 			//Since direction from target to monitorSD always makes dir.x positive, theta_m is always in (0,PI/2)
@@ -759,7 +805,9 @@ if(use_monitor)
   // else write the event if there is a hit in a VDC
   // but not if we are requiring a hit in the hodoscope and there is no
   // hit in the corresponding hodoscope
-  if(use_monitor)
+  // FIXME: if primary vertex generated behind monitor, disable monitor!!!
+  //if(use_monitor)
+  if(true)
     {
       //If the following line is added, monitors will write data when all detectors are hit.
       /*

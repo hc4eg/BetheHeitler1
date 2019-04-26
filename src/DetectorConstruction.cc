@@ -71,8 +71,8 @@ DefineMaterials();
 fWorldSize = new G4ThreeVector(150.*cm*5, 200.*cm*5, 100.*cm*5);
 fWorldCenter = new G4ThreeVector(0.*mm, 0.*mm, 0.*mm);
 //fBackgroundMaterial = Helium;
-fBackgroundMaterial = Vacuum;
-//fBackgroundMaterial = Air;
+//fBackgroundMaterial = Vacuum;
+fBackgroundMaterial = Air;
 
 //
 // Magnetic field
@@ -119,7 +119,12 @@ fYokeMaterial = Iron;
 fTargetDistance = 42.26*cm;
 fConeAngle = 5*deg;
 //fConeAddZ = 0.;
-fConeAddZ = (fMagnetX-fYokeInnerX)/4.;
+//fConeAddZ = (fMagnetX-fYokeInnerX)/4.;
+//fConeAddZ = 5.82*cm;
+
+// To make front diameter = 1.7 cm
+fConeAddZ = 3.652 * cm;
+
 fConeRmax1 = (fTargetDistance-fYokeInnerX/2.-fConeAddZ)*tan(fConeAngle);
 fConeRmax2 = (fTargetDistance+fYokeInnerX/2.)*tan(fConeAngle);
 cerr << "Cone R1 = " << fConeRmax1 << ", cone R2 = " << fConeRmax2 << endl;
@@ -147,22 +152,25 @@ fConeMaterial = Lead;
 // Bag
 fBagThick = 0.1*mm;
 //fBagMaterial = Poly;
-fBagMaterial = Vacuum;
+//fBagMaterial = Vacuum;
+fBagMaterial = Air;
 fMagnetToBagDistance = 1.0*mm;
 
 //target
 fTargetWidth = 4.0*cm;
 fTargetHeight = 4.0*cm;
+
 // Target material and thickness can be changed through messenger
 // Default thickness
 fTargetThick = 0.025*mm; // Thickness of Uranium target
 //fTargetThick = 0.005*mm; // Thickness of Uranium target
 //fTargetThick = 0.001*mm; // Thickness of Uranium target
-//fTargetMaterial = Uranium;  // Target material
-fTargetMaterial = Vacuum;
 
-//fTargetToBagMaterial = Air;
-fTargetToBagMaterial = Vacuum;
+fTargetMaterial = Uranium;  // Target material
+//fTargetMaterial = Vacuum;
+
+fTargetToBagMaterial = Air;
+//fTargetToBagMaterial = Vacuum;
 //fTargetToBagMaterial = Helium;
 
 //VDC Chambers

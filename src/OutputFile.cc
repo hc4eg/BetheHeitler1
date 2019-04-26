@@ -283,9 +283,9 @@ OutputFile::WriteEvent()
 				  moni1->Theta = (Float_t)(0.0/mrad);
 				  moni1->Phi = (Float_t)(0.0/mrad);
 				  event->M0.SetMonitor(moni1);
-				  delete moni;				  
+				  delete moni;
 		    }
-		  else
+		  else if(fMonitorHit[0] && fMonitorHit[1])
 		    for(G4int i = 0; i < 2; i++)
 		      {
 			//if(fMonitorHit[i])
@@ -305,6 +305,15 @@ OutputFile::WriteEvent()
 				  moni->Theta = (Float_t)(fMonitorTheta[i]/mrad);
 				  //fprintf(fd," %13.4g\n",fMonitorPhi[i]/mrad);
 				  moni->Phi = (Float_t)(fMonitorPhi[i]/mrad);
+
+				/*
+				  std::cerr.precision(5);
+				  cerr << "OutputFile.cc" << endl;
+				  cerr << std::scientific <<  "Monitor [" << i << "] Energy = " << fMonitorKineticEnergy[i]
+					<< " X =  " << fMonitorX[i] << ", Y = " << fMonitorY[i]
+					<< " X/Y = " << fMonitorX[i]/fMonitorY[i] << endl;
+				*/
+
 				  if (i == 0 )
 				    event->M0.SetMonitor(moni);
 				  else
