@@ -16,8 +16,8 @@ inline double randfloat(){
 PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
 :Detector(DC)
 {
-  //pair_mode = true;
-  pair_mode = false;
+  pair_mode = true;
+  //pair_mode = false;
 
   /*
   cerr << "Pair mode = " << (pair_mode==true?"True":"False") << ", continue?"<< endl;
@@ -209,7 +209,6 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  //cerr << "Current Event = " << CurrentEvent << endl;
 	  ConvertNext();
 	  //PrintVertex();
-
 	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
 	  G4String ParticleName;
 	  // Primary particle are generated uniformly within depth of target.
@@ -292,10 +291,24 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(KEp);
 	  // Note Thetae, Phie are projection angles than spherical angles
-	  int flag = 1;
+	  // FIXME: My data file e- goes to right, t_Theta +, and vice versa
+	  //	    In Geant4 coordinate system, e+ goes left, but in +x direction.
+	  //	    In this function positive Pex, Pey, Pez directions are:
+	  //	    Beam direction, right horizontal, vertical up.
+
+	  //	    Geant4 positive x,y,z directions are:
+	  //	    Bean direction, left horizontal, vertical up so that coordinate system
+	  //	    is right hand
+	  // 	    Thus, use flag = 0 to reverse Py when use my data file
+	  //	    evens.run206.dat
+	  //int flag = 1;
+	  int flag = 0;
+
+
 	  // FIXME: if SetParticleMomentumDirection() swapped Pp and Pe,
 	  // SWAP Thetae, Phie in Set_theta_i(), Set_phi_i()
 	  // Otherwise in root file Input Phi_i/Theta_i[0/1] will be correspond to Monitor Phi_m/Theta_m[1/0]
+
 	  // FIXME: Below two lines comment maybe wrong
 	  // flag == 1: original magnetic field direction: B vertical down direction, e- goes right, e+ left
 	  // flag == 0: reversed magnetic field direction: B vertical up direction,   e- goes left,  e+ right
@@ -309,8 +322,8 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  }
 	  particleGun->GeneratePrimaryVertex(anEvent);
 
-	  pOutputFile->Set_energy_i(0,KEp);
 	  //pOutputFile->Set_delta_i(1,delta_in);
+	  pOutputFile->Set_energy_i(0,KEp);
 	  pOutputFile->Set_x_i(0,x_in);
 	  pOutputFile->Set_y_i(0,y_in);
 	  pOutputFile->Set_phi_i(0,Phip);
@@ -356,14 +369,68 @@ void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 	  particleGun->SetParticleDefinition(P_gamma);
 	  // Primary particle are generated uniformly within depth of target.
 	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., -target_thickness/2.);
-	  //targ_in =  target_position;
-
 	  // For checking background, using gamma before target:
 	  targ_in = target_position - target_thickness/2.;
-	  G4double E_gamma = 60.; 
+
+
+
+
+
+
+
+	/*
+	  // Throwing uniformly random solid angle at circumference of cone:
+	  // Numbers in DetectorConstruction:
+	  double inch = 2.54*cm;
+	  double fTargetDistance = 42.26*cm;
+	  double fMagnetX = 30.75*inch;
+	  double fYokeInnerX = 22.75*inch;
+	  double fYokeSideX = (fMagnetX - fYokeInnerX)/2.;
+	  double deg = PI/180.;
+	  double fConeAddZ = 0.*cm ;
+	  double fConeAngle = 5 * deg ;
+	  double fConeR = ( fTargetDistance - fYokeInnerX/2. - fConeAddZ ) * tan(fConeAngle) + 0.001*cm;
+	  targ_in = -( fYokeInnerX/2. + fConeAddZ );
+
+	  cerr << "fConeR = " << fConeR/cm << "cm, targ_in = " << targ_in/cm << "cm."<< endl;
+	  cerr << "continue?" << endl;
+	  string ss;
+	  cin >> ss;
+
+	  double ang = CLHEP::RandFlat::shoot(0., 2*PI);
+	  //cerr << "angle = " << ang/deg << "(deg)" << endl;
+	  x_in = fConeR * cos(ang);
+	  y_in = fConeR * sin(ang);
+
+		// Below: use uniformly random spherical angle (rather than reading pairs from data file)
+		// with theta from 4 to 90 deg as pairticle angles at primary vertex
+		double th_min = 4 * deg;
+		double th_max = 90 * deg;
+		double t_Theta = acos( cos(th_min) - randfloat()*( cos(th_min) - cos(th_max) ) );
+		double t_Phi = randfloat() * 360.*deg;
+
+		// From spherical angle to projection angle as input
+		double Theta = atan( tan(t_Theta) * cos(t_Phi) );
+		double Phi   = atan( tan(t_Theta) * sin(t_Phi) );
+		G4double E_gamma = 60.*MeV;
+		double P = E_gamma;
+
+		// Makes (x,y,z) right hand
+		double Px = P/sqrt(1+tan(Theta)*tan(Theta)+tan(Phi)*tan(Phi));
+		double Py = Px*tan(Theta);
+		double Pz = Px*tan(Phi);
+	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Px, Py, Pz));
+	*/
+
+
+
+
+
+
+	  G4double E_gamma = 60.*MeV;
 	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
 	  particleGun->SetParticleEnergy(E_gamma);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(+1., 0., 0.));
+	  //particleGun->SetParticleMomentumDirection(G4ThreeVector(+1., 0., 0.));
 	  particleGun->GeneratePrimaryVertex(anEvent);
 
 	  pOutputFile->Set_energy_i(0,E_gamma);
@@ -452,6 +519,7 @@ int PrimaryGeneratorAction::ConvertNext(){
 
 
 		// Check if data in EventAction.cc will follow pairs in primary generator.
+		/*
 		bool b_s_dir = 0;
 		if(b_s_dir){
 			Thetae = 6.*deg;
@@ -459,6 +527,7 @@ int PrimaryGeneratorAction::ConvertNext(){
 			Phie = 30*deg;
 			Phip = -20*deg;
 		}
+		*/
 
 		// Covert to projection angles:
 
