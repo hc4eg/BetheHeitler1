@@ -231,9 +231,13 @@ OutputFile::WriteEvent()
 	    event->I0.Phi = (Float_t)(fphi_i[0]/mrad);
 	  }
 
+	// Monitor data
+	/*
+	cerr << "OutputFile.cc: fUseMonitor = " << fUseMonitor << ". Type any to continue." << endl;
+	string fcont;
+	cin >> fcont;
+	*/
 
-
-	  // Monitor data
 	if(fUseMonitor)
 		{
 		  //Check if there is single e+ or e- produced, or e+/e- pair produced
@@ -283,7 +287,7 @@ OutputFile::WriteEvent()
 				  moni1->Theta = (Float_t)(0.0/mrad);
 				  moni1->Phi = (Float_t)(0.0/mrad);
 				  event->M0.SetMonitor(moni1);
-				  delete moni;
+				  delete moni1;
 		    }
 		  else if(fMonitorHit[0] && fMonitorHit[1])
 		    for(G4int i = 0; i < 2; i++)
@@ -322,6 +326,18 @@ OutputFile::WriteEvent()
 				}
 			}
 		}
+	else{
+		  Monitor* Moni = new Monitor;
+		  Moni->Charge = 0.0;
+		  Moni->Energy = (Float_t)(0.0/MeV);
+		  Moni->X = (Float_t)(0.0/cm);
+		  Moni->Y = (Float_t)(0.0/cm);
+		  Moni->Theta = (Float_t)(0.0/mrad);
+		  Moni->Phi = (Float_t)(0.0/mrad);
+		  event->M0.SetMonitor(Moni);
+		  event->M1.SetMonitor(Moni);
+		  delete Moni;
+	}
 
 
 
