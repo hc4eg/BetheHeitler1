@@ -117,12 +117,12 @@ fYokeMaterial = Iron;
 
 // New cone constraint
 fTargetDistance = 42.26*cm;
-fConeAngle = 5*deg;
+fConeAngle = 7.*deg;
 //fConeAddZ = 0.;
 //fConeAddZ = (fMagnetX-fYokeInnerX)/4.;
 //fConeAddZ = 5.82*cm;
 
-// To make front diameter = 1.7 cm
+// To make front diameter = 1.7 cm, for cone angle 5 degree
 fConeAddZ = 3.652 * cm;
 
 fConeRmax1 = (fTargetDistance-fYokeInnerX/2.-fConeAddZ)*tan(fConeAngle);
@@ -132,18 +132,20 @@ cerr << "Continue?" << endl;
 string con;
 cin >> con;
 fConeZ = fYokeInnerX+fConeAddZ;
+
+// FIXME: Below numbers in comment is used for situation when
+// fConeAddZ = (fMagnetX-fYokeInnerX)/4.;
+
 // Note: When cone inner radius too large, larger than
 // (cone_front_to_target_distance)*tan(fConeAngle)
 // Then it will cut off front flat portion of the lead cone.
 // And Cone will not stretch till designated fConeAddZ (Half of yoke hole depth)
-
 // For reference:
 // outer radius of cone front surface when cone is half way inside yoke hole
 // D*tan(5*deg) = 0.725(cm)
 // D*tan(6*deg) = 0.871(cm)
 // D*tan(7*deg) = 1.0175(cm)
-fConeInnerR = 0.25*cm;
-fConeInnerR += 0.5*cm;
+fConeInnerR = 0.75*cm;
 //fConeInnerR += 1.*cm;
 fConeBoxX = fConeRmax2;
 fConeBoxY = fConeZ;
@@ -440,25 +442,32 @@ void DetectorConstruction::ConstructCone(G4ThreeVector center){
 	Name =  "ConeConstraint";
 	G4double Gap = fYokeInnerZ-2*fPoleHeight;
 	G4RotationMatrix* RotMatrix = new G4RotationMatrix();
+
+	// Cone was constructed along Z direction, rotate -90 deg about Y axis to lay it along X(beam) direction
 	RotMatrix->rotateY(-90*deg);
 	fCone = new G4Cons("Cone", 0., fConeRmax1, 0., fConeRmax2, fConeZ/2., 0., 2*M_PI*rad);
+
 	fConeIn = new G4Tubs( "ConeIn",
 				0.,
 				fConeInnerR,
 				fConeZ/2.+1*cm,
 				0.,
 				360.*deg);
+
 	fConeBox = new G4Box( "ConeBox",
 				fConeBoxX/2.,
 				fConeBoxY/2.,
 				fConeBoxZ/2.+1*mm);
+
 	fConeInner = new G4SubtractionSolid("Cone-Inner", fCone, fConeIn, 0, G4ThreeVector(0,0,0));
 	fConeInnerBox = new G4SubtractionSolid("Cone-Inner-Box", fConeInner, fConeBox, 0, G4ThreeVector(Gap/2.+fConeBoxX/2.,0,0));
 	fConeInner2Box = new G4SubtractionSolid("Cone-Inner-2Box", fConeInnerBox, fConeBox, 0, G4ThreeVector(-Gap/2.-fConeBoxX/2.,0,0));
+
 	fLogicCone = new G4LogicalVolume( fConeInner2Box,
 					  fConeMaterial,
 					  Name);
 					  //Name,0,0,0);
+
 	fPhysCone = new G4PVPlacement( RotMatrix,
 					  center,
 					  fLogicCone,
@@ -473,7 +482,6 @@ void DetectorConstruction::ConstructCone(G4ThreeVector center){
 //	ConeVis->SetForceWireframe(true);
 	ConeVis->SetForceSolid(true);
 	fLogicCone->SetVisAttributes(ConeVis);
-
 }
 
 void DetectorConstruction::ConstructYoke(G4ThreeVector center)
@@ -678,9 +686,9 @@ ConstructYoke(magnetCenter);
 	ConstructCoil(coilCenter, 1);
 
 // New cone constrait
-	//add_cone = false;
-	add_cone = true;
-	if(add_cone){
+	fAddCone = false;
+	//fAddCone = true;
+	if(fAddCone){
 		G4ThreeVector coneCenter = magnetCenter;
 		coneCenter.setX(magnetCenter.getX()-fConeAddZ/2.);
 		ConstructCone(coneCenter);

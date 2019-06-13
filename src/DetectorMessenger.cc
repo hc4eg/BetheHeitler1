@@ -130,7 +130,8 @@ void DetectorMessenger::SetNewValue(G4UIcommand* command,G4String newValue)
 	}
   else if(command == Set_add_cone_cmd)
 	{
-	Detector->Set_add_cone( Set_add_cone_cmd->GetNewBoolValue(newValue));
+	//Detector->Set_add_cone( Set_add_cone_cmd->GetNewBoolValue(newValue));
+	Detector->Set_fAddCone( Set_add_cone_cmd->GetNewBoolValue(newValue));
 	}
   else if(command == SetB0_cmd)
 	{
