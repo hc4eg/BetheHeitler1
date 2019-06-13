@@ -64,6 +64,12 @@ void EventAction::EndOfEventAction(const G4Event* evt)
   // Skip this part if we are not going to output Monitor info
   G4bool use_monitor = pOutputFile->GetUseMonitor();
 
+
+  // FIXME: disable use_monitor when shoot gamma beam and check background
+  //use_monitor = false;
+  use_monitor = true;
+  G4bool mon_hit[2] = {0,0};
+
 if(use_monitor)
   {
   G4int MONID = G4SDManager::GetSDMpointer()->GetCollectionID("Monitor/MonitorHitCollection");
@@ -75,7 +81,6 @@ if(use_monitor)
   // min_time_hit: minimum of index of hit in MonitorHC
   // ipart: 0: e+, 1: e-
   G4double min_time[2]; G4int min_time_hit[2]; G4int ipart;
-  G4bool mon_hit[2];
   //G4double now = mHit->GetTime();
   G4double now[2];
 
@@ -805,9 +810,9 @@ if(use_monitor)
   // else write the event if there is a hit in a VDC
   // but not if we are requiring a hit in the hodoscope and there is no
   // hit in the corresponding hodoscope
+  if(use_monitor)
   // FIXME: if primary vertex generated behind monitor, disable monitor!!!
-  //if(use_monitor)
-  if(true)
+  //if(true)
     {
       //If the following line is added, monitors will write data when all detectors are hit.
       /*
@@ -825,6 +830,7 @@ if(use_monitor)
 	{
 	  //cerr<< det_hit[0] << hod_hit[0] << det_hit[1] << hod_hit[1] << endl;
 	  //cerr << hod_hit[0] << hod_hit[1] << endl;
+		//cerr << "mon_hit[0] = " << mon_hit[0] << ", mon_hit[1] = " << mon_hit[1] << endl;
 	  pOutputFile->WriteEvent();
 	}
     }
