@@ -187,7 +187,10 @@ fVDCSheetThick = 0.0005*inch;
 fVDCLayerThick = 0.5*inch;
 fVDCAlLayerThick = 0.75*inch;
 //fChamberSheetMaterial = Mylar;
-fChamberGasMaterial = Ethane_Argon;
+
+//fChamberGasMaterial = Ethane_Argon;
+fChamberGasMaterial = Copper;
+
 fChamberSheetMaterial = Vacuum;
 // fChamberGasMaterial = Vacuum;
 //VDC Wires
