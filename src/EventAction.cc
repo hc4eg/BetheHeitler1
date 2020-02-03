@@ -66,8 +66,8 @@ void EventAction::EndOfEventAction(const G4Event* evt)
 
 
   // FIXME: disable use_monitor when shoot gamma beam and check background
-  //use_monitor = false;
-  use_monitor = true;
+  use_monitor = false;
+  //use_monitor = true;
   G4bool mon_hit[2] = {0,0};
 
 if(use_monitor)
@@ -810,7 +810,8 @@ if(use_monitor)
   // else write the event if there is a hit in a VDC
   // but not if we are requiring a hit in the hodoscope and there is no
   // hit in the corresponding hodoscope
-  if(use_monitor)
+  //if(use_monitor)
+  if(1)
   // FIXME: if primary vertex generated behind monitor, disable monitor!!!
   //if(true)
     {
