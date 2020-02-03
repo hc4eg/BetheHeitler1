@@ -97,7 +97,7 @@ private:
   G4bool gamma_mode;
 
   G4bool pair_mode;
-  G4double E, c;
+  G4double E_gamma,c;
   G4double Ee,KEe, Pe,Thetae, Phie, Pex, Pey, Pez, Me;
   G4double Ep,KEp, Pp,Thetap, Phip, Ppx, Ppy, Ppz;
   // new members related to reading data file

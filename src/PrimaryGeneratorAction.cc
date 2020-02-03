@@ -5,6 +5,7 @@
 #include "G4ParticleDefinition.hh"
 #include "Randomize.hh"
 #include "math.h"
+#include <cmath>
 #define PI 3.14159265
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
@@ -79,7 +80,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
   particleGun->SetParticleEnergy(central_energy);
   particleGun->SetParticlePosition(G4ThreeVector(target_position, 0.*cm, 0.*cm));
 
-  E = 60*MeV;
+  E_gamma = 60*MeV;
   c = CLHEP::c_light;
   Me = CLHEP::electron_mass_c2;
 
@@ -101,6 +102,7 @@ PrimaryGeneratorAction::PrimaryGeneratorAction( DetectorConstruction* DC)
 	cerr << "Data file has Total line " << maxline << endl;
 	infile.seekg(0);
   }
+
 }
 
 //....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
@@ -113,336 +115,85 @@ PrimaryGeneratorAction::~PrimaryGeneratorAction()
   infile.close();
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 void PrimaryGeneratorAction::GeneratePrimaries(G4Event* anEvent)
 {
+	  ////////////////////////////////////////////////
+	  // In branch LinearEnergy:
+	//1. Energy uniformly  distributed from E_min to E_max
+	//2. Based on energy primary vertex position follows energy by:
+	// 		x = xmin + (E - Emin)*(xmax - xmin)/(Emax - Emin)
+	static const G4double inch = 2.54 * cm;
+	G4double x_out[2], y_out[2], z_out[2];
 
-      G4double x_in, y_in, radius, energy_in, theta_in, phi_in;
-      G4double delta_in, v_x, v_y, v_z, targ_in;
-      //this function is called at the begining of event
-      //
-      // get from geometry  - may have changed after constructor
-      target_position = -Detector->GetTargetDistance();
-      target_thickness = Detector->GetTargetThickness();
+	G4double E_min = 15.*MeV;
+	G4double E_max = 45.*MeV;
 
-      //G4cout << "Generate Primaries called." << G4endl;
-      // choose position
-      do	{
-	if(x_max == x_min) { x_in = x_min; }
-	else { x_in =  CLHEP::RandFlat::shoot(x_min, x_max); }
-	if(y_max == y_min) { y_in = y_min; }
-	else { y_in =  CLHEP::RandFlat::shoot(y_min, y_max); }
-	radius = sqrt(x_in*x_in +y_in*y_in);
-      } while (radius > radius_max);
-      
-       
-      //Code below: Generating Fixed Asymmetry distribution in 3D
-      // Consider artificially generate e+ e- pair
-      // FIXME:some bug at BH/gun/set_pair_mode
+	G4double X_min = -40.*inch;
+	G4double X_max = 40.*inch;
 
-      if (pair_mode)
-	{
+	G4double E[2];
+	E[1] = CLHEP::RandFlat::shoot(E_min, E_max);
+	E[0] = 60*MeV-E[1];
 
-	  /*
-	  G4double A,a, Temp, Randa, ThetaM;
-	  //Assigning Asymmetry
-	  A = 0.5;
-	  a = (1-A)/(1+A);
-
-	  //Compute electron energy, momentum components
-	  // Generating Fixed Asymmetry distritution in 3D
-	  {
-	    do{
-	      Randa = CLHEP::RandFlat::shoot(0.0 , 1+a);
-	      if (Randa <= 1.0){
-		Ee = CLHEP::RandFlat::shoot(15.0*MeV, 30.0*MeV);
-	      }
-	      else{
-		Ee = CLHEP::RandFlat::shoot(30.0*MeV, 45.0*MeV);		  
-	      }
-	      
-		do{
-		  Temp = sqrt(((E-Ee)*(E-Ee)-Me*Me)/(Ee*Ee-Me*Me));	  
-		  if(-1 < Temp && 1 > Temp){
-		    ThetaM = asin(Temp)*rad;
-		    Thetae = CLHEP::RandFlat::shoot(0.0, ThetaM);
-		  }
-		  else
-		    Thetae = CLHEP::RandFlat::shoot(0.0*deg,90.0*deg);
-	    
-		  Phie = CLHEP::RandFlat::shoot(0.0*deg, 360.0*deg);
-
-		  Pe = sqrt(Ee*Ee-Me*Me);
-		  Pex = Pe*cos(Thetae);
-		  Pey = Pe*sin(Thetae)*cos(Phie);
-		  Pez = Pe*sin(Thetae)*sin(Phie);
-		  KEe = Ee - Me;
-	    
-		  Ep = E - Ee;
-		  Ppx = sqrt((E-Ee)*(E-Ee)-(Ee*Ee-Me*Me)*sin(Thetae)*sin(Thetae)-Me*Me);
-		  Ppy = -Pey;
-		  Ppz = -Pez;
-		  KEp = Ep - Me;
-		  
-		  //Note: Thetap here is always in 0 to 90deg
-		  Thetap = atan(+Pe*sin(Thetae)/Ppx);
-		  //Make positron opposite direction than electron, and lies in 0 to 360deg
-		  if (Phie >= 0.*deg && Phie < 180.0*deg)
-		    Phip = Phie + 180.0*deg;
-		  else if ( Phie >= 180.0*deg && Phie < 360.0*deg)
-		    Phip = Phie - 180.0*deg;
-	  
-		}while(Thetae > 20.0*deg || Thetap > 20.0*deg || Thetae < -20.0*deg || Thetap < -20.0*deg);
-
-	      }while (((E-Ee)*(E-Ee)-Pey*Pey-Me*Me) < 0.0 || Ee < Me);	      
-	    //	cerr << "Thetae = " << Thetae/deg << " deg. Thetap = " << Thetap/deg << " deg." << endl;
-	    //		cerr << "Ee = " << Ee/MeV << " MeV. Ep = "  << Ep/MeV << " MeV." << endl;
-		      // && (Ee < 15.0*MeV) && (Ee > 45.0*MeV) && (abs(Thetae) > 20.0*deg) && (abs(Thetap) > 20.0*deg));
-	  }
-	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
-	  */
-
-
-
-	  G4int CurrentEvent = anEvent->GetEventID(); 
-	  //cerr << "Current Event = " << CurrentEvent << endl;
-	  ConvertNext();
-	  //PrintVertex();
-	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
-	  G4String ParticleName;
-	  // Primary particle are generated uniformly within depth of target.
-	  targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., target_thickness/2.);
-	  //targ_in = target_position;
-
-	/*
-	  // Throwing uniformly random solid angle at circumference of cone:
-	  // Numbers in DetectorConstruction:
-	  double inch = 2.54*cm;
-	  double fTargetDistance = 42.26*cm;
-	  double fMagnetX = 30.75*inch;
-	  double fYokeInnerX = 22.75*inch;
-	  double fYokeSideX = (fMagnetX - fYokeInnerX)/2.;
-
-	  double deg = PI/180.;
-	  double fConeAddZ = 5.82*cm ;
-	  //double fConeAddZ = 0.;
-	  double fConeAngle = 5 * deg ;
-
-	  double fConeR = ( fTargetDistance - fYokeInnerX/2. - fConeAddZ ) * tan(fConeAngle) + 0.001*cm;
-	  targ_in = -( fYokeInnerX/2. + fConeAddZ );
-
-	  cerr << "fConeR = " << fConeR/cm << "cm, targ_in = " << targ_in/cm << "cm."<< endl;
-	  cerr << "continue?" << endl;
-	  string ss;
-	  cin >> ss;
-
-	  double ang = CLHEP::RandFlat::shoot(0., 2*PI);
-	  //cerr << "angle = " << ang/deg << "(deg)" << endl;
-	  x_in = fConeR * cos(ang);
-	  y_in = fConeR * sin(ang);
-
-
-
-		// Below: use uniformly random spherical angle (rather than reading pairs from data file)
-		// with theta from 4 to 90 deg as pairticle angles at primary vertex
-		double th_min = 4 * deg;
-		double th_max = 90 * deg;
-		double t_Thetae = acos( cos(th_min) - randfloat()*( cos(th_min) - cos(th_max) ) );
-		double t_Thetap = acos( cos(th_min) - randfloat()*( cos(th_min) - cos(th_max) ) );
-		//Phie = randfloat() * 360.*deg;
-		//Phip = randfloat() * 360.*deg;
-		double t_Phie =  90* deg + randfloat() * 180. * deg;
-		double t_Phip = -90* deg + randfloat() * 180. * deg;
-
-		// From spherical angle to projection angle as input
-		Thetae = atan( tan(t_Thetae) * cos(t_Phie) );
-		Phie   = atan( tan(t_Thetae) * sin(t_Phie) );
-		Thetap = atan( tan(t_Thetap) * cos(t_Phip) );
-		Phip   = atan( tan(t_Thetap) * sin(t_Phip) );
-
-		// [18, 42] MeV/C momentum
-		Pe = 18.*MeV + randfloat()*24.*MeV;
-		Pp = 18.*MeV + randfloat()*24.*MeV;
-		//Pe = 30.*MeV;
-		//Pp = 30.*MeV;
-
-		// Makes (x,y,z) right hand
-		Pex = Pe/sqrt(1+tan(Thetae)*tan(Thetae)+tan(Phie)*tan(Phie));
-		Pey = Pex*tan(Thetae);
-		Pez = Pex*tan(Phie);
-
-		Ppx = Pp/sqrt(1+tan(Thetap)*tan(Thetap)+tan(Phip)*tan(Phip));
-		Ppy = Ppx*tan(Thetap);
-		Ppz = Ppx*tan(Phip);
-
-	KEe = sqrt(Pe*Pe - Me*Me) -Me;
-	KEp = sqrt(Pp*Pp - Me*Me) -Me;
-	*/
-
-
-
-
-
-	  // for output: index 0: positron, index 1:eletron.
-	  // Positron generation
-	  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
-	  particleGun->SetParticleDefinition(P_positron);
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEp);
-	  // Note Thetae, Phie are projection angles than spherical angles
-	  // FIXME: My data file e- goes to right, t_Theta +, and vice versa
-	  //	    In Geant4 coordinate system, e+ goes left, but in +x direction.
-	  //	    In this function positive Pex, Pey, Pez directions are:
-	  //	    Beam direction, right horizontal, vertical up.
-
-	  //	    Geant4 positive x,y,z directions are:
-	  //	    Bean direction, left horizontal, vertical up so that coordinate system
-	  //	    is right hand
-	  // 	    Thus, use flag = 0 to reverse Py when use my data file
-	  //	    evens.run206.dat
-	  //int flag = 1;
-	  int flag = 0;
-
-
-	  // FIXME: if SetParticleMomentumDirection() swapped Pp and Pe,
-	  // SWAP Thetae, Phie in Set_theta_i(), Set_phi_i()
-	  // Otherwise in root file Input Phi_i/Theta_i[0/1] will be correspond to Monitor Phi_m/Theta_m[1/0]
-
-	  // FIXME: Below two lines comment maybe wrong
-	  // flag == 1: original magnetic field direction: B vertical down direction, e- goes right, e+ left
-	  // flag == 0: reversed magnetic field direction: B vertical up direction,   e- goes left,  e+ right
-	  if( flag == 1){
-		particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, Ppy, Ppz));
-		pOutputFile->Set_theta_i(0,Thetap);
-	  }
-	  else{
-		particleGun->SetParticleMomentumDirection(G4ThreeVector(Ppx, -Ppy, Ppz));
-		pOutputFile->Set_theta_i(0, -Thetap);
-	  }
-	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_energy_i(0,KEp);
-	  pOutputFile->Set_x_i(0,x_in);
-	  pOutputFile->Set_y_i(0,y_in);
-	  pOutputFile->Set_phi_i(0,Phip);
-
-	  // Electron generation
-	  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
-	  particleGun->SetParticleDefinition(P_electron);
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(KEe);
-	  // Note Thetae, Phie are projection angles than spherical angles
-	  if(flag == 1){
-		particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, Pey, Pez));
-		pOutputFile->Set_theta_i(1,Thetae);
-	  }
-	  else{
-		particleGun->SetParticleMomentumDirection(G4ThreeVector(Pex, -Pey, Pez));
-		pOutputFile->Set_theta_i(1,-Thetae);
-	  }
-	  particleGun->GeneratePrimaryVertex(anEvent);
-	  pOutputFile->Set_energy_i(1,KEe);
-	  //pOutputFile->Set_delta_i(1,delta_in);
-	  pOutputFile->Set_x_i(1,x_in);
-	  pOutputFile->Set_y_i(1,y_in);
-	  pOutputFile->Set_phi_i(1,Phie);
-
-	/*
-	cerr << endl << endl;
-	// Note: deg = PI/180
-	cerr << "Input 0: Energy = " << KEp << ", (Ppx, Ppy, Ppz) = " << "(" << Ppx <<  " , " << Ppy << " , " << Ppz << ")" << ", Ppy/Ppz = " << Ppy/Ppz << endl;
-	cerr << "t_theta_p = " << atan2(Ppy, Ppx)/deg << ", t_phi_p  = " << atan2(Ppz, Ppx)/deg << endl;
-	cerr << "Input 1: Energy = " << KEe << ", (Pex, Pey, Pez) = " << "(" << Pex <<  " , " << Pey << " , " << Pez << ")" << ", Pey/Pez = " << Pey/Pez << endl;
-	cerr << "t_theta_e = " << atan2(Pey, Pex)/deg << ", t_phi_e  = " << atan2(Pez, Pex)/deg << endl;
-	*/
+	for(int i = 0; i < 2; i++){
+		x_out[i] = X_min + (E[i] - E_min)*(X_max - X_min)/(E_max - E_min);
+		//x_out[i] = 0;
+		y_out[i] = pow(-1., (double)i) * 20.0 * inch;
+		z_out[i] = 0.;
+		cerr << "Input particle " << i << " position: (" << x_out[i]/cm
+		<< ", " << y_out[i]/cm << "," << z_out[i]/cm << ")" << endl;
+		cerr << "With energy " << E[i] << endl;
 	}
-      //Code Above: Read pair data file from generator obeys theory calculation. */
-	else{
-	  G4int CurrentEvent = anEvent->GetEventID(); 
-	  // Code above: Generate e+ e- pair with same energy and momentum distribution 
-	  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
-	  G4String ParticleName;
-
-	  G4ParticleDefinition * P_gamma = ParticleTable->FindParticle(ParticleName="gamma");
-	  particleGun->SetParticleDefinition(P_gamma);
-	  // Primary particle are generated uniformly within depth of target.
-	  //targ_in =  target_position + CLHEP::RandFlat::shoot(-target_thickness/2., -target_thickness/2.);
-	  // For checking background, using gamma before target:
-	  targ_in = target_position - target_thickness/2.;
 
 
+	//if (pair_mode)
+	if(1)
+		{
+		  //ConvertNext();
+		  G4int CurrentEvent = anEvent->GetEventID();
+		  G4ParticleTable* ParticleTable = G4ParticleTable::GetParticleTable();
+		  G4String ParticleName;
 
+		  // Note Theta, Phi are projection angles than spherical angles
+		  // FIXME: units for Theta and Phi?
+		  // for output: index 0: positron, index 1:eletron.
 
+		  // Positron generation
+		  G4ParticleDefinition * P_positron = ParticleTable->FindParticle(ParticleName="e+");
+		  particleGun->SetParticleDefinition(P_positron);
+		  particleGun->SetParticlePosition(G4ThreeVector(x_out[0], y_out[0], z_out[0]));
+		  particleGun->SetParticleEnergy(E[0]);
+		  particleGun->SetParticleMomentumDirection(G4ThreeVector(0., 1., 0.));
+			pOutputFile->Set_energy_i(0, E[0]);
+			pOutputFile->Set_x_i(0, 0.);
+			pOutputFile->Set_y_i(0, 0.);
+			pOutputFile->Set_phi_i(0, 0.);
+			pOutputFile->Set_theta_i(0, 0.);
+		  particleGun->GeneratePrimaryVertex(anEvent);
 
+		  // Electron generation
+		  G4ParticleDefinition * P_electron = ParticleTable->FindParticle(ParticleName="e-");
+		  particleGun->SetParticleDefinition(P_positron);
+		  particleGun->SetParticlePosition(G4ThreeVector(x_out[1], y_out[1], z_out[1]));
+		  particleGun->SetParticleEnergy(E[1]);
+		  particleGun->SetParticleMomentumDirection(G4ThreeVector(0., -1., 0.));
+			pOutputFile->Set_energy_i(1, E[1]);
+			pOutputFile->Set_x_i(1, 0.);
+			pOutputFile->Set_y_i(1, 0.);
+			pOutputFile->Set_phi_i(1, 0.);
+			//pOutputFile->Set_theta_i(0, 180.);
+			pOutputFile->Set_theta_i(1, 180. * deg);
+		  particleGun->GeneratePrimaryVertex(anEvent);
+		}
 
-
-	/*
-	  // Throwing uniformly random solid angle at circumference of cone:
-	  // Numbers in DetectorConstruction:
-	  double inch = 2.54*cm;
-	  double fTargetDistance = 42.26*cm;
-	  double fMagnetX = 30.75*inch;
-	  double fYokeInnerX = 22.75*inch;
-	  double fYokeSideX = (fMagnetX - fYokeInnerX)/2.;
-	  double deg = PI/180.;
-	  double fConeAddZ = 0.*cm ;
-	  double fConeAngle = 5 * deg ;
-	  double fConeR = ( fTargetDistance - fYokeInnerX/2. - fConeAddZ ) * tan(fConeAngle) + 0.001*cm;
-	  targ_in = -( fYokeInnerX/2. + fConeAddZ );
-
-	  cerr << "fConeR = " << fConeR/cm << "cm, targ_in = " << targ_in/cm << "cm."<< endl;
-	  cerr << "continue?" << endl;
-	  string ss;
-	  cin >> ss;
-
-	  double ang = CLHEP::RandFlat::shoot(0., 2*PI);
-	  //cerr << "angle = " << ang/deg << "(deg)" << endl;
-	  x_in = fConeR * cos(ang);
-	  y_in = fConeR * sin(ang);
-
-		// Below: use uniformly random spherical angle (rather than reading pairs from data file)
-		// with theta from 4 to 90 deg as pairticle angles at primary vertex
-		double th_min = 4 * deg;
-		double th_max = 90 * deg;
-		double t_Theta = acos( cos(th_min) - randfloat()*( cos(th_min) - cos(th_max) ) );
-		double t_Phi = randfloat() * 360.*deg;
-
-		// From spherical angle to projection angle as input
-		double Theta = atan( tan(t_Theta) * cos(t_Phi) );
-		double Phi   = atan( tan(t_Theta) * sin(t_Phi) );
-		G4double E_gamma = 60.*MeV;
-		double P = E_gamma;
-
-		// Makes (x,y,z) right hand
-		double Px = P/sqrt(1+tan(Theta)*tan(Theta)+tan(Phi)*tan(Phi));
-		double Py = Px*tan(Theta);
-		double Pz = Px*tan(Phi);
-	  particleGun->SetParticleMomentumDirection(G4ThreeVector(Px, Py, Pz));
-	*/
-
-
-
-
-
-
-	  G4double E_gamma = 60.*MeV;
-	  particleGun->SetParticlePosition(G4ThreeVector(targ_in, x_in, y_in));
-	  particleGun->SetParticleEnergy(E_gamma);
-	  //particleGun->SetParticleMomentumDirection(G4ThreeVector(+1., 0., 0.));
-	  particleGun->GeneratePrimaryVertex(anEvent);
-
-	  pOutputFile->Set_energy_i(0,E_gamma);
-	  pOutputFile->Set_x_i(0,x_in);
-	  pOutputFile->Set_y_i(0,y_in);
-	  pOutputFile->Set_theta_i(0,0.);
-	  pOutputFile->Set_phi_i(0,0.);
-	}
 }
 
-//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 
+
+//....oooOO0OOooo........oooOO0OOooo........oooOO0OOooo........oooOO0OOooo......
 // OpenFile: open file that contains generator pair data
 void PrimaryGeneratorAction::OpenFile(string filenumber){
 	string filename;
@@ -464,7 +215,7 @@ int PrimaryGeneratorAction::Convert(int linenumber){
 	return 0;
 }
 
-// Code for sphereical angle
+// Code for sphereical angles stored in pair data file
 /*
 int PrimaryGeneratorAction::ConvertNext(){
 	if(!infile.eof()){
@@ -494,7 +245,7 @@ int PrimaryGeneratorAction::ConvertNext(){
 }
 */
 
-// Code for projection angle stored in pair data file
+// Code for projection angles stored in pair data file
 int PrimaryGeneratorAction::ConvertNext(){
 	if(!infile.eof()){
 		infile >> KEe >> KEp >> Thetae >> Phie >> Thetap >> Phip;
